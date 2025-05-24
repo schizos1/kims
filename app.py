@@ -1,5 +1,8 @@
 # app.py - 테스트 문제 전체 표시 및 결과 페이지 수정
 
+import os 
+app = Flask(__name__)
+app.config.from_pyfile('config.py')
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,9 +25,6 @@ else:
     print("경고: .env 파일을 찾을 수 없습니다. API 키가 로드되지 않았을 수 있습니다.")
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'mydatabase.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'a_very_secret_key_for_a_super_cool_project_v11_final_test_fix' 
 UPLOAD_FOLDER = os.path.join(basedir, 'static/uploads/trophies')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
