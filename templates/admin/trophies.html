@@ -1,0 +1,38 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+<h2 class="mb-4">미리 구성된 트로피 목록</h2>
+<div class="alert alert-info">
+    이 페이지는 시스템에 미리 정의된 트로피들을 보여줍니다. 트로피의 추가/수정/삭제는 app.py 파일의 'PRECONFIGURED_TROPHIES' 목록에서 관리됩니다.
+</div>
+
+<div class="card">
+    <div class="card-header">시스템 트로피</div>
+    <div class="card-body">
+        <div class="row">
+            {% for trophy in trophies %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="display-4 my-3">
+                            {# Font Awesome 아이콘 사용 #}
+                            <i class="{{ trophy.icon_class }}"></i> 
+                        </div>
+                        <h5 class="card-title">{{ trophy.name }}</h5>
+                        <p class="card-text">{{ trophy.description }}</p>
+                        <p class="card-text"><span class="badge bg-primary">{{ trophy.points }} P</span></p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">ID: {{ trophy.id }} | Icon Class: {{ trophy.icon_class }}</small>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col">
+                <p class="text-muted">미리 구성된 트로피가 없습니다. app.py를 확인하세요.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

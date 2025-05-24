@@ -1,0 +1,9 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+    <h2 class="mb-4">관리자 대시보드</h2>
+    <div class="alert alert-primary">
+        <p class="mb-0">환영합니다, **{{ session.username }}**님!</p>
+    </div>
+    <p class="mt-4">이곳에서 학습 콘텐츠와 사용자들을 관리할 수 있습니다. 왼쪽 메뉴에서 원하는 항목을 선택하여 작업을 시작하세요.</p>
+{% endblock %}
