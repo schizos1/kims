@@ -31,7 +31,7 @@
         box-shadow: 0 0 8px rgba(0,123,255,0.5);
     }
     .mascot-option input[type="radio"] {
-        display: none; 
+        display: none;
     }
 </style>
 {% endblock %}
@@ -41,10 +41,10 @@
         <div class="col-md-4">
             {# ★★★ 주석 제거 또는 Jinja2 주석으로 변경 ★★★ #}
             <div class="card mb-4">
-                <div class="card-header text-center"> 
+                <div class="card-header text-center">
                     <h4>내 정보</h4>
                 </div>
-                <div class="card-body text-center"> 
+                <div class="card-body text-center">
                     {% if user.selected_mascot_filename %}
                         <img src="{{ url_for('static', filename='images/mascots/' + user.selected_mascot_filename) }}" alt="선택된 마스코트" class="current-mascot-display img-thumbnail">
                     {% else %}
@@ -65,7 +65,7 @@
                 </div>
                 <div class="card-body">
                     <p>현재 사용 가능 포인트: <strong class="fs-5 text-primary">{{ user.total_earned_points }} P</strong></p>
-                    <form action="{{ url_for('use_points') }}" method="POST" class="row g-3 align-items-end">
+                    <form action="{{ url_for('student.use_points') }}" method="POST" class="row g-3 align-items-end">
                         <div class="col-sm-7">
                             <label for="points_to_use" class="form-label">사용할 포인트</label>
                             <input type="number" class="form-control" id="points_to_use" name="points_to_use" min="1" placeholder="예: 1000" required>
@@ -87,9 +87,9 @@
                 <div class="card-body text-center">
                     <p><small>학습 환경의 분위기를 바꿔보세요!</small></p>
                     <div class="btn-group" role="group" aria-label="Theme selection">
-                        <a href="{{ url_for('set_theme', theme_name='theme-light-blue') }}" class="btn btn-outline-primary {% if session.get('user_theme', 'theme-light-blue') == 'theme-light-blue' %}active{% endif %}">기본 하늘</a>
-                        <a href="{{ url_for('set_theme', theme_name='theme-fresh-green') }}" class="btn btn-outline-success {% if session.get('user_theme') == 'theme-fresh-green' %}active{% endif %}">상큼 초록</a>
-                        <a href="{{ url_for('set_theme', theme_name='theme-warm-orange') }}" class="btn btn-outline-warning {% if session.get('user_theme') == 'theme-warm-orange' %}active{% endif %}">따뜻 주황</a>
+                        <a href="{{ url_for('student.set_theme', theme_name='theme-light-blue') }}" class="btn btn-outline-primary {% if session.get('user_theme', 'theme-light-blue') == 'theme-light-blue' %}active{% endif %}">기본 하늘</a>
+                        <a href="{{ url_for('student.set_theme', theme_name='theme-fresh-green') }}" class="btn btn-outline-success {% if session.get('user_theme') == 'theme-fresh-green' %}active{% endif %}">상큼 초록</a>
+                        <a href="{{ url_for('student.set_theme', theme_name='theme-warm-orange') }}" class="btn btn-outline-warning {% if session.get('user_theme') == 'theme-warm-orange' %}active{% endif %}">따뜻 주황</a>
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@
                 </div>
                 <div class="card-body">
                     <p><small>나를 대표할 마스코트를 선택해주세요!</small></p>
-                    <form action="{{ url_for('set_mascot') }}" method="POST">
+                    <form action="{{ url_for('student.set_mascot') }}" method="POST">
                         <div class="mb-3 d-flex flex-wrap justify-content-center">
                             {% for mascot_file in available_mascots %}
                                 <label class="mascot-option m-2">

@@ -38,8 +38,8 @@
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">과목 목록</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('view_subject_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}">과목 목록</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('student.view_subject_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ concept.name }} - 테스트 결과</li>
         </ol>
     </nav>
@@ -121,7 +121,7 @@
                 
                 {% if not result.is_correct %}
                 <div class="mt-3">
-                    <a href="{{ url_for('generate_similar_question_page', original_question_id=result.question_id) }}" class="btn btn-sm btn-warning">
+                    <a href="{{ url_for('student.generate_similar_question_page', original_question_id=result.question_id) }}" class="btn btn-sm btn-warning">
                         🔄 같은 유형, 다른 문제 풀어보기
                     </a>
                 </div>
@@ -134,7 +134,7 @@
     {% endif %}
 
     <div class="mt-4 d-flex justify-content-between">
-        <a href="{{ url_for('view_subject_concepts', subject_id=concept.subject.id) }}" class="btn btn-secondary">&laquo; {{ concept.subject.name }} 개념 목록으로</a>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">대시보드로 돌아가기 &raquo;</a>
+        <a href="{{ url_for('student.view_subject_concepts', subject_id=concept.subject.id) }}" class="btn btn-secondary">&laquo; {{ concept.subject.name }} 개념 목록으로</a>
+        <a href="{{ url_for('student.dashboard') }}" class="btn btn-primary">대시보드로 돌아가기 &raquo;</a>
     </div>
 {% endblock %}

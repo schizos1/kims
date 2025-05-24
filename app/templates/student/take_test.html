@@ -5,12 +5,12 @@
 {% block head_extra %}
 <style>
     .question-content {
-        white-space: pre-wrap; 
+        white-space: pre-wrap;
         line-height: 1.8;
-        margin-bottom: 1rem; 
+        margin-bottom: 1rem;
     }
     .options-group .form-check {
-        margin-bottom: 0.75rem; 
+        margin-bottom: 0.75rem;
         padding: 0.5rem 1rem;
         border: 1px solid #eee;
         border-radius: 0.375rem;
@@ -23,7 +23,7 @@
         margin-top: 0.4em;
     }
     .options-group .form-check-label {
-        width: 100%; 
+        width: 100%;
     }
 </style>
 {% endblock %}
@@ -31,8 +31,8 @@
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">과목 목록</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('view_subject_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}">과목 목록</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('student.view_subject_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ concept.name }} - 테스트</li>
         </ol>
     </nav>
@@ -41,9 +41,9 @@
     <hr>
 
     {% if questions %}
-        <form action="{{ url_for('start_concept_test', concept_id=concept.id) }}" method="POST">
+        <form action="{{ url_for('student.start_concept_test', concept_id=concept.id) }}" method="POST">
             {% for question in questions %}
-            <div class="card mb-4"> 
+            <div class="card mb-4">
                 <div class="card-header">
                     <strong>문제 {{ loop.index }}</strong>
                 </div>

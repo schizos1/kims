@@ -86,16 +86,16 @@
 <body class="{{ session.get('user_theme', 'theme-light-blue') }}"> 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('dashboard') }}"><i class="fas fa-graduation-cap me-2"></i>학습 플랫폼</a>
+            <a class="navbar-brand" href="{{ url_for('student.dashboard') }}"><i class="fas fa-graduation-cap me-2"></i>학습 플랫폼</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavStudentLayout" aria-controls="navbarNavStudentLayout" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavStudentLayout">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" aria-current="page" href="{{ url_for('dashboard') }}"><i class="fas fa-home me-1"></i>대시보드</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'my_page' %}active{% endif %}" href="{{ url_for('my_page') }}"><i class="fas fa-user-circle me-1"></i>마이 페이지</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'my_stats' %}active{% endif %}" href="{{ url_for('my_stats') }}"><i class="fas fa-chart-line me-1"></i>나의 학습 통계</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'my_calendar' %}active{% endif %}" href="{{ url_for('my_calendar') }}"><i class="fas fa-calendar-alt me-1"></i>학습 캘린더</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}" aria-current="page" href="{{ url_for('student.dashboard') }}"><i class="fas fa-home me-1"></i>대시보드</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_page' %}active{% endif %}" href="{{ url_for('student.my_page') }}"><i class="fas fa-user-circle me-1"></i>마이 페이지</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_stats' %}active{% endif %}" href="{{ url_for('student.my_stats') }}"><i class="fas fa-chart-line me-1"></i>나의 학습 통계</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_calendar' %}active{% endif %}" href="{{ url_for('student.my_calendar') }}"><i class="fas fa-calendar-alt me-1"></i>학습 캘린더</a></li>
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     {% if session.username %}
@@ -108,10 +108,10 @@
                         <span class="navbar-text me-3">{{ session.username }}님</span>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-outline-light" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-1"></i>로그아웃</a>
+                        <a class="btn btn-outline-light" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-1"></i>로그아웃</a>
                     </li>
                     {% else %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt me-1"></i>로그인</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt me-1"></i>로그인</a></li>
                     {% endif %}
                 </ul>
             </div>

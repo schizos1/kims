@@ -3,8 +3,8 @@
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('manage_subjects') }}">과목 관리</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('manage_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">과목 관리</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ concept.name }} - 문제 관리</li>
         </ol>
     </nav>
@@ -17,8 +17,8 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <strong>문제 ID: {{ question.id }}</strong>
                 <div>
-                    <a href="{{ url_for('edit_question', question_id=question.id) }}" class="btn btn-sm btn-warning">수정</a>
-                    <form action="{{ url_for('delete_question', question_id=question.id) }}" method="post" class="d-inline" onsubmit="return confirm('정말 이 문제를 삭제하시겠습니까?');">
+                    <a href="{{ url_for('admin.edit_question', question_id=question.id) }}" class="btn btn-sm btn-warning">수정</a>
+                    <form action="{{ url_for('admin.delete_question', question_id=question.id) }}" method="post" class="d-inline" onsubmit="return confirm('정말 이 문제를 삭제하시겠습니까?');">
                         <button type="submit" class="btn btn-sm btn-danger">삭제</button>
                     </form>
                 </div>

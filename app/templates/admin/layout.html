@@ -14,21 +14,21 @@
 <body>
     <div class="d-flex">
         <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark sidebar">
-            <a href="{{ url_for('admin_dashboard') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                 <span class="fs-4">관리자 메뉴</span>
             </a>
             <hr>
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
-                    <a href="{{ url_for('manage_subjects') }}" class="nav-link text-white {% if request.endpoint == 'manage_subjects' or (request.endpoint == 'manage_concepts' and subject) %}active{% endif %}">과목 및 개념 관리</a>
+                    <a href="{{ url_for('admin.manage_subjects') }}" class="nav-link text-white {% if request.endpoint == 'admin.manage_subjects' or (request.endpoint == 'admin.manage_concepts' and subject) %}active{% endif %}">과목 및 개념 관리</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url_for('manage_trophies') }}" class="nav-link text-white {% if request.endpoint == 'manage_trophies' %}active{% endif %}">트로피 목록 (읽기전용)</a>
+                    <a href="{{ url_for('admin.manage_trophies') }}" class="nav-link text-white {% if request.endpoint == 'admin.manage_trophies' %}active{% endif %}">트로피 목록 (읽기전용)</a>
                 </li>
                 {# 다른 관리자 메뉴가 있다면 여기에 추가 #}
             </ul>
             <hr>
-            <a href="{{ url_for('logout') }}" class="d-flex align-items-center text-white text-decoration-none">
+            <a href="{{ url_for('auth.logout') }}" class="d-flex align-items-center text-white text-decoration-none">
                 <strong>로그아웃</strong>
             </a>
         </div>

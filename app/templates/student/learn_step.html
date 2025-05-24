@@ -17,8 +17,8 @@
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">과목 목록</a></li>
-            <li class="breadcrumb-item"><a href="{{ url_for('view_subject_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}">과목 목록</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('student.view_subject_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ concept.name }}</li>
         </ol>
     </nav>
@@ -35,14 +35,15 @@
         </div>
         <div class="card-footer d-flex justify-content-between">
             {% if current_step_order > 1 %}
-                <a href="{{ url_for('learn_concept_step', concept_id=concept.id, step_order=current_step_order - 1) }}" class="btn btn-outline-secondary">&laquo; 이전 단계</a>
+                <a href="{{ url_for('student.learn_concept_step', concept_id=concept.id, step_order=current_step_order - 1) }}" class="btn btn-outline-secondary">&laquo; 이전 단계</a>
             {% else %}
-                <span></span> {% endif %}
+                <span></span>
+            {% endif %}
 
             {% if current_step_order < total_steps %}
-                <a href="{{ url_for('learn_concept_step', concept_id=concept.id, step_order=current_step_order + 1) }}" class="btn btn-primary">다음 단계 &raquo;</a>
+                <a href="{{ url_for('student.learn_concept_step', concept_id=concept.id, step_order=current_step_order + 1) }}" class="btn btn-primary">다음 단계 &raquo;</a>
             {% else %}
-                <a href="{{ url_for('start_concept_test', concept_id=concept.id) }}" class="btn btn-success">개념 학습 완료! 테스트 시작하기 &raquo;</a>
+                <a href="{{ url_for('student.start_concept_test', concept_id=concept.id) }}" class="btn btn-success">개념 학습 완료! 테스트 시작하기 &raquo;</a>
             {% endif %}
         </div>
     </div>
