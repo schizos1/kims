@@ -1,13 +1,10 @@
 # app.py - 테스트 문제 전체 표시 및 결과 페이지 수정
-
+from app import create_app, db
+app = create_app()
 import os 
-app = Flask(__name__)
-app.config.from_pyfile('config.py')
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import os
 from functools import wraps
 from datetime import datetime, date, timedelta 
 from dotenv import load_dotenv
@@ -29,7 +26,6 @@ UPLOAD_FOLDER = os.path.join(basedir, 'static/uploads/trophies')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 AVAILABLE_MASCOTS = ['lion.png', 'robot.png', 'bunny.png', 'cat.png', 'dog.png'] 
-db = SQLAlchemy(app)
 
 try:
     api_key = os.getenv('GOOGLE_API_KEY')
