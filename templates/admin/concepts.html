@@ -1,0 +1,90 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('manage_subjects') }}">과목 관리</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ subject.name }}</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">'{{ subject.name }}' 과목의 개념 관리</h2>
+
+    <div class="card mb-4">
+        <div class="card-header">새 개념 추가</div>
+        <div class="card-body">
+            <form action="{{ url_for('manage_concepts', subject_id=subject.id) }}" method="post">
+                <div class="input-group">
+                    <input type="text" name="concept_name" class="form-control" placeholder="개념 이름 (예: 분수의 덧셈과 뺄셈)" required>
+                    <button class="btn btn-primary" type="submit">추가</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">등록된 개념 목록</div>
+        <ul class="list-group list-group-flush">
+            {% for concept in subject.concepts %}
+            <li class="list-group-item">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ concept.name }}</h5>
+                        <small>ID: {{ concept.id }} | {{ concept.steps|length }} 단계 / {{ concept.questions|length }} 문제</small>
+                    </div>
+                    <div class="d-flex">
+                        <a href="{{ url_for('manage_questions', concept_id=concept.id) }}" class="btn btn-sm btn-outline-primary me-2">문제 관리</a>
+                        <form action="{{ url_for('generate_ai_content', concept_id=concept.id) }}" method="post" class="me-2">
+                            <button type="submit" class="btn btn-sm btn-outline-success"
+                                    onclick="return confirm('AI로 새로운 내용을 생성하시겠습니까? 기존에 있던 단계와 문제는 모두 삭제됩니다.');">
+                                AI로 내용 생성
+                            </button>
+                        </form>
+                        <form action="{{ url_for('delete_concept', subject_id=subject.id, concept_id=concept.id) }}"
+                              method="post"
+                              onsubmit="return confirm('이 개념을 삭제하면 관련된 모든 단계와 문제도 삭제됩니다. 정말 삭제하시겠습니까?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">삭제</button>
+                        </form>
+                    </div>
+                </div>
+
+                {# AI가 생성한 문제 미리보기 #}
+                {% if concept.questions %}
+                    <div class="mt-3 p-3 bg-light border rounded">
+                        <h6><i class="fas fa-tasks me-2"></i>생성된 문제 미리보기 (최대 5개)</h6>
+                        {% for question in concept.questions[:5] %}
+                            <div class="border-bottom pb-2 mb-2">
+                                <p class="mb-1"><strong>Q{{ loop.index }}:</strong> {{ question.content }}</p>
+                                <ul class="list-unstyled ms-3 mb-1" style="font-size: 0.9em;">
+                                    {% if question.question_type == 'multiple_choice' %}
+                                        <li>1. {{ question.option1 }}</li>
+                                        <li>2. {{ question.option2 }}</li>
+                                        <li>3. {{ question.option3 }}</li>
+                                        <li>4. {{ question.option4 }}</li>
+                                    {% endif %}
+                                </ul>
+                                <p class="mb-0"><small><strong>정답:</strong> {{ question.answer }}
+                                    {% if question.question_type == 'multiple_choice' %}
+                                        ({{ ['첫번째 보기','두번째 보기','세번째 보기','네번째 보기'][question.answer|int - 1] if question.answer in ['1','2','3','4'] else '번호 오류' }})
+                                    {% endif %}
+                                </small></p>
+                            </div>
+                        {% endfor %}
+                        {% if concept.questions|length > 5 %}
+                            <small class="text-muted">... 등 총 {{ concept.questions|length }}개의 문제가 생성되었습니다.</small>
+                        {% endif %}
+                    </div>
+                {% elif request.args.get('generated_for_concept_id') == concept.id|string %}
+                    <div class="mt-3 p-3 bg-light border rounded">
+                        <p class="text-muted mb-0">
+                            <small>AI가 이 개념에 대한 문제를 생성하지 못했거나, 아직 문제가 없습니다.</small>
+                        </p>
+                    </div>
+                {% endif %}
+            </li>
+            {% else %}
+            <li class="list-group-item">등록된 개념이 없습니다.</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

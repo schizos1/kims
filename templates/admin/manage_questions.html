@@ -1,0 +1,43 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('manage_subjects') }}">과목 관리</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('manage_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ concept.name }} - 문제 관리</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">'{{ concept.name }}' 개념의 문제 목록 (총 {{ questions|length }}개)</h2>
+
+    {% if questions %}
+        {% for question in questions %}
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>문제 ID: {{ question.id }}</strong>
+                <div>
+                    <a href="{{ url_for('edit_question', question_id=question.id) }}" class="btn btn-sm btn-warning">수정</a>
+                    <form action="{{ url_for('delete_question', question_id=question.id) }}" method="post" class="d-inline" onsubmit="return confirm('정말 이 문제를 삭제하시겠습니까?');">
+                        <button type="submit" class="btn btn-sm btn-danger">삭제</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body">
+                <p><strong>문제:</strong> {{ question.content }}</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item {% if question.answer == '1' %}list-group-item-success fw-bold{% endif %}">1. {{ question.option1 }}</li>
+                    <li class="list-group-item {% if question.answer == '2' %}list-group-item-success fw-bold{% endif %}">2. {{ question.option2 }}</li>
+                    <li class="list-group-item {% if question.answer == '3' %}list-group-item-success fw-bold{% endif %}">3. {{ question.option3 }}</li>
+                    <li class="list-group-item {% if question.answer == '4' %}list-group-item-success fw-bold{% endif %}">4. {{ question.option4 }}</li>
+                </ul>
+            </div>
+            <div class="card-footer text-muted">
+                정답: {{ question.answer }}번
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-warning">이 개념에 등록된 문제가 없습니다. '개념 관리' 페이지에서 AI로 문제를 생성해주세요.</div>
+    {% endif %}
+{% endblock %}
