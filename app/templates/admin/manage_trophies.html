@@ -1,0 +1,76 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">트로피 관리</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_dashboard') }}">대시보드</a></li>
+        <li class="breadcrumb-item active">트로피 관리</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-trophy me-1"></i>
+            트로피 목록
+            <a href="{{ url_for('admin.add_trophy') }}" class="btn btn-primary btn-sm float-end">
+                <i class="fas fa-plus"></i> 새 트로피 추가
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>이름</th>
+                            <th>설명</th>
+                            <th>포인트</th>
+                            <th>조건</th>
+                            <th>활성 상태</th>
+                            <th>관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trophy in trophies %}
+                        <tr>
+                            <td>{{ trophy.id }}</td>
+                            <td><i class="{{ trophy.icon_class }}"></i> {{ trophy.name }}</td>
+                            <td>{{ trophy.description or '-' }}</td>
+                            <td>{{ trophy.points }}</td>
+                            <td>
+                                {% if trophy.condition_type %}
+                                    <strong>{{ trophy.get_condition_type_display() }}:</strong> 
+                                    {{ trophy.condition_value_int or trophy.condition_value_str }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if trophy.is_active %}
+                                    <span class="badge bg-success">활성</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">비활성</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.edit_trophy', trophy_id=trophy.id) }}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i> 수정
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.delete_trophy', trophy_id=trophy.id) }}" style="display:inline;" onsubmit="return confirm('정말로 이 트로피를 삭제하시겠습니까? 연결된 모든 사용자의 획득 기록도 삭제됩니다.');">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> 삭제
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">등록된 트로피가 없습니다.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

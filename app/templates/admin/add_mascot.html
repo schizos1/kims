@@ -1,0 +1,40 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">새 마스코트 추가</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_dashboard') }}">대시보드</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_mascots') }}">마스코트 관리</a></li>
+        <li class="breadcrumb-item active">새 마스코트 추가</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-plus me-1"></i>
+            새 마스코트 정보 입력
+        </div>
+        <div class="card-body">
+            {# 이미지를 업로드하려면 form에 꼭 enctype="multipart/form-data"가 필요합니다. #}
+            <form method="POST" action="{{ url_for('admin.add_mascot') }}" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="name" class="form-label">마스코트 이름</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ form_data.name or '' }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">설명</label>
+                    <textarea class="form-control" id="description" name="description" rows="3">{{ form_data.description or '' }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="image_filename" class="form-label">이미지 파일</label>
+                    <input class="form-control" type="file" id="image_filename" name="image_filename" accept="image/png, image/jpeg, image/gif" required>
+                    <div class="form-text">
+                        PNG, JPG, GIF 형식의 파일을 업로드하세요.
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">추가하기</button>
+                <a href="{{ url_for('admin.manage_mascots') }}" class="btn btn-secondary">취소</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

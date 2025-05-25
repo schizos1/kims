@@ -10,12 +10,10 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='student')
-    selected_theme_id = db.Column(db.Integer, db.ForeignKey('theme.id'), nullable=True)
     selected_mascot_id = db.Column(db.Integer, db.ForeignKey('mascot.id'), nullable=True)
     total_earned_points = db.Column(db.Integer, nullable=False, default=0)
     last_login_date = db.Column(db.Date, nullable=True)
     consecutive_login_days = db.Column(db.Integer, default=0)
-    selected_theme = db.relationship('Theme', foreign_keys=[selected_theme_id])
     selected_mascot = db.relationship('Mascot', foreign_keys=[selected_mascot_id])
     study_history = db.relationship('StudyHistory', backref='user', lazy='dynamic', cascade="all, delete-orphan")
     user_trophies = db.relationship('UserTrophy', backref='user', lazy='dynamic', cascade="all, delete-orphan")
@@ -103,13 +101,6 @@ class DailyActivity(db.Model):
     study_minutes = db.Column(db.Integer, default=0)
     actions_count = db.Column(db.Integer, default=0)
 
-class Theme(db.Model):
-    __tablename__ = 'theme'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False)
-    css_class = db.Column(db.String(50), unique=True, nullable=False)
-    description = db.Column(db.String(200), nullable=True)
-
 class Mascot(db.Model):
     __tablename__ = 'mascot'
     id = db.Column(db.Integer, primary_key=True)
@@ -123,3 +114,26 @@ class SoundEffect(db.Model):
     event_name = db.Column(db.String(50), unique=True, nullable=False)
     filename = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200), nullable=True)
+# ... (기존 User, Subject, Concept, Step, Question, Trophy, UserTrophy, StudyHistory, DailyActivity, Theme, Mascot, SoundEffect 모델 정의는 그대로 둡니다) ...
+
+# --- ★★★ 신규 모델: PromptTemplate 추가 ★★★ ---
+class PromptTemplate(db.Model):
+    __tablename__ = 'prompt_template'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False) # 프롬프트 템플릿 이름 (예: "초등 수학 객관식 v1")
+    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=True) # 특정 과목 전용일 경우
+    # concept_id = db.Column(db.Integer, db.ForeignKey('concept.id'), nullable=True) # 특정 개념 전용일 경우 (더 세분화 가능)
+    
+    # 프롬프트 내용. Jinja2처럼 변수 사용 가능 (예: {{ subject_name }}, {{ concept_name }})
+    content = db.Column(db.Text, nullable=False) # prompt_text -> content 로 변경 
+    
+    notes = db.Column(db.Text, nullable=True) # 이 프롬프트에 대한 설명이나 사용법
+    is_default_for_subject = db.Column(db.Boolean, default=False) # 해당 과목의 기본 프롬프트로 사용할지 여부
+    # is_default_general = db.Column(db.Boolean, default=False) # 모든 과목에 대한 기본 프롬프트 (선택적)
+
+    subject = db.relationship('Subject') 
+    # concept = db.relationship('Concept') # concept_id를 사용한다면 필요
+
+    def __repr__(self):
+        return f'<PromptTemplate {self.name}>'
+# --- ★★★ PromptTemplate 모델 추가 끝 ★★★ ---    

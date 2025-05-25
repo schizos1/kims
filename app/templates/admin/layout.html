@@ -2,35 +2,109 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>관리자 페이지</title>
+    <title>{% block title %}관리자 페이지{% endblock %} - 학습 플랫폼</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Poor+Story&display=swap" rel="stylesheet">
     <style>
-        body { padding-top: 0; } /* fixed-top 사용 안 할 경우 */
-        .sidebar { height: 100vh; }
-        main { overflow-y: auto; height: 100vh; }
+        body { 
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 0.95rem;
+        }
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        .sidebar .nav-link {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.8);
+        }
+        .sidebar .nav-link:hover {
+            color: white;
+            background-color: #495057;
+        }
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: #0d6efd; /* Bootstrap primary color */
+            font-weight: bold;
+        }
+        .sidebar .nav-link .fas, .sidebar .nav-link .far, .sidebar .nav-link .fab {
+            width: 20px; /* 아이콘 너비 고정으로 텍스트 정렬 도움 */
+            margin-right: 0.5rem;
+        }
+        .sidebar .fs-4 {
+             font-family: 'Poor Story', cursive;
+        }
+        main {
+            width: calc(100% - 280px);
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .card-header {
+            font-family: 'Poor Story', cursive;
+            font-size: 1.5rem;
+        }
+        h2 {
+            font-family: 'Poor Story', cursive;
+            font-size: 2rem;
+        }
     </style>
+    {% block head_extra %}{% endblock %}
 </head>
 <body>
     <div class="d-flex">
         <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark sidebar">
             <a href="{{ url_for('admin.admin_dashboard') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <i class="fas fa-user-shield fa-2x me-2"></i>
                 <span class="fs-4">관리자 메뉴</span>
             </a>
             <hr>
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
-                    <a href="{{ url_for('admin.manage_subjects') }}" class="nav-link text-white {% if request.endpoint == 'admin.manage_subjects' or (request.endpoint == 'admin.manage_concepts' and subject) %}active{% endif %}">과목 및 개념 관리</a>
+                    <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link {% if request.endpoint == 'admin.admin_dashboard' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> 대시보드
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url_for('admin.manage_trophies') }}" class="nav-link text-white {% if request.endpoint == 'admin.manage_trophies' %}active{% endif %}">트로피 목록 (읽기전용)</a>
+                    <a href="{{ url_for('admin.manage_subjects') }}" class="nav-link {% if request.endpoint.startswith('admin.manage_subjects') or request.endpoint.startswith('admin.manage_concepts') or request.endpoint.startswith('admin.manage_questions') or request.endpoint.startswith('admin.add_question') or request.endpoint.startswith('admin.edit_question') %}active{% endif %}">
+                        <i class="fas fa-book"></i> 과목 및 콘텐츠 관리
+                    </a>
                 </li>
-                {# 다른 관리자 메뉴가 있다면 여기에 추가 #}
+                <li class="nav-item">
+                    {# --- ★★★ 트로피 관리 링크 및 active 조건 수정 ★★★ --- #}
+                    <a href="{{ url_for('admin.manage_trophies') }}" class="nav-link {% if request.endpoint.startswith('admin.manage_trophies') or request.endpoint.startswith('admin.add_trophy') or request.endpoint.startswith('admin.edit_trophy') %}active{% endif %}">
+                        <i class="fas fa-trophy"></i> 트로피 관리
+                    </a>
+                </li>
+                <li class="nav-item">
+    <a href="{{ url_for('admin.manage_mascots') }}" class="nav-link {% if request.endpoint.startswith('admin.manage_mascots') or request.endpoint.startswith('admin.add_mascot') or request.endpoint.startswith('admin.edit_mascot') %}active{% endif %}">
+        <i class="fas fa-robot"></i> 마스코트 관리
+    </a>
+</li>
+{# --- 이 아래에 새 메뉴 추가 --- #}
+                
+                <li class="nav-item">
+                     {# --- ★★★ AI 프롬프트 관리 링크 및 active 조건 수정 ★★★ --- #}
+                    <a href="{{ url_for('admin.manage_prompt_templates') }}" class="nav-link {% if request.endpoint.startswith('admin.manage_prompt_templates') or request.endpoint.startswith('admin.add_prompt_template') or request.endpoint.startswith('admin.edit_prompt_template') %}active{% endif %}">
+                        <i class="fas fa-magic"></i> AI 프롬프트 관리
+                    </a>
+                </li>
             </ul>
             <hr>
-            <a href="{{ url_for('auth.logout') }}" class="d-flex align-items-center text-white text-decoration-none">
-                <strong>로그아웃</strong>
-            </a>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle fa-lg me-2"></i>
+                    <strong>{{ current_user.username }}</strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                    <li><a class="dropdown-item" href="{{ url_for('student.dashboard') }}" target="_blank"><i class="fas fa-graduation-cap me-2"></i>학생 페이지로 보기</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>로그아웃</a></li>
+                </ul>
+            </div>
         </div>
 
         <main class="w-100 p-4">
@@ -48,5 +122,6 @@
         </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts_extra %}{% endblock %}
 </body>
 </html>
