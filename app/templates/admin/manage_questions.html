@@ -9,13 +9,27 @@
         </ol>
     </nav>
 
-    <h2 class="mb-4">'{{ concept.name }}' 개념의 문제 목록 (총 {{ questions|length }}개)</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">'{{ concept.name }}' 개념의 문제 목록 (총 {{ questions|length }}개)</h2>
+        <a href="{{ url_for('admin.add_question', concept_id=concept.id) }}" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> 새 문제 수동 추가
+        </a>
+    </div>
 
     {% if questions %}
         {% for question in questions %}
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <strong>문제 ID: {{ question.id }}</strong>
+                <div>
+                    <strong>문제 ID: {{ question.id }}</strong>
+                    <small class="ms-2 badge 
+                        {% if question.source_type == 'ai_generated' %}bg-info text-dark
+                        {% elif question.source_type == 'official_exam' %}bg-warning text-dark
+                        {% else %}bg-secondary
+                        {% endif %}">
+                        출처: {{ question.source_type }}
+                    </small>
+                </div>
                 <div>
                     <a href="{{ url_for('admin.edit_question', question_id=question.id) }}" class="btn btn-sm btn-warning">수정</a>
                     <form action="{{ url_for('admin.delete_question', question_id=question.id) }}" method="post" class="d-inline" onsubmit="return confirm('정말 이 문제를 삭제하시겠습니까?');">
@@ -24,20 +38,39 @@
                 </div>
             </div>
             <div class="card-body">
+                {% if question.image_filename %}
+                    <div class="mb-2 text-center">
+                        <img src="{{ url_for('static', filename='uploads/questions/' + question.image_filename) }}" alt="문제 이미지" style="max-width: 300px; max-height: 200px; border:1px solid #ddd; padding:5px;">
+                    </div>
+                {% endif %}
                 <p><strong>문제:</strong> {{ question.content }}</p>
+                
+                {% if question.question_type == 'multiple_choice' %}
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item {% if question.answer == '1' %}list-group-item-success fw-bold{% endif %}">1. {{ question.option1 }}</li>
-                    <li class="list-group-item {% if question.answer == '2' %}list-group-item-success fw-bold{% endif %}">2. {{ question.option2 }}</li>
-                    <li class="list-group-item {% if question.answer == '3' %}list-group-item-success fw-bold{% endif %}">3. {{ question.option3 }}</li>
-                    <li class="list-group-item {% if question.answer == '4' %}list-group-item-success fw-bold{% endif %}">4. {{ question.option4 }}</li>
+                    {% for i in [1,2,3,4] %}
+                        {% set option_text_attr = 'option' ~ i %}
+                        {% set option_img_attr = 'option' ~ i ~ '_img' %}
+                        {% set option_text = question[option_text_attr] %}
+                        {% set option_img = question[option_img_attr] %}
+                        <li class="list-group-item {% if question.answer == i|string %}list-group-item-success fw-bold{% endif %}">
+                            {{ i }}. {{ option_text if option_text else '' }}
+                            {% if option_img %}
+                                <img src="{{ url_for('static', filename='uploads/questions/' + option_img) }}" alt="보기 {{i}} 이미지" style="max-width: 150px; max-height: 100px; margin-left: 10px; vertical-align: middle;">
+                            {% endif %}
+                        </li>
+                    {% endfor %}
                 </ul>
+                {% else %} {# 주관식 등 #}
+                    <p class="mt-2"><strong>(주관식 문제)</strong></p>
+                {% endif %}
             </div>
             <div class="card-footer text-muted">
-                정답: {{ question.answer }}번
+                정답: {{ question.answer }}
+                {% if question.question_type == 'multiple_choice' %}({{ ['첫번째 보기','두번째 보기','세번째 보기','네번째 보기'][question.answer|int - 1] if question.answer in ['1','2','3','4'] else '번호 오류' }}){% endif %}
             </div>
         </div>
         {% endfor %}
     {% else %}
-        <div class="alert alert-warning">이 개념에 등록된 문제가 없습니다. '개념 관리' 페이지에서 AI로 문제를 생성해주세요.</div>
+        <div class="alert alert-warning">이 개념에 등록된 문제가 없습니다. 위 '새 문제 수동 추가' 버튼이나, 이전 페이지의 'AI로 내용 생성' 기능을 사용해 문제를 추가해주세요.</div>
     {% endif %}
 {% endblock %}

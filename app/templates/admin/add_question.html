@@ -1,0 +1,99 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_subjects') }}">과목 관리</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_concepts', subject_id=concept.subject.id) }}">{{ concept.subject.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_questions', concept_id=concept.id) }}">{{ concept.name }} - 문제 관리</a></li>
+        <li class="breadcrumb-item active" aria-current="page">새 문제 추가</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4">'{{ concept.name }}' 개념에 새 문제 추가</h2>
+
+<form method="POST" action="{{ url_for('admin.add_question', concept_id=concept.id) }}" enctype="multipart/form-data">
+    {# CSRF 토큰이 있다면 여기에 추가 (예: form.hidden_tag()) #}
+    
+    <div class="card">
+        <div class="card-body">
+            {# 문제 내용 #}
+            <div class="mb-3">
+                <label for="content" class="form-label"><strong>문제 내용 <span class="text-danger">*</span></strong></label>
+                <textarea class="form-control" id="content" name="content" rows="4" required></textarea>
+            </div>
+
+            {# 문제 본문 이미지 업로드 #}
+            <div class="mb-3">
+                <label for="image_filename" class="form-label">문제 본문 이미지 (선택)</label>
+                <input class="form-control" type="file" id="image_filename" name="image_filename" accept="image/png, image/jpeg, image/gif">
+            </div>
+            <hr>
+
+            {# 문제 유형 #}
+            <div class="mb-3">
+                <label for="question_type" class="form-label"><strong>문제 유형 <span class="text-danger">*</span></strong></label>
+                <select class="form-select" id="question_type" name="question_type" required>
+                    <option value="multiple_choice" selected>객관식 (4지선다)</option>
+                    <option value="short_answer">주관식 단답형</option>
+                    {# 다른 유형 추가 가능 #}
+                </select>
+            </div>
+
+            {# 객관식 보기 입력 (문제 유형 선택에 따라 JS로 보이거나 숨길 수 있음) #}
+            {# 지금은 항상 보이도록 단순화 #}
+            <h5 class="mt-4">객관식 보기 (문제 유형이 객관식일 경우 필수)</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="option1" class="form-label">보기 1 텍스트</label>
+                    <input type="text" class="form-control" id="option1" name="option1" placeholder="객관식 보기 1 내용">
+                    <label for="option1_img" class="form-label mt-1"><small>보기 1 이미지 (선택)</small></label>
+                    <input class="form-control form-control-sm" type="file" id="option1_img" name="option1_img" accept="image/png, image/jpeg, image/gif">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="option2" class="form-label">보기 2 텍스트</label>
+                    <input type="text" class="form-control" id="option2" name="option2" placeholder="객관식 보기 2 내용">
+                    <label for="option2_img" class="form-label mt-1"><small>보기 2 이미지 (선택)</small></label>
+                    <input class="form-control form-control-sm" type="file" id="option2_img" name="option2_img" accept="image/png, image/jpeg, image/gif">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="option3" class="form-label">보기 3 텍스트</label>
+                    <input type="text" class="form-control" id="option3" name="option3" placeholder="객관식 보기 3 내용">
+                    <label for="option3_img" class="form-label mt-1"><small>보기 3 이미지 (선택)</small></label>
+                    <input class="form-control form-control-sm" type="file" id="option3_img" name="option3_img" accept="image/png, image/jpeg, image/gif">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="option4" class="form-label">보기 4 텍스트</label>
+                    <input type="text" class="form-control" id="option4" name="option4" placeholder="객관식 보기 4 내용">
+                    <label for="option4_img" class="form-label mt-1"><small>보기 4 이미지 (선택)</small></label>
+                    <input class="form-control form-control-sm" type="file" id="option4_img" name="option4_img" accept="image/png, image/jpeg, image/gif">
+                </div>
+            </div>
+            <hr>
+
+            {# 정답 #}
+            <div class="mb-3">
+                <label for="answer" class="form-label"><strong>정답 <span class="text-danger">*</span></strong></label>
+                <input type="text" class="form-control" id="answer" name="answer" required placeholder="객관식은 정답 보기 번호 (1-4), 주관식은 정답 텍스트">
+                <small class="form-text text-muted">객관식 문제의 경우, 정답에 해당하는 보기의 번호(1, 2, 3, 또는 4)를 입력하세요.</small>
+            </div>
+
+            {# 문제 출처 #}
+            <div class="mb-4">
+                <label for="source_type" class="form-label"><strong>문제 출처 <span class="text-danger">*</span></strong></label>
+                <select class="form-select" id="source_type" name="source_type" required>
+                    <option value="manual_admin" selected>관리자 수동 입력</option>
+                    <option value="official_exam">기출 문제</option>
+                    <option value="ai_generated">AI 생성 (참고용)</option> 
+                    {# AI 생성은 보통 시스템이 자동으로 지정하므로, 수동 입력 시에는 잘 선택 안 함 #}
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('admin.manage_questions', concept_id=concept.id) }}" class="btn btn-secondary me-2">취소</a>
+                <button type="submit" class="btn btn-primary">새 문제 저장</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

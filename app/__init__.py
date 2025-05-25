@@ -6,14 +6,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from dotenv import load_dotenv
 import google.generativeai as genai
+from flask_migrate import Migrate
 
-# 전역 확장 객체 생성
 db = SQLAlchemy()
 login_manager = LoginManager()
+migrate = Migrate()
 
-# --- ★★★ 중요: 여기에 사용자님의 PRECONFIGURED_TROPHIES 전체 리스트를 붙여넣으세요! ★★★ ---
-# 이전에 app.py에 있었던 완전한 트로피 목록이 필요합니다.
-# 아래는 예시일 뿐이며, 이대로 두면 트로피가 몇 개만 생성됩니다.
 PRECONFIGURED_TROPHIES = [
     {'id': 1, 'name': '첫 트로피!', 'description': '축하합니다! 첫 번째 트로피를 획득했습니다.', 'icon_class': 'fas fa-award', 'points': 500},
     {'id': 2, 'name': '새싹 탐험가', 'description': '첫 개념 학습을 모두 완료했어요! (모든 단계 통과)', 'icon_class': 'fas fa-seedling', 'points': 1000},
@@ -45,87 +43,50 @@ PRECONFIGURED_TROPHIES = [
     {'id': 44, 'name': '리뷰의 달인', 'description': '학습 후 유용한 리뷰를 3회 이상 작성했어요.', 'icon_class': 'fas fa-comments', 'points': 1300},
     {'id': 45, 'name': '명예의 전당 입성', 'description': '누적 포인트 10000점을 달성했어요!', 'icon_class': 'fas fa-university', 'points': 2000}
 ]
-# --- END PRECONFIGURED_TROPHIES ---
 
 def create_app():
-    """Flask 애플리케이션 팩토리 함수"""
     print("--- DEBUG: create_app() 함수 시작 ---")
     app = Flask(__name__)
-
-    # 1. 기본 설정 로드
     app.config.from_pyfile('../config.py')
 
-    # 2. .env 파일 로드 및 AI 설정
     basedir = os.path.abspath(os.path.dirname(__file__))
     dotenv_path = os.path.join(basedir, '../.env')
-    
     if os.path.exists(dotenv_path):
         load_dotenv(dotenv_path=dotenv_path)
         print("--- DEBUG: .env 파일 로드됨 ---")
     else:
-        print("경고: .env 파일을 찾을 수 없습니다. API 키가 로드되지 않았을 수 있습니다.")
-
+        print("경고: .env 파일을 찾을 수 없습니다.")
     try:
         api_key = os.getenv('GOOGLE_API_KEY')
         if not api_key:
-            print("경고: GOOGLE_API_KEY가 .env 파일에 설정되지 않았거나 로드되지 않았습니다.")
+            print("경고: GOOGLE_API_KEY가 설정되지 않았습니다.")
         else:
             genai.configure(api_key=api_key)
             print("--- DEBUG: Google AI 설정 완료 ---")
     except Exception as e:
         print(f"Google AI 설정 오류: {e}")
 
-    # 3. 추가적인 앱 설정
-    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static/uploads/trophies')
+    app.config['UPLOAD_FOLDER_TROPHIES'] = os.path.join(app.root_path, 'static/uploads/trophies')
+    # --- ★★★ 문제 이미지 업로드 폴더 설정 추가 ★★★ ---
+    app.config['UPLOAD_FOLDER_QUESTIONS'] = os.path.join(app.root_path, 'static/uploads/questions')
     app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+    # --- ★★★ 설정 추가 끝 ★★★ ---
 
-    # 4. 확장 기능 초기화
     db.init_app(app)
     login_manager.init_app(app)
+    migrate.init_app(app, db)
     login_manager.login_view = 'auth.login'
 
-    # 5. Flask-Login 사용자 로더 함수 등록
     from .models import User 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
 
-    # 6. 애플리케이션 컨텍스트 내에서 데이터베이스 테이블 생성 및 초기 데이터 적재
     with app.app_context():
         db.create_all() 
+        print("--- DEBUG: db.create_all() 호출됨 (테이블 구조 확인/생성) ---")
+        # 트로피 초기화 로직은 init_db.py로 완전히 이전했으므로 여기서 호출 안 함
 
-        from .models import Trophy # Trophy 모델 임포트
-        def init_trophies_on_startup():
-            print("--- DEBUG: init_trophies_on_startup() 함수 시작 ---")
-            if not PRECONFIGURED_TROPHIES or len(PRECONFIGURED_TROPHIES) < 3: # 예시 리스트가 아닌지 확인
-                print("--- 경고: PRECONFIGURED_TROPHIES 리스트가 제대로 채워지지 않은 것 같습니다! 예시 데이터만 사용됩니다. ---")
-
-            for trophy_data in PRECONFIGURED_TROPHIES:
-                trophy = Trophy.query.get(trophy_data['id'])
-                if not trophy: 
-                    trophy = Trophy(id=trophy_data['id'],
-                                    name=trophy_data['name'],
-                                    description=trophy_data['description'],
-                                    icon_class=trophy_data['icon_class'],
-                                    points=trophy_data['points'])
-                    db.session.add(trophy)
-                    print(f"--- DEBUG: Added trophy: {trophy.name} (ID: {trophy.id}) ---")
-                else: 
-                    trophy.name = trophy_data['name']
-                    trophy.description = trophy_data['description']
-                    trophy.icon_class = trophy_data['icon_class']
-                    trophy.points = trophy_data['points']
-                    print(f"--- DEBUG: Updated trophy: {trophy.name} (ID: {trophy.id}) ---")
-            try:
-                db.session.commit()
-                print(f"--- DEBUG: {len(PRECONFIGURED_TROPHIES)}개의 트로피 설정 확인 및 초기화 완료 ---")
-            except Exception as e:
-                db.session.rollback()
-                print(f"트로피 초기화 중 DB 커밋 오류: {e}")
-        
-        init_trophies_on_startup()
-
-    # 7. 블루프린트 등록
     from .views import auth_views, admin_views, student_views
     app.register_blueprint(auth_views.bp)
     app.register_blueprint(admin_views.bp)

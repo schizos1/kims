@@ -1,0 +1,107 @@
+{% extends "student/layout.html" %}
+
+{% block title %}{{ concept.name }} - 오답 다시 풀기{% endblock %}
+
+{% block head_extra %}
+<style>
+    .question-reattempt-content {
+        white-space: pre-wrap; 
+        line-height: 1.8;
+        margin-bottom: 1rem; 
+        font-size: 1.1rem;
+    }
+    .options-group-reattempt .form-check {
+        margin-bottom: 0.75rem; 
+        padding: 0.75rem 1.25rem;
+        border: 1px solid #eee;
+        border-radius: 0.375rem;
+        transition: background-color 0.2s ease-in-out;
+    }
+    .options-group-reattempt .form-check:hover {
+        background-color: #f8f9fa;
+    }
+    .options-group-reattempt .form-check-input {
+        margin-top: 0.5em;
+        transform: scale(1.1);
+    }
+    .options-group-reattempt .form-check-label {
+        width: 100%; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('student.dashboard') }}">대시보드</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('student.mistake_notebook') }}">오답 노트</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ concept.name }} - 오답 모아 풀기</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">'{{ concept.name }}' 개념 오답 다시 풀어보기</h2>
+    <p class="lead">이전에 틀렸던 문제들입니다. 다시 한번 풀어보고 개념을 확실히 다져보세요!</p>
+    <hr>
+
+    {% if questions %}
+        <form action="{{ url_for('student.reattempt_mistakes_by_concept', concept_id=concept.id) }}" method="POST">
+            {% for question in questions %}
+            <div class="card mb-4 shadow-sm"> 
+                <div class="card-header bg-light">
+                    <strong>문제 {{ loop.index }}</strong> (ID: {{ question.id }})
+                </div>
+                <div class="card-body">
+                    <div class="question-reattempt-content">{{ question.content }}</div>
+                    
+                    {% if question.question_type == 'multiple_choice' and question.option1 %}
+                        <div class="options-group-reattempt mt-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="answer_{{ question.id }}" id="q{{ question.id }}_opt1" value="1" required>
+                                <label class="form-check-label" for="q{{ question.id }}_opt1">
+                                    <strong class="me-2">1.</strong> {{ question.option1 }}
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="answer_{{ question.id }}" id="q{{ question.id }}_opt2" value="2" required>
+                                <label class="form-check-label" for="q{{ question.id }}_opt2">
+                                    <strong class="me-2">2.</strong> {{ question.option2 }}
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="answer_{{ question.id }}" id="q{{ question.id }}_opt3" value="3" required>
+                                <label class="form-check-label" for="q{{ question.id }}_opt3">
+                                    <strong class="me-2">3.</strong> {{ question.option3 }}
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="answer_{{ question.id }}" id="q{{ question.id }}_opt4" value="4" required>
+                                <label class="form-check-label" for="q{{ question.id }}_opt4">
+                                    <strong class="me-2">4.</strong> {{ question.option4 }}
+                                </label>
+                            </div>
+                        </div>
+                    {% else %} {# 주관식 단답형 등 #}
+                        <div class="mb-3 mt-3">
+                            <label for="answer_{{ question.id }}" class="form-label">정답 입력:</label>
+                            <input type="text" class="form-control form-control-lg" id="answer_{{ question.id }}" name="answer_{{ question.id }}" placeholder="여기에 정답을 입력하세요" required>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">모든 답안 제출하기</button>
+            </div>
+        </form>
+    {% else %}
+        {# 이 경우는 reattempt_mistakes_by_concept 함수에서 이미 처리했으므로 거의 발생하지 않음 #}
+        <div class="alert alert-info">
+            이 개념에 대해 다시 풀어볼 오답이 없습니다.
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('student.mistake_notebook') }}" class="btn btn-secondary">&laquo; 오답 노트로 돌아가기</a>
+    </div>
+
+{% endblock %}

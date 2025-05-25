@@ -67,19 +67,17 @@
         .alert-warning { background-color: #fff3cd; border-color: #ffeeba; color: #856404; }
         .alert-danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
 
-        /* ★★★ 애니메이션을 위한 기본 클래스 ★★★ */
         .animated {
             animation-duration: 0.7s;
             animation-fill-mode: both;
         }
-        .flash-success { /* 트로피 획득 등 성공 알림에 적용 */
+        .flash-success {
             animation-name: flashSuccess;
         }
         @keyframes flashSuccess {
             0%, 50%, 100% { opacity: 1; transform: scale(1); }
             25%, 75% { opacity: 0.8; transform: scale(1.05); }
         }
-
     </style>
     {% block head_extra %}{% endblock %} 
 </head>
@@ -96,16 +94,17 @@
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_page' %}active{% endif %}" href="{{ url_for('student.my_page') }}"><i class="fas fa-user-circle me-1"></i>마이 페이지</a></li>
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_stats' %}active{% endif %}" href="{{ url_for('student.my_stats') }}"><i class="fas fa-chart-line me-1"></i>나의 학습 통계</a></li>
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_calendar' %}active{% endif %}" href="{{ url_for('student.my_calendar') }}"><i class="fas fa-calendar-alt me-1"></i>학습 캘린더</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.mistake_notebook' %}active{% endif %}" href="{{ url_for('student.mistake_notebook') }}"><i class="fas fa-book-reader me-1"></i>오답 노트</a></li>
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    {% if session.username %}
+                    {% if current_user.is_authenticated %}
                     <li class="nav-item d-flex align-items-center">
-                        {% if session.user_mascot %}
-                            <img src="{{ url_for('static', filename='images/mascots/' + session.user_mascot) }}" alt="마스코트" class="navbar-mascot">
+                        {% if current_user.selected_mascot_filename %}
+                            <img src="{{ url_for('static', filename='images/mascots/' + current_user.selected_mascot_filename) }}" alt="마스코트" class="navbar-mascot">
                         {% else %}
                             <i class="fas fa-user me-1" style="color: rgba(255,255,255,0.7);"></i>
                         {% endif %}
-                        <span class="navbar-text me-3">{{ session.username }}님</span>
+                        <span class="navbar-text me-3">{{ current_user.username }}님</span>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-outline-light" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-1"></i>로그아웃</a>
@@ -122,29 +121,29 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                {# ★★★ 트로피 획득 flash 메시지에 애니메이션 클래스 추가 고려 ★★★ #}
-                <div class="alert alert-{{ category }} alert-dismissible fade show {% if category == 'success' and '트로피' in message %}animated flash-success{% endif %}" role="alert">
+                <div class="alert alert-{{ category }} alert-dismissible fade show {% if category == 'success' and ('트로피를 획득했습니다' in message or '트로피도 획득했습니다' in message) %}animated flash-success{% endif %}" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                {% if category == 'success' and ('트로피를 획득했습니다' in message or '트로피도 획득했습니다' in message) %}
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            if (typeof playSound === "function") {
+                
+                <script>
+                    (function() { 
+                        if (typeof playSound === "function") {
+                            {% if category == 'success' and ('트로피를 획득했습니다' in message or '트로피도 획득했습니다' in message) %}
                                 playSound('trophy_fanfare.mp3');
-                            }
-                            // 컨페티 효과!
-                            if (typeof confetti === "function") {
-                                confetti({
-                                    particleCount: 150, 
-                                    spread: 90, // 좀 더 넓게 퍼지도록
-                                    origin: { y: 0.6 },
-                                    zIndex: 9999 // 다른 요소들 위에 보이도록
-                                });
-                            }
-                        });
-                    </script>
-                {% endif %}
+                                if (typeof confetti === "function") {
+                                    confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 }, zIndex: 9999 });
+                                }
+                            {% elif category == 'success' and '정답입니다!' in message %}
+                                playSound('correct_answer.mp3');
+                            {% elif category == 'warning' and '틀렸어요' in message %} 
+                                playSound('incorrect_answer.mp3');
+                            {% elif category == 'info' and '테스트 완료!' in message %} 
+                                playSound('test_complete.mp3');
+                            {% endif %}
+                        }
+                    })();
+                </script>
                 {% endfor %}
             {% endif %}
         {% endwith %}
@@ -160,19 +159,38 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script>
         function playSound(soundFile) {
-            const audio = new Audio("{{ url_for('static', filename='sounds/') }}" + soundFile);
-            audio.play().catch(e => console.error("Error playing sound:", soundFile, e));
+            if (!soundFile) {
+                // console.log("playSound: No soundFile provided.");
+                return;
+            }
+            const soundPath = "{{ url_for('static', filename='sounds/') }}" + soundFile;
+            // console.log("playSound: Attempting to play sound from: " + soundPath);
+            
+            const audio = new Audio(soundPath);
+            audio.play()
+                .then(() => {
+                    // console.log("playSound: " + soundFile + " played successfully.");
+                })
+                .catch(e => {
+                    console.error("playSound: Error playing sound:", soundFile, e);
+                });
         }
+
         document.addEventListener('DOMContentLoaded', function() {
             document.documentElement.classList.add('loaded'); 
             
             const allButtons = document.querySelectorAll('.btn');
             allButtons.forEach(function(button) {
                 button.addEventListener('click', function(event) {
-                    // type="submit" 이거나 a 태그 버튼이 아니면서, 특별한 JS 이벤트가 없는 일반 버튼에만 적용 고려
-                    // 또는 모든 버튼에 적용 후, 원치 않는 버튼에는 별도 클래스로 제외
-                    if (typeof playSound === "function" && !button.closest('form[method="POST"]') && !button.href ) { 
-                        // playSound('click.mp3'); // 'click.mp3' 파일이 static/sounds/ 에 있어야 함
+                    const isSubmitButton = button.type === 'submit';
+                    const isPageLeavingLinkButton = button.tagName === 'A' && 
+                                                  button.getAttribute('href') && 
+                                                  button.getAttribute('href') !== '#' &&
+                                                  button.getAttribute('target') !== '_blank';
+                    const hasNoSoundClass = button.classList.contains('no-sound');
+
+                    if (!isSubmitButton && !isPageLeavingLinkButton && !hasNoSoundClass) {
+                        playSound('click.mp3'); 
                     }
                 });
             });

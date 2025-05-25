@@ -1,0 +1,87 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.manage_trophies') }}">트로피 관리</a></li>
+        <li class="breadcrumb-item active" aria-current="page">트로피 수정 (ID: {{ trophy.id }})</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4">트로피 수정 (ID: {{ trophy.id }})</h2>
+
+<form method="POST" action="{{ url_for('admin.edit_trophy', trophy_id=trophy.id) }}">
+    <div class="card">
+        <div class="card-body">
+            {# 트로피 이름 #}
+            <div class="mb-3">
+                <label for="name" class="form-label"><strong>트로피 이름 <span class="text-danger">*</span></strong></label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ request.form.name or trophy.name }}" required>
+            </div>
+
+            {# 트로피 설명 #}
+            <div class="mb-3">
+                <label for="description" class="form-label">설명</label>
+                <textarea class="form-control" id="description" name="description" rows="2">{{ request.form.description or trophy.description }}</textarea>
+            </div>
+
+            {# Font Awesome 아이콘 클래스 #}
+            <div class="mb-3">
+                <label for="icon_class" class="form-label"><strong>아이콘 클래스 <span class="text-danger">*</span></strong></label>
+                <input type="text" class="form-control" id="icon_class" name="icon_class" value="{{ request.form.icon_class or trophy.icon_class }}" required placeholder="예: fas fa-award">
+                <small class="form-text text-muted">
+                    <a href="https://fontawesome.com/v5/search?o=r&m=free" target="_blank">Font Awesome 5 (Free)</a> 에서 아이콘을 찾아 클래스명을 입력하세요.
+                </small>
+            </div>
+
+            {# 획득 포인트 #}
+            <div class="mb-3">
+                <label for="points" class="form-label"><strong>획득 포인트 <span class="text-danger">*</span></strong></label>
+                <input type="number" class="form-control" id="points" name="points" value="{{ request.form.points or trophy.points }}" required>
+            </div>
+            
+            <hr>
+            <h5 class="mt-3 mb-3">트로피 획득 조건 (선택 사항)</h5>
+            
+            {# 조건 유형 #}
+            <div class="mb-3">
+                <label for="condition_type" class="form-label">조건 유형</label>
+                <select class="form-select" id="condition_type" name="condition_type">
+                    <option value="" {% if not (request.form.condition_type or trophy.condition_type) %}selected{% endif %}>-- 조건 없음 --</option>
+                    {# 여기에 제안했던 조건 유형들을 <option>으로 추가합니다. 예시: #}
+                    <option value="CONSECUTIVE_LOGIN_DAYS" {% if (request.form.condition_type or trophy.condition_type) == 'CONSECUTIVE_LOGIN_DAYS' %}selected{% endif %}>연속 출석 일수</option>
+                    <option value="TOTAL_QUESTIONS_ATTEMPTED" {% if (request.form.condition_type or trophy.condition_type) == 'TOTAL_QUESTIONS_ATTEMPTED' %}selected{% endif %}>총 문제 풀이 시도</option>
+                    <option value="CONCEPTS_COMPLETED_COUNT" {% if (request.form.condition_type or trophy.condition_type) == 'CONCEPTS_COMPLETED_COUNT' %}selected{% endif %}>학습 완료 개념 수</option>
+                    <option value="POINTS_EARNED_TOTAL" {% if (request.form.condition_type or trophy.condition_type) == 'POINTS_EARNED_TOTAL' %}selected{% endif %}>누적 획득 포인트</option>
+                    <option value="TROPHIES_COLLECTED_COUNT" {% if (request.form.condition_type or trophy.condition_type) == 'TROPHIES_COLLECTED_COUNT' %}selected{% endif %}>수집 트로피 개수</option>
+                    {# 다른 조건 유형들도 추가... #}
+                </select>
+                <small class="form-text text-muted">이 트로피를 자동으로 획득하기 위한 조건입니다. (나중에 트로피 자동 수여 로직 구현 시 사용)</small>
+            </div>
+
+            {# 조건 숫자 값 #}
+            <div class="mb-3">
+                <label for="condition_value_int" class="form-label">조건 숫자 값</label>
+                <input type="number" class="form-control" id="condition_value_int" name="condition_value_int" value="{{ request.form.condition_value_int if request.form.condition_value_int is not none else trophy.condition_value_int if trophy.condition_value_int is not none else '' }}" placeholder="예: 3 (연속 출석일 수 등)">
+            </div>
+
+            {# 조건 문자열 값 #}
+            <div class="mb-3">
+                <label for="condition_value_str" class="form-label">조건 문자열 값</label>
+                <input type="text" class="form-control" id="condition_value_str" name="condition_value_str" value="{{ request.form.condition_value_str or trophy.condition_value_str or '' }}" placeholder="예: 특정 과목명 또는 개념 ID">
+            </div>
+
+            {# 활성화 여부 #}
+            <div class="mb-4 form-check">
+                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" {% if request.form.get('is_active', 'on' if trophy.is_active else None) == 'on' %}checked{% endif %}>
+                <label class="form-check-label" for="is_active">이 트로피를 활성화합니다 (자동 수여 대상에 포함)</label>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('admin.manage_trophies') }}" class="btn btn-secondary me-2">취소</a>
+                <button type="submit" class="btn btn-primary">수정 내용 저장</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
