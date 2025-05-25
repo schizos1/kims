@@ -1,0 +1,23 @@
+{% extends "student/layout.html" %}
+
+{% block title %}{{ subject.name }} 개념 목록 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">{{ subject.name }} 개념 목록</h1>
+  {% if concepts %}
+    <ul class="list-group">
+      {% for concept in concepts %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ concept.name }}
+          <a href="{{ url_for('student.view_concept_steps', concept_id=concept.id) }}" class="btn btn-sm btn-outline-primary">
+            학습하기
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>아직 등록된 개념이 없습니다.</p>
+  {% endif %}
+</div>
+{% endblock %}

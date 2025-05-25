@@ -94,7 +94,7 @@
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_page' %}active{% endif %}" href="{{ url_for('student.my_page') }}"><i class="fas fa-user-circle me-1"></i>마이 페이지</a></li>
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_stats' %}active{% endif %}" href="{{ url_for('student.my_stats') }}"><i class="fas fa-chart-line me-1"></i>나의 학습 통계</a></li>
                     <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_calendar' %}active{% endif %}" href="{{ url_for('student.my_calendar') }}"><i class="fas fa-calendar-alt me-1"></i>학습 캘린더</a></li>
-                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.mistake_notebook' %}active{% endif %}" href="{{ url_for('student.mistake_notebook') }}"><i class="fas fa-book-reader me-1"></i>오답 노트</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'student.my_mistake_notebook' %}active{% endif %}" href="{{ url_for('student.my_mistake_notebook') }}"><i class="fas fa-book-reader me-1"></i>오답 노트</a></li>
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     {% if current_user.is_authenticated %}

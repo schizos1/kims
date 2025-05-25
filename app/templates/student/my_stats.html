@@ -1,57 +1,78 @@
 {% extends "student/layout.html" %}
 
-{% block title %}{{ session.username }}님의 학습 통계{% endblock %}
+{% block title %}나의 학습 통계{% endblock %}
 
 {% block content %}
-    <h2 class="mb-4">{{ session.username }}님의 학습 통계</h2>
+<div class="container mt-5">
+  <h2 class="mb-4 text-center"><i class="fas fa-chart-line me-2"></i>나의 학습 통계</h2>
 
-    {% if concept_stats %}
-    <p class="lead">지금까지 학습한 개념들의 성취도입니다. 정답률이 낮은 개념부터 복습해보세요!</p>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">과목</th>
-                    <th scope="col">개념</th>
-                    <th scope="col">시도 횟수</th>
-                    <th scope="col">정답 횟수</th>
-                    <th scope="col">정답률</th>
-                    <th scope="col">복습/재도전</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for stat in concept_stats %}
-                <tr>
-                    <th scope="row">{{ loop.index }}</th>
-                    <td>{{ stat.subject_name }}</td>
-                    <td>{{ stat.concept_name }}</td>
-                    <td>{{ stat.total_attempted }}회</td>
-                    <td>{{ stat.total_correct }}회</td>
-                    <td>
-                        <div class="progress" style="height: 25px;" role="progressbar" aria-label="정답률 {{ stat.accuracy }}%" aria-valuenow="{{ stat.accuracy }}" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-bar {% if stat.accuracy < 50 %}bg-danger{% elif stat.accuracy < 80 %}bg-warning{% else %}bg-success{% endif %}" 
-                                 style="width: {{ stat.accuracy }}%;">
-                                {{ stat.accuracy }}%
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('student.learn_concept_step', concept_id=stat.concept_id, step_order=1) }}" class="btn btn-sm btn-outline-info mb-1">개념 복습</a>
-                        <a href="{{ url_for('student.start_concept_test', concept_id=stat.concept_id) }}" class="btn btn-sm btn-outline-primary mb-1">테스트 재도전</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="card shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">전체 문제 수</h6>
+          <h3 class="card-title text-primary">{{ total }}</h3>
+        </div>
+      </div>
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        아직 학습 기록이 충분하지 않습니다. 다양한 개념을 학습하고 테스트를 진행해보세요!
+    <div class="col-md-3">
+      <div class="card shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">정답률</h6>
+          <h3 class="card-title text-success">{{ correct }}개 ({{ accuracy }}%)</h3>
+        </div>
+      </div>
     </div>
-    {% endif %}
+    <div class="col-md-3">
+      <div class="card shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">시도한 개념</h6>
+          <h3 class="card-title text-info">{{ concepts_attempted }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm text-center">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2 text-muted">학습일 수</h6>
+          <h3 class="card-title text-dark">{{ days_active }}일</h3>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <div class="mt-4">
-        <a href="{{ url_for('student.dashboard') }}" class="btn btn-secondary">&laquo; 대시보드로 돌아가기</a>
+  <hr class="my-5">
+
+  <h4 class="mb-3 text-center">문제 출처별 통계</h4>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="card border-primary">
+        <div class="card-body text-center">
+          <i class="fas fa-robot fa-2x text-primary mb-2"></i>
+          <h5 class="card-title">AI 생성 문제</h5>
+          <p class="card-text fs-4">{{ ai_generated }} 개</p>
+        </div>
+      </div>
     </div>
+    <div class="col-md-4">
+      <div class="card border-success">
+        <div class="card-body text-center">
+          <i class="fas fa-lightbulb fa-2x text-success mb-2"></i>
+          <h5 class="card-title">개념 학습 문제</h5>
+          <p class="card-text fs-4">{{ concept_learning }} 개</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-warning">
+        <div class="card-body text-center">
+          <i class="fas fa-file-alt fa-2x text-warning mb-2"></i>
+          <h5 class="card-title">기출 문제</h5>
+          <p class="card-text fs-4">{{ past_exam }} 개</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
 {% endblock %}

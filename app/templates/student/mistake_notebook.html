@@ -7,7 +7,7 @@
     .concept-group {
         background-color: #f8f9fa;
         border: 1px solid #dee2e6;
-        border-radius: .75rem; /* 좀 더 둥글게 */
+        border-radius: .75rem;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
         box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
@@ -21,14 +21,18 @@
         font-size: 0.9em;
         color: #6c757d;
         padding-left: 1.5rem;
-        border-left: 3px solid #0d6efd; /* 파란색 왼쪽 테두리 */
+        border-left: 3px solid #0d6efd;
         margin-top: 0.5rem;
     }
     .question-sample p {
         margin-bottom: 0.25rem;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; /* 긴 내용은 ...으로 표시 */
+        text-overflow: ellipsis;
+    }
+    .clear-btn {
+        display: inline-block;
+        margin-top: 0.25rem;
     }
 </style>
 {% endblock %}
@@ -55,7 +59,12 @@
         <div class="question-sample">
             <small><strong>최근 틀린 문제 예시:</strong></small>
             {% for q_sample in group.questions_sample %}
-                <p class="mb-0">{{ q_sample.content }}</p>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <p class="mb-0 me-2">{{ q_sample.content }}</p>
+                    <form method="POST" action="{{ url_for('student.clear_mistake', question_id=q_sample.id) }}" class="clear-btn">
+                        <button type="submit" class="btn btn-sm btn-outline-success">복습 완료</button>
+                    </form>
+                </div>
             {% endfor %}
         </div>
         {% endif %}

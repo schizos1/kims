@@ -1,0 +1,88 @@
+{% extends "student/layout.html" %}
+
+{% block title %}나의 대시보드{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">
+  <i class="fas fa-home me-2"></i>대시보드
+  <small class="d-block mt-1 text-muted" style="font-size: 0.9rem;">현재 시각: {{ now.strftime('%Y-%m-%d %H:%M:%S') }} ({{ weekday_ko }})</small>
+</h2>
+
+  <div class="row justify-content-center mb-4">
+    <div class="col-md-4 text-center">
+      {% if session.user_mascot %}
+        <img src="{{ url_for('static', filename='images/mascots/' + session.user_mascot) }}"
+             alt="마스코트" class="img-fluid rounded-circle shadow" width="120">
+      {% else %}
+        <i class="fas fa-user-circle fa-7x text-secondary"></i>
+      {% endif %}
+      <h4 class="mt-3">환영합니다, <strong>{{ user.username }}</strong>님!</h4>
+    </div>
+  </div>
+
+  <div class="row g-4 text-center">
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">총 포인트</h6>
+          <h4 class="text-success">{{ user.total_earned_points }} P</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">연속 출석</h6>
+          <h4 class="text-info">{{ user.consecutive_login_days }} 일</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">트로피 수집</h6>
+          <h4>{{ trophy_count }} 개</h4>
+          <div class="progress mt-2" style="height: 10px;">
+            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ trophy_percent }}%;" aria-valuenow="{{ trophy_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <small class="text-muted">{{ trophy_percent }}% 달성</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted">오늘 학습</h6>
+          <h4>{{ today_total }} 개 문제</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h6 class="text-muted">최근 학습</h6>
+          {% if last_activity %}
+            <p class="mb-0">최근 문제풀이: {{ last_activity.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+            <small class="text-muted">문제 ID: {{ last_activity.question_id }}</small>
+          {% else %}
+            <p class="text-muted">최근 학습 기록이 없습니다.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-5">
+    <a href="{{ url_for('student.subject_list') }}" class="btn btn-primary btn-lg me-2">
+      <i class="fas fa-book-reader me-1"></i> 학습 시작하기
+    </a>
+    <a href="{{ url_for('student.my_page') }}" class="btn btn-outline-secondary btn-lg">
+      <i class="fas fa-user-circle me-1"></i> 마이페이지
+    </a>
+  </div>
+</div>
+{% endblock %}
