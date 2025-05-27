@@ -1,7 +1,0 @@
-venv/
-*.pyc
-__pycache__/
-mydatabase.db
-.env
-.vscode/
-.DS_Store
