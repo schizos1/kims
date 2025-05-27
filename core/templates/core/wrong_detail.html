@@ -1,0 +1,15 @@
+<!-- 오답 문제 풀기 -->
+
+<h2>🔁 오답 문제 다시 풀기</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <p>{{ question.question_text }}</p>
+
+  <label><input type="radio" name="selected_answer" value="1"> {{ question.option1 }}</label><br>
+  <label><input type="radio" name="selected_answer" value="2"> {{ question.option2 }}</label><br>
+  <label><input type="radio" name="selected_answer" value="3"> {{ question.option3 }}</label><br>
+  <label><input type="radio" name="selected_answer" value="4"> {{ question.option4 }}</label><br>
+
+  <button type="submit">제출</button>
+</form>

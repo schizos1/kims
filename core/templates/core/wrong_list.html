@@ -1,0 +1,17 @@
+<!-- 오답 문제 리스트 -->
+
+<h1>❌ 오답노트</h1>
+
+{% if wrongs %}
+  <ul>
+    {% for wrong in wrongs %}
+      <li>
+        <a href="{% url 'wrong_detail' wrong.question.id %}">
+          {{ wrong.question.question_text|truncatewords:15 }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>🎉 현재 오답이 없습니다!</p>
+{% endif %}

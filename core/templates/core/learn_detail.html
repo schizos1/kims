@@ -1,0 +1,32 @@
+<!-- ============================================
+📄 FILE: templates/core/learn_detail.html
+📝 DESCRIPTION: 개념 학습 상세 페이지
+============================================ -->
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ lesson.unit_title }} - 개념 학습</title>
+</head>
+<body>
+  <h1>{{ lesson.unit_title }} ({{ lesson.grade }}학년)</h1>
+
+  <h3>📘 개념 설명</h3>
+  <p>{{ lesson.concept_text }}</p>
+
+  {% if lesson.image_url %}
+    <div>
+      <img src="{{ lesson.image_url }}" alt="설명 이미지" style="max-width: 400px;">
+    </div>
+  {% endif %}
+
+  <h3>📎 해설</h3>
+  <p>{{ lesson.explanation }}</p>
+
+  <hr>
+  <a href="{% url 'quiz_batch' %}">
+    <button style="padding: 10px 20px;">📗 문제 풀기</button>
+  </a>
+</body>
+</html>

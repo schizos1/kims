@@ -1,0 +1,20 @@
+{% load core_extras %}
+<h2>문제 묶음</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {% for q in questions %}
+    <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+      <p><strong>Q{{ forloop.counter }}. {{ q.question_text }}</strong></p>
+      {% if q.image_url %}
+        <img src="{{ q.image_url }}" style="max-width:300px;"><br>
+      {% endif %}
+      {% for i in "1234" %}
+        <label>
+          <input type="radio" name="question_{{ q.id }}" value="{{ i }}"> {{ q|get_option:i }}
+        </label><br>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  <button type="submit">제출</button>
+</form>
