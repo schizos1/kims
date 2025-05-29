@@ -1,0 +1,39 @@
+<!--
+past_quiz.html
+- 연도별 기출문제 출제/제출 화면
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ year }}년 {{ subject_name }} 기출문제</title>
+</head>
+<body>
+<h2>[{{ year }}년 {{ subject_name }} 기출문제]</h2>
+<form method="post">{% csrf_token %}
+    {% for q in questions %}
+        <div style="margin:2em 0; border-bottom:1px dashed #ddd;">
+            <b>{{ forloop.counter }}. {{ q.text }}</b>
+            {% if q.image %}<br><img src="{{ q.image }}" height="60">{% endif %}
+            <div>
+                <label><input type="radio" name="answer_{{ q.id }}" value="1"> {{ q.choice1_text }}</label>
+                {% if q.choice1_image %}<img src="{{ q.choice1_image }}" height="20">{% endif %}
+            </div>
+            <div>
+                <label><input type="radio" name="answer_{{ q.id }}" value="2"> {{ q.choice2_text }}</label>
+                {% if q.choice2_image %}<img src="{{ q.choice2_image }}" height="20">{% endif %}
+            </div>
+            <div>
+                <label><input type="radio" name="answer_{{ q.id }}" value="3"> {{ q.choice3_text }}</label>
+                {% if q.choice3_image %}<img src="{{ q.choice3_image }}" height="20">{% endif %}
+            </div>
+            <div>
+                <label><input type="radio" name="answer_{{ q.id }}" value="4"> {{ q.choice4_text }}</label>
+                {% if q.choice4_image %}<img src="{{ q.choice4_image }}" height="20">{% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    <button type="submit">제출하기</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!--
+wrong_note_retest.html
+- 선택 오답 랜덤 재도전 화면
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>오답 재도전</title>
+</head>
+<body>
+<h2>선택한 오답 재도전</h2>
+<form method="post">{% csrf_token %}
+    {% for q in questions %}
+        <div style="margin:2em 0; border-bottom:1px dashed #ddd;">
+            <b>{{ forloop.counter }}. {{ q.text }}</b>
+            {% if q.image %}<br><img src="{{ q.image }}" height="60">{% endif %}
+            <div>
+                <label><input type="radio" name="answer_{{ q.id }}" value="1"> {{ q.choice1_text }}</label>
+                <label><input type="radio" name="answer_{{ q.id }}" value="2"> {{ q.choice2_text }}</label>
+                <label><input type="radio" name="answer_{{ q.id }}" value="3"> {{ q.choice3_text }}</label>
+                <label><input type="radio" name="answer_{{ q.id }}" value="4"> {{ q.choice4_text }}</label>
+            </div>
+        </div>
+    {% endfor %}
+    <button type="submit">제출/채점</button>
+</form>
+</body>
+</html>

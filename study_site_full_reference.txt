@@ -1,0 +1,337 @@
+# 학습사이트 전체 시스템/DB/코드/AI프롬프트 레퍼런스
+
+=========================================
+1. 서버 및 기본 정보
+-----------------------------------------
+- 서버: Ubuntu 22.04, Intel N100, 8GB/256GB
+- Python 3.12, Django 4.x, PostgreSQL 16
+- 프로젝트 폴더: ~/study_site/
+- 가상환경: venv_study (source venv_study/bin/activate)
+- 접속 주소: http://192.168.31.199:8000/
+- DB: study_db / studyuser / secure_password_2025
+- 디비 인증: scram-sha-256 (Postgres 16)
+
+=========================================
+2. 폴더/파일 구조
+-----------------------------------------
+study_site/
+├── manage.py
+├── venv_study/
+├── study_site/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── users/         # 학생/프로필/테마
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── urls.py
+│   └── ...
+├── quiz/          # 문제/풀이/오답노트
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── urls.py
+│   └── ...
+├── trophies/      # 트로피
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   └── ...
+├── attendance/    # 출석/연속출석
+│   ├── models.py
+│   ├── views.py
+│   └── ...
+├── shop/          # 상점/아이템/구매
+│   ├── models.py
+│   ├── views.py
+│   └── ...
+├── minigame/      # 미니게임
+│   └── ...
+├── core/          # 전역설정/프롬프트/이미지/사운드
+│   ├── models.py
+│   ├── admin.py
+│   └── ...
+├── templates/
+│   ├── base.html
+│   ├── student_dashboard.html
+│   ├── admin_dashboard.html
+│   ├── mypage.html
+│   ├── ...
+└── static/
+    └── ... (css/js/img 등)
+
+=========================================
+3. 주요 models.py (필드 설명)
+-----------------------------------------
+
+[users/models.py]
+-----------------
+from django.db import models
+from django.contrib.auth.models import User
+
+class Theme(models.Model):
+    name = models.CharField(max_length=50)
+    preview_image = models.URLField(blank=True)
+    is_active = models.BooleanField(default=True)
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    nickname = models.CharField(max_length=30)
+    mascot = models.CharField(max_length=30, blank=True)
+    selected_theme = models.ForeignKey(Theme, null=True, blank=True, on_delete=models.SET_NULL)
+    point = models.IntegerField(default=0)
+    join_date = models.DateTimeField(auto_now_add=True)
+
+[quiz/models.py]
+----------------
+from django.db import models
+from users.models import UserProfile
+
+class Subject(models.Model):
+    name = models.CharField(max_length=20) # 국어, 수학, 과학 등
+
+class Lesson(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    grade = models.IntegerField()  # 학년
+    unit = models.CharField(max_length=100)  # 단원명
+
+class Question(models.Model):
+    QUESTION_TYPE_CHOICES = [('concept', '개념문제'), ('past', '기출문제')]
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, null=True, blank=True, on_delete=models.SET_NULL)
+    content = models.TextField()
+    concept = models.TextField(blank=True)  # 개념문제용
+    choice1 = models.CharField(max_length=200)
+    choice2 = models.CharField(max_length=200)
+    choice3 = models.CharField(max_length=200)
+    choice4 = models.CharField(max_length=200)
+    image1 = models.URLField(blank=True)
+    image2 = models.URLField(blank=True)
+    image3 = models.URLField(blank=True)
+    image4 = models.URLField(blank=True)
+    answer = models.IntegerField() # 1~4
+    answer_image = models.URLField(blank=True)
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPE_CHOICES)
+    year = models.IntegerField(null=True, blank=True) # 기출문제용
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class WrongAnswer(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class UserAnswerLog(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.IntegerField()
+    is_correct = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+[trophies/models.py]
+--------------------
+from django.db import models
+from users.models import UserProfile
+
+class Trophy(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+    condition = models.CharField(max_length=200) # 획득 조건 요약
+    grade = models.CharField(max_length=10, choices=[('gold','금'),('silver','은'),('bronze','동')])
+    points = models.IntegerField()
+    is_hidden = models.BooleanField(default=False)
+    # 누적 기록 조건
+    required_login_days = models.IntegerField(default=0)
+    required_total_quiz = models.IntegerField(default=0)
+    required_subject = models.CharField(max_length=20, blank=True)
+    required_subject_quiz = models.IntegerField(default=0)
+    required_right_rate = models.IntegerField(default=0)
+    required_total_wrong = models.IntegerField(default=0)
+    required_streak = models.IntegerField(default=0)
+    required_point_used = models.IntegerField(default=0)
+
+class UserTrophy(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    trophy = models.ForeignKey(Trophy, on_delete=models.CASCADE)
+    acquired_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+[attendance/models.py]
+----------------------
+from django.db import models
+from users.models import UserProfile
+
+class DailyAttendance(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    date = models.DateField()
+    checked_at = models.DateTimeField(auto_now_add=True)
+
+class AttendanceStreak(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    current_streak = models.IntegerField(default=0)
+    longest_streak = models.IntegerField(default=0)
+    last_date = models.DateField(null=True, blank=True)
+
+[shop/models.py]
+----------------
+from django.db import models
+from users.models import UserProfile
+
+class Item(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=200)
+    image_url = models.URLField(blank=True)
+    price = models.IntegerField()
+    is_active = models.BooleanField(default=True)
+
+class Purchase(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+
+class AllowanceRequest(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    requested_at = models.DateTimeField(auto_now_add=True)
+    is_approved = models.BooleanField(default=False)
+
+[core/models.py]
+----------------
+from django.db import models
+
+class SiteSetting(models.Model):
+    key = models.CharField(max_length=100, unique=True)
+    value = models.TextField()
+
+class Sound(models.Model):
+    name = models.CharField(max_length=100)
+    file_url = models.URLField()
+
+class ImageResource(models.Model):
+    name = models.CharField(max_length=100)
+    file_url = models.URLField()
+
+class PromptTemplate(models.Model):
+    subject = models.CharField(max_length=50)
+    template = models.TextField()
+    description = models.TextField(blank=True)
+
+=========================================
+4. 주요 admin.py 샘플
+-----------------------------------------
+(대표 예시)
+from django.contrib import admin
+from .models import UserProfile, Theme
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'nickname', 'mascot', 'selected_theme', 'point', 'join_date')
+
+@admin.register(Theme)
+class ThemeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_active')
+
+... (각 앱별 models에 맞게 설정)
+
+=========================================
+5. 학생/관리자 대시보드 뷰 예시
+-----------------------------------------
+# quiz/views.py
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def student_dashboard(request):
+    return render(request, "student_dashboard.html")
+
+# users/views.py
+@login_required
+def mypage(request):
+    userprofile = UserProfile.objects.get(user=request.user)
+    themes = Theme.objects.filter(is_active=True)
+    if request.method == "POST" and "select_theme" in request.POST:
+        theme_id = int(request.POST["select_theme"])
+        theme = Theme.objects.get(id=theme_id)
+        userprofile.selected_theme = theme
+        userprofile.save()
+        return redirect("mypage")
+    return render(request, "mypage.html", {"userprofile": userprofile, "themes": themes})
+
+=========================================
+6. 주요 template 예시
+-----------------------------------------
+# templates/student_dashboard.html
+(HTML 생략, 메뉴 위젯/트로피/포인트/달력 등 표시)
+
+# templates/mypage.html
+<form method="post">
+  {% csrf_token %}
+  <h3>테마 선택</h3>
+  {% for theme in themes %}
+    <button type="submit" name="select_theme" value="{{ theme.id }}">{{ theme.name }}</button>
+  {% endfor %}
+</form>
+
+=========================================
+7. 데이터 더미 입력/자동생성 스크립트 예시
+-----------------------------------------
+# create_kim_users.py
+from django.contrib.auth.models import User
+from users.models import UserProfile
+if not User.objects.filter(username="kimrin").exists():
+    u1 = User.objects.create_user(username="kimrin", password="0424")
+    UserProfile.objects.create(user=u1, nickname="김린")
+if not User.objects.filter(username="kimik").exists():
+    u2 = User.objects.create_user(username="kimik", password="0928")
+    UserProfile.objects.create(user=u2, nickname="김익")
+
+# create_theme_dummy.py
+from users.models import Theme
+themes = [
+    ("바다속 스타일", ""), ("미쿠 스타일", ""), ("사이버 스타일", ""),
+    ("파스텔 스타일", ""), ("공포 스타일", "")
+]
+for name, img in themes:
+    Theme.objects.get_or_create(name=name, preview_image=img)
+
+# create_trophy_dummy.py (50개 자동 생성 예시 생략)
+
+=========================================
+8. AI 문제생성 프롬프트/예시
+-----------------------------------------
+### [AI 문제생성 프롬프트]
+"다음 형식에 맞춰 초등학교 1학년 수학 한자리 덧셈 문제 10개를 만들어줘.
+필드는 subject(과목), grade(학년), unit(단원), content(문제지문), concept(개념설명), choice1~4(객관식), answer(정답번호, 1~4), image1~4(객관식이미지URL), answer_image(정답이미지URL)야.  
+문제 형식:  
+{'subject': '수학', 'grade': 1, 'unit': '덧셈', 'content': '3+2=?', 'concept': '한자리수 덧셈', 'choice1': '4', 'choice2': '5', 'choice3': '6', 'choice4': '7', 'answer': 2, 'image1': '', 'image2': '', 'image3': '', 'image4': '', 'answer_image': ''}"
+
+### [AI 트로피 생성 프롬프트]
+"아이들이 좋아할만한 트로피를 센스 있는 이름/설명/획득 조건(수치 기준)/포인트/난이도(금은동)로 50개 만들어줘.  
+예: '문제왕', '수학천재', '국어박사', ... 등 획득조건: 총 문제 100문제 풀기, 연속출석 10일 등 다양하게"
+
+=========================================
+9. 운영/마이그레이션 명령어
+-----------------------------------------
+# 가상환경 진입
+source venv_study/bin/activate
+
+# 마이그레이션
+python manage.py makemigrations
+python manage.py migrate
+
+# 서버 실행
+python manage.py runserver 0.0.0.0:8000
+
+# 더미 입력
+python manage.py shell < create_kim_users.py
+
+=========================================
+10. 기타/유지보수 팁
+-----------------------------------------
+- 모든 파일은 cat EOF로 자동 생성 가능(전체파일, 뷰, 모델, 템플릿, 스크립트)
+- 중요한 모델/설정/권한은 항상 README 및 txt로 기록/백업
+- 오류시 디비 테이블 상태(migrate, makemigrations, migrate zero 등) 확인
+
+=========================================
+(끝)

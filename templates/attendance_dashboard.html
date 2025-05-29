@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="text-center mb-3">📅 출석 대시보드</h2>
+
+  <div class="mb-4">
+    <div class="card p-3 shadow-sm pastel-bg">
+      <div class="d-flex align-items-center">
+        <div style="font-size: 2rem;">👦</div>
+        <div class="ms-3">
+          <strong>{{ user.username }}</strong> 님,
+          {% if is_attended_today %}
+            <span class="badge bg-success">오늘 출석 완료!</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">아직 출석 전!</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="mt-2">
+        <b>연속 출석:</b> {{ streak }} 일<br>
+        <b>최장 연속 기록:</b> {{ longest_streak }} 일
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm p-3 mb-4">
+    <h5 class="mb-3">🗓️ 출석 캘린더 (이번 달)</h5>
+    <div class="row row-cols-7 g-1">
+      {% for i in range %}
+        {% if i < first_weekday %}
+          <div class="col"></div>
+        {% else %}
+          {% with day=i-first_weekday+1 %}
+            <div class="col">
+              {% if day in attendance_days %}
+                <span class="badge bg-info text-dark" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;">{{ day }}</span>
+              {% else %}
+                <span class="badge bg-light text-muted" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;">{{ day }}</span>
+              {% endif %}
+            </div>
+          {% endwith %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary mt-2">대시보드로 돌아가기</a>
+</div>
+<style>
+.pastel-bg { background: #f7f9ff; }
+</style>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!--
+mypage.html
+- 학생이 직접 테마(캐릭터/색상 등) 선택
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지 - 테마 선택</title>
+    <style>
+        body { background: #f9faff; font-family: 'Noto Sans KR', sans-serif; }
+        .theme-box { display:flex; flex-wrap:wrap; gap:1.5em; margin:2em 0;}
+        .theme-item { background:#fff; border-radius:1.2em; box-shadow:0 3px 12px #b3d3e7; padding:1.2em 1em; text-align:center; width:185px; transition:.14s;}
+        .theme-item.selected { border:3px solid #32c6e7; box-shadow:0 5px 16px #bcebf7;}
+        .theme-img { width:84px; height:84px; border-radius:1em; margin-bottom:0.7em;}
+        .theme-name { font-weight:bold; color:#2d9fcc;}
+        .choose-btn { margin-top:0.7em; padding:0.4em 1.2em; background:#32c6e7; color:#fff; border:none; border-radius:0.8em; cursor:pointer;}
+    </style>
+</head>
+<body>
+    <h2>테마/캐릭터 선택</h2>
+    <form method="post">{% csrf_token %}
+        <div class="theme-box">
+        {% for theme in themes %}
+            <div class="theme-item{% if userprofile.selected_theme and userprofile.selected_theme.id == theme.id %} selected{% endif %}">
+                <img src="{{ theme.preview_image|default:theme.mascot_image }}" class="theme-img" alt="{{ theme.display_name }}">
+                <div class="theme-name">{{ theme.display_name }}</div>
+                <div style="font-size:0.96em; color:#888;">{{ theme.description }}</div>
+                <button name="select_theme" value="{{ theme.id }}" class="choose-btn"
+                        {% if userprofile.selected_theme and userprofile.selected_theme.id == theme.id %}disabled{% endif %}>
+                    {% if userprofile.selected_theme and userprofile.selected_theme.id == theme.id %}선택됨{% else %}선택하기{% endif %}
+                </button>
+            </div>
+        {% endfor %}
+        </div>
+    </form>
+</body>
+</html>

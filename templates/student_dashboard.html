@@ -1,0 +1,92 @@
+<!--
+student_dashboard.html
+- 학생 이름/마스코트, 메뉴 버튼(상단), 아래 대시보드: 트로피/포인트/리포트/달력 등
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ userprofile.nickname }}의 대시보드</title>
+    <meta name="viewport" content="width=440, initial-scale=1.0">
+    <style>
+        body { background: {{ userprofile.selected_theme.bg_color|default:"#f9fbfd" }}; font-family: 'Noto Sans KR', sans-serif; }
+        .dashboard { max-width: 780px; margin: 3em auto; padding: 2.3em 2.2em; background: #fff; border-radius: 2.3em; box-shadow: 2px 4px 30px #cce; }
+        .header { display: flex; align-items: center; margin-bottom: 1.7em; }
+        .mascot { width: 74px; height: 74px; border-radius: 1.3em; margin-right: 1.2em; background:#e0f9fc; box-shadow:0 2px 14px #cce;}
+        .student-name { font-size: 1.6em; font-weight: bold; color: #349be2; }
+        .menu-list { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 1.2em; margin-bottom: 2em;}
+        .menu-item { width: 110px; height: 55px; border-radius: 1.2em; background: linear-gradient(140deg,#e7f3fd,#a6e6ff,#e7faf3); box-shadow: 1px 2px 12px #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1em; font-weight: bold; color: #3986b5; transition: 0.13s; text-decoration: none; }
+        .menu-item:hover { background: #e5fffb; transform: scale(1.08);}
+        .menu-icon { font-size: 1.5em; margin-bottom: 0.08em;}
+        .summary-box { display: flex; gap: 1.2em; margin-bottom:1.6em;}
+        .info-box { flex:1; background: #f3faff; border-radius: 1em; box-shadow:0 2px 8px #d4ebf8; text-align:center; padding: 1.2em 0.8em;}
+        .info-title { color:#29b3cc; font-size:1.09em; margin-bottom:0.4em; }
+        .info-value { font-size:1.6em; font-weight:700; color:#326dc7;}
+        .report-area { margin-top: 1.4em;}
+        .calendar-box { background:#fdf7ea; border-radius:1.2em; padding:1.1em; box-shadow:0 2px 8px #fde2ad; margin-bottom:1em;}
+        .calendar-title { color:#e4aa44; font-weight:bold; font-size:1.1em;}
+        .learn-chart-box { background:#f5faff; border-radius:1.2em; padding:1.2em; margin-bottom:1em;}
+        .learn-title { color:#69a6d6; font-weight:bold; font-size:1.1em;}
+        @media (max-width: 700px) {
+            .dashboard { padding:1.2em 0.2em;}
+            .menu-list { flex-wrap: wrap;}
+            .menu-item { width: 30vw; height:50px;}
+            .summary-box { flex-direction:column; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+</head>
+<body>
+<div class="dashboard">
+
+    <!-- 1. 학생 이름/마스코트 -->
+    <div class="header">
+        {% if userprofile.selected_theme and userprofile.selected_theme.mascot_image %}
+          <img src="{{ userprofile.selected_theme.mascot_image }}" class="mascot" alt="마스코트">
+        {% endif %}
+        <div class="student-name">{{ userprofile.nickname }} 님</div>
+    </div>
+    
+    <!-- 2. 상단 메뉴 버튼 -->
+    <div class="menu-list">
+        <a href="/quiz/concept_select/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-graduation-cap"></i></span>문제풀기</a>
+        <a href="/quiz/wrong_note/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-repeat"></i></span>오답노트</a>
+        <a href="/trophies/my/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-trophy"></i></span>트로피</a>
+        <a href="/attendance/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-calendar-check"></i></span>출석</a>
+        <a href="/shop/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-store"></i></span>상점</a>
+        <a href="/mypage/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-user"></i></span>마이페이지</a>
+        <a href="/minigame/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-gamepad"></i></span>미니게임</a>
+    </div>
+    
+    <!-- 3. 대시보드 주요 정보 -->
+    <div class="summary-box">
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-trophy"></i> 획득 트로피</div>
+            <div class="info-value">{{ user_trophy_count|default:"0" }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-coins"></i> 내 포인트</div>
+            <div class="info-value">{{ user_point|default:"0" }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-chart-line"></i> 누적 문제풀이</div>
+            <div class="info-value">{{ user_quiz_count|default:"0" }}</div>
+        </div>
+    </div>
+    
+    <!-- 4. 리포트/달력 등 -->
+    <div class="report-area">
+        <div class="calendar-box">
+            <div class="calendar-title"><i class="fa-solid fa-calendar-days"></i> 출석 달력</div>
+            <!-- 달력/출석 위젯 삽입 -->
+            <div style="margin-top:0.7em;">(여기에 출석 달력 or 캘린더 위젯 표시!)</div>
+        </div>
+        <div class="learn-chart-box">
+            <div class="learn-title"><i class="fa-solid fa-chart-pie"></i> 학습 리포트/통계</div>
+            <!-- 차트/통계/진도 등 시각화 -->
+            <div style="margin-top:0.7em;">(문제 정답률/오답률, 과목별 진도 그래프 등 표시!)</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!--
+my_report.html
+- 학습 리포트, 통계 차트 예시(실전 확장 가능)
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>학습 리포트</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-box { background:#f5faff; border-radius:1.3em; box-shadow:0 2px 12px #e3f0f8; padding:2em; width:400px; margin:2em auto;}
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">학습 리포트</h2>
+    <div class="chart-box">
+        <canvas id="resultChart" width="360" height="210"></canvas>
+    </div>
+    <script>
+        const ctx = document.getElementById('resultChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['정답', '오답'],
+                datasets: [{
+                    data: [{{ correct }}, {{ wrong }}],
+                    backgroundColor: ['#6fdfae', '#fa8a83'],
+                }]
+            },
+            options: {
+                responsive: false,
+                plugins: { legend: { display: true, position: 'bottom' } }
+            }
+        });
+    </script>
+    <div style="text-align:center; margin-top:1.2em;">
+        전체 풀이 {{ total }}개 / 정답률 <b style="color:#2dca7b">{{ correct_rate }}%</b>
+    </div>
+</body>
+</html>

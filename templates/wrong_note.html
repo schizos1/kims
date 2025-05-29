@@ -1,0 +1,35 @@
+<!--
+wrong_note.html
+- 오답노트 + 재도전 버튼
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>오답노트</title>
+    <style>
+        .wn-table { width:100%; border-collapse:collapse; margin-top:1.5em;}
+        .wn-table th, .wn-table td { border-bottom:1px solid #eee; padding:0.8em;}
+        .re-btn { padding:0.25em 1.1em; background:#46c7ba; color:#fff; border-radius:0.7em; border:none; cursor:pointer;}
+    </style>
+</head>
+<body>
+    <h2>오답노트</h2>
+    <table class="wn-table">
+        <tr><th>문제</th><th>정답</th><th>재도전</th></tr>
+        {% for w in wrongs %}
+        <tr>
+            <td>{{ w.question.text|truncatewords:10 }}</td>
+            <td>{{ w.question.answer }}</td>
+            <td>
+                <form method="post" action="/quiz/retry/{{ w.question.id }}/">{% csrf_token %}
+                    <button class="re-btn">재도전</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">오답 기록이 없습니다.</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

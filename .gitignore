@@ -1,0 +1,21 @@
+venv_study/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+*.log
+*.pot
+*.pyc
+.DS_Store
+*.db
+.env
+*.env
+/static/
+*.swp
+.idea/
+*.vscode/
+*.egg-info/
+# OS/Editor/Etc
+Thumbs.db

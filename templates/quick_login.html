@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>간편 로그인</title>
+    <style>
+        body { text-align: center; margin-top: 10vh; font-family: 'Noto Sans KR', sans-serif; background: #eaf6ff; }
+        button { padding: 2em 4em; margin: 1.2em; font-size: 1.2em; border-radius: 2em; border: none; box-shadow: 1px 2px 6px #bbb; background: #c7e7f3; cursor: pointer; transition: background 0.2s;}
+        button:hover { background: #8fd4ea; }
+    </style>
+</head>
+<body>
+    <h2>간편 로그인</h2>
+    <form action="{% url 'quick_login_action' 'kimrin' %}" method="post" autocomplete="off">
+        {% csrf_token %}
+        <button type="submit">👧 김린(학생) 로그인</button>
+    </form>
+    <form action="{% url 'quick_login_action' 'kimik' %}" method="post" autocomplete="off">
+        {% csrf_token %}
+        <button type="submit">🧒 김익(학생) 로그인</button>
+    </form>
+    <form action="{% url 'quick_login_action' 'admin' %}" method="post" autocomplete="off">
+        {% csrf_token %}
+        <button type="submit">👑 관리자 로그인</button>
+    </form>
+</body>
+</html>

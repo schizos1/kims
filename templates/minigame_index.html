@@ -1,0 +1,31 @@
+<!--
+minigame_index.html
+- 미니게임 목록/메뉴
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>미니게임</title>
+    <style>
+        .game-list { display:flex; flex-wrap:wrap; gap:1.4em;}
+        .game-item { width:200px; border-radius:1em; background:#f7fff9; box-shadow:0 2px 12px #d4f8e7; padding:1.4em; text-align:center;}
+        .game-title { font-weight:700; color:#31b9c8;}
+        .play-btn { margin-top:0.7em; padding:0.39em 1.3em; background:#4fd1d0; color:#fff; border-radius:0.9em; border:none; cursor:pointer;}
+    </style>
+</head>
+<body>
+    <h2>미니게임</h2>
+    <div class="game-list">
+        {% for g in games %}
+        <div class="game-item">
+            <div class="game-title">{{ g.name }}</div>
+            <div style="margin:0.7em 0 1em 0; color:#888;">{{ g.desc }}</div>
+            <form method="get" action="/minigame/play/{{ g.name|urlencode }}/">
+                <button class="play-btn">게임 시작</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

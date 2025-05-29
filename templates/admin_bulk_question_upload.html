@@ -1,0 +1,73 @@
+<!--
+admin_bulk_question_upload.html
+- 관리자: AI 문제 JSON 일괄 입력 폼 (lesson_concept 설명/예시 포함)
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>AI 문제 일괄 입력</title>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background: #f7fbff; }
+        textarea { width: 98%; min-height: 300px; font-size: 1em; margin-top: 1em; }
+        .container { margin: 3em auto; max-width: 800px; padding: 2em; background: #fff; border-radius: 2em; box-shadow: 1px 2px 12px #cce; }
+        button { padding: 0.7em 2.5em; margin-top: 1em; font-size: 1em; border-radius: 1em; background: #58c8e0; color: #fff; border: none; cursor: pointer; }
+        pre { background: #f0f4fa; padding: 1em; border-radius: 1em; overflow-x: auto; }
+        ul { text-align: left; font-size: 1.05em; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>AI 문제 일괄 입력</h2>
+    <ul>
+        <li><b>이제 개념설명(lesson_concept)까지 한 번에 등록할 수 있습니다!</b></li>
+        <li><b>각 문제 JSON에 "lesson_concept" 필드를 추가하면,</b> 단원별 개념설명도 자동 등록됩니다.</li>
+        <li>예시 프롬프트/JSON과 설명을 참고해서 AI에게 요청해 주세요.</li>
+        <li>문제마다 lesson_concept가 다르면, 가장 마지막 입력 값으로 단원의 개념설명이 저장됩니다.</li>
+    </ul>
+    <form method="post">{% csrf_token %}
+        <label>문제 JSON 배열 붙여넣기:</label><br>
+        <textarea name="json_data" placeholder="예시와 같은 형식의 JSON 데이터를 붙여넣으세요"></textarea><br>
+        <button type="submit">일괄 등록</button>
+    </form>
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <h3>AI 프롬프트 예시 (lesson_concept 포함, 그대로 AI에게 요청!)</h3>
+    <pre>
+아래 형식에 따라 초등 1학년 수학 '한 자리 수의 덧셈' 개념문제를 3개 만들어주세요.
+각 문제는 lesson_concept(개념설명) 필드도 포함해야 합니다.
+
+[
+  {
+    "question_type": "concept",
+    "subject": "수학",
+    "lesson": "한 자리 수의 덧셈",
+    "grade": "1학년",
+    "lesson_concept": "한 자리 수의 덧셈은 0~9까지의 수를 더하는 계산입니다.",
+    "year": "",
+    "number": "",
+    "text": "3 + 5 = ?",
+    "image": "",
+    "choice1_text": "7",
+    "choice1_image": "",
+    "choice2_text": "8",
+    "choice2_image": "",
+    "choice3_text": "9",
+    "choice3_image": "",
+    "choice4_text": "6",
+    "choice4_image": "",
+    "answer": 2,
+    "explanation": "3 + 5는 8입니다.",
+    "explanation_image": ""
+  }
+  // 여러 문제 배열로 입력!
+]
+    </pre>
+</div>
+</body>
+</html>
