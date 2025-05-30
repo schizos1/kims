@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load quiz_extras %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center fw-bold" style="font-size:2.4rem; letter-spacing:1px; color:#2c3e50;">
+    {{ subject.name }} - {{ lesson.unit_name }} 오답노트 문제풀이
+  </h2>
+
+  {% if questions %}
+    <form method="post" action="{% url 'submit_answers' subject.id lesson.id %}">
+      {% csrf_token %}
+
+      {% for question in questions %}
+      <div class="card mb-4 shadow-sm p-3 rounded-4">
+        <div class="mb-3 fw-bold fs-5">
+          <span class="me-2">{{ forloop.counter }}.</span>
+          <span>{{ question.text }}</span>
+          {% if question.image %}
+            <br>
+            <img src="{{ question.image }}" alt="문제 이미지" class="img-fluid mt-2 rounded" style="max-height: 180px;">
+          {% endif %}
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+          {% for i in "1234" %}
+          <div class="col">
+            <label class="d-flex align-items-center border rounded p-2 cursor-pointer hover-shadow" style="cursor:pointer;">
+              <input type="radio" name="q{{ question.id }}" value="{{ i }}" class="form-check-input me-3" required>
+              <span class="fs-5 me-2 fw-bold text-primary">
+                {% if i == "1" %}①
+                {% elif i == "2" %}②
+                {% elif i == "3" %}③
+                {% elif i == "4" %}④
+                {% endif %}
+              </span>
+              {% with choice_text=question|get_choice_text:i choice_image=question|get_choice_image:i %}
+                {% if choice_image %}
+                  <img src="{{ choice_image }}" alt="선택지 이미지" style="max-width: 40px; max-height: 40px; margin-right: 10px;">
+                {% endif %}
+                <span>{{ choice_text }}</span>
+              {% endwith %}
+            </label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow">
+          답안 제출하기
+        </button>
+      </div>
+    </form>
+  {% else %}
+    <div class="text-center fs-5 text-muted">
+      이 단원에 오답문제가 없습니다. 축하합니다!
+    </div>
+  {% endif %}
+  <div class="mt-3 text-center">
+    <a href="{% url 'wrong_answer_subject_list' %}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+      ← 오답노트 과목 목록으로 돌아가기
+    </a>
+  </div>
+</div>
+
+<style>
+.cursor-pointer:hover {
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  background-color: #e9f5ff;
+  transition: 0.3s;
+}
+.hover-shadow {
+  transition: box-shadow 0.3s ease;
+}
+.hover-shadow:hover {
+  box-shadow: 0 10px 20px rgba(0, 123, 255, 0.35);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load quiz_extras %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center fw-bold" style="font-size:2.2rem; letter-spacing:1px;">
+    {{ subject.name }} - {{ lesson.unit_name }} 문제풀이
+  </h2>
+
+  <div class="mb-4">
+    <h5 class="fw-semibold">개념 설명</h5>
+    <p class="lead">{{ lesson.concept }}</p>
+  </div>
+
+  <form method="post" action="{% url 'submit_answers' subject.id lesson.id %}">
+    {% csrf_token %}
+
+    {% for question in questions %}
+      <div class="card mb-4 shadow-sm p-3">
+        <div class="mb-3 fw-bold fs-5">
+          <span class="me-2">{{ forloop.counter }}.</span>
+          <span>{{ question.text }}</span>
+          {% if question.image %}
+            <br>
+            <img src="{{ question.image }}" alt="문제 이미지" class="img-fluid mt-2" style="max-height: 200px;">
+          {% endif %}
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+          {% for i in "1234" %}
+            <div class="col">
+              <label class="d-flex align-items-center border rounded p-2 cursor-pointer hover-shadow" style="cursor:pointer;">
+                <input type="radio" name="q{{ question.id }}" value="{{ i }}" class="form-check-input me-3" required>
+                <span class="fs-5 me-2 fw-bold text-primary">
+                  {% if i == "1" %}①
+                  {% elif i == "2" %}②
+                  {% elif i == "3" %}③
+                  {% elif i == "4" %}④
+                  {% endif %}
+                </span>
+                {% with choice_text=question|get_choice_text:i choice_image=question|get_choice_image:i %}
+                  {% if choice_image %}
+                    <img src="{{ choice_image }}" alt="선택지 이미지" style="max-width: 40px; max-height: 40px; margin-right: 10px;">
+                  {% endif %}
+                  <span>{{ choice_text }}</span>
+                {% endwith %}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-center text-muted fs-5">이 단원에는 등록된 문제가 없습니다.</div>
+    {% endfor %}
+
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow">
+        답안 제출하기
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+.cursor-pointer:hover {
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  background-color: #e9f5ff;
+  transition: 0.3s;
+}
+</style>
+{% endblock %}

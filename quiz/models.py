@@ -1,6 +1,6 @@
 """
 quiz/models.py
-- 과목, 단원, 문제(개념/기출), 오답노트, 풀이로그 모델
+- 과목, 단원, 문제(개념/기출), 오답노트, 풀이로그 모델 정의
 """
 
 from django.db import models
@@ -16,10 +16,10 @@ class Subject(models.Model):
 class Lesson(models.Model):
     """
     단원 (개념문제용)
-    - subject: 과목
+    - subject: 과목 ForeignKey
     - unit_name: 단원명
     - grade: 학년(필요시)
-    - concept: 개념설명(텍스트)
+    - concept: 개념 설명 텍스트
     """
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     unit_name = models.CharField(max_length=100)
@@ -31,14 +31,14 @@ class Lesson(models.Model):
 
 class Question(models.Model):
     """
-    문제 (개념문제/기출문제 모두)
+    문제 (개념문제/기출문제 모두 사용)
     - question_type: "concept" or "past"
-    - lesson: 개념문제만 연결, 기출문제는 null
-    - year, number: 기출문제만 사용
-    - text/image: 문제 본문/이미지
-    - choiceN_text/image: 4지선다 객관식(이미지 필드 포함)
-    - answer: 정답(1~4)
-    - explanation/explanation_image: 해설/해설이미지
+    - lesson: 개념문제만 연결, 기출문제는 null 가능
+    - year, number: 기출문제 전용 필드
+    - text, image: 문제 본문과 이미지 URL
+    - choiceN_text, choiceN_image: 4지선다 텍스트/이미지 필드
+    - answer: 정답 번호(1~4)
+    - explanation, explanation_image: 해설 텍스트 및 이미지
     """
     QUESTION_TYPE_CHOICES = [
         ('concept', '개념문제'),
@@ -71,11 +71,11 @@ class Question(models.Model):
 class UserAnswerLog(models.Model):
     """
     학생 풀이 기록 (문제풀이 로그)
-    - user: 학생
-    - question: 문제
-    - user_answer: 선택한 답(번호)
-    - is_correct: 정답여부
-    - timestamp: 제출시각
+    - user: 학생 (ForeignKey)
+    - question: 문제 (ForeignKey)
+    - user_answer: 학생이 선택한 답 번호
+    - is_correct: 정답 여부
+    - timestamp: 제출 시각
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -86,8 +86,8 @@ class UserAnswerLog(models.Model):
 class WrongAnswer(models.Model):
     """
     오답노트 기록 (틀린 문제)
-    - user: 학생
-    - question: 문제
+    - user: 학생 (ForeignKey)
+    - question: 문제 (ForeignKey)
     - created_at: 오답 등록 시각
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)

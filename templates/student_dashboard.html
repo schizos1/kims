@@ -1,6 +1,7 @@
 <!--
 student_dashboard.html
 - 학생 이름/마스코트, 메뉴 버튼(상단), 아래 대시보드: 트로피/포인트/리포트/달력 등
+- 아이들이 좋아할 파스텔톤 컬러와 부드러운 둥근 느낌 강조
 -->
 <!DOCTYPE html>
 <html lang="ko">
@@ -9,29 +10,149 @@ student_dashboard.html
     <title>{{ userprofile.nickname }}의 대시보드</title>
     <meta name="viewport" content="width=440, initial-scale=1.0">
     <style>
-        body { background: {{ userprofile.selected_theme.bg_color|default:"#f9fbfd" }}; font-family: 'Noto Sans KR', sans-serif; }
-        .dashboard { max-width: 780px; margin: 3em auto; padding: 2.3em 2.2em; background: #fff; border-radius: 2.3em; box-shadow: 2px 4px 30px #cce; }
-        .header { display: flex; align-items: center; margin-bottom: 1.7em; }
-        .mascot { width: 74px; height: 74px; border-radius: 1.3em; margin-right: 1.2em; background:#e0f9fc; box-shadow:0 2px 14px #cce;}
-        .student-name { font-size: 1.6em; font-weight: bold; color: #349be2; }
-        .menu-list { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 1.2em; margin-bottom: 2em;}
-        .menu-item { width: 110px; height: 55px; border-radius: 1.2em; background: linear-gradient(140deg,#e7f3fd,#a6e6ff,#e7faf3); box-shadow: 1px 2px 12px #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1em; font-weight: bold; color: #3986b5; transition: 0.13s; text-decoration: none; }
-        .menu-item:hover { background: #e5fffb; transform: scale(1.08);}
-        .menu-icon { font-size: 1.5em; margin-bottom: 0.08em;}
-        .summary-box { display: flex; gap: 1.2em; margin-bottom:1.6em;}
-        .info-box { flex:1; background: #f3faff; border-radius: 1em; box-shadow:0 2px 8px #d4ebf8; text-align:center; padding: 1.2em 0.8em;}
-        .info-title { color:#29b3cc; font-size:1.09em; margin-bottom:0.4em; }
-        .info-value { font-size:1.6em; font-weight:700; color:#326dc7;}
-        .report-area { margin-top: 1.4em;}
-        .calendar-box { background:#fdf7ea; border-radius:1.2em; padding:1.1em; box-shadow:0 2px 8px #fde2ad; margin-bottom:1em;}
-        .calendar-title { color:#e4aa44; font-weight:bold; font-size:1.1em;}
-        .learn-chart-box { background:#f5faff; border-radius:1.2em; padding:1.2em; margin-bottom:1em;}
-        .learn-title { color:#69a6d6; font-weight:bold; font-size:1.1em;}
+        /* 배경은 파스텔톤 부드러운 그라데이션 */
+        body {
+            background: linear-gradient(135deg, #e6f0ff, #cce4ff);
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .dashboard {
+            max-width: 800px;
+            margin: 3em auto;
+            padding: 2.5em 2.5em;
+            background: #ffffffcc;
+            border-radius: 2.5em;
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.15);
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.8em;
+        }
+        .mascot {
+            width: 80px;
+            height: 80px;
+            border-radius: 1.5em;
+            margin-right: 1.3em;
+            background: #d0f0f9;
+            box-shadow: 0 4px 16px rgba(102, 178, 255, 0.4);
+            object-fit: contain;
+            border: 3px solid #7ec6ff;
+        }
+        .student-name {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #3a7bd5;
+            text-shadow: 0 1px 3px rgba(0, 83, 179, 0.3);
+        }
+        .menu-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 1.4em;
+            margin-bottom: 2.5em;
+        }
+        .menu-item {
+            width: 110px;
+            height: 58px;
+            border-radius: 1.5em;
+            background: linear-gradient(145deg, #e1f2ff, #b9dbff);
+            box-shadow:
+                4px 4px 10px #a0c7ff,
+                -4px -4px 10px #f0fcff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05em;
+            font-weight: 800;
+            color: #2c5c99;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            user-select: none;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            background: linear-gradient(145deg, #b9dbff, #e1f2ff);
+            box-shadow:
+                6px 6px 14px #7eaaff,
+                -6px -6px 14px #d0efff;
+            transform: scale(1.1);
+            color: #1a3a66;
+        }
+        .menu-icon {
+            font-size: 1.8em;
+            margin-bottom: 0.1em;
+            color: #1a4dc4;
+            text-shadow: 0 0 4px #88b5ff;
+        }
+        .summary-box {
+            display: flex;
+            gap: 1.6em;
+            margin-bottom: 1.8em;
+            justify-content: space-around;
+        }
+        .info-box {
+            flex: 1;
+            background: #e6f0ff;
+            border-radius: 1.2em;
+            box-shadow:
+                inset 2px 2px 8px #b1d0ff,
+                inset -2px -2px 8px #ffffff;
+            text-align: center;
+            padding: 1.3em 0.9em;
+            transition: background 0.3s ease;
+        }
+        .info-box:hover {
+            background: #c9e1ff;
+            box-shadow:
+                0 0 15px 3px #89b7ff;
+        }
+        .info-title {
+            color: #3d7edc;
+            font-size: 1.12em;
+            font-weight: 700;
+            margin-bottom: 0.5em;
+            text-shadow: 0 0 2px #5f9eff;
+        }
+        .info-value {
+            font-size: 1.9em;
+            font-weight: 900;
+            color: #2c5dbb;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px #5a8ce6;
+        }
+        .report-area {
+            margin-top: 1.8em;
+        }
+        .calendar-box {
+            background:#fff3cd;
+            border-radius:1.5em;
+            padding:1.3em;
+            box-shadow: 0 4px 15px rgba(250, 217, 131, 0.6);
+            margin-bottom: 1.4em;
+            color: #856404;
+            font-weight: 700;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        .learn-chart-box {
+            background:#e1f5fe;
+            border-radius:1.5em;
+            padding:1.3em;
+            box-shadow: 0 4px 15px rgba(129, 212, 250, 0.6);
+            margin-bottom: 1.4em;
+            color: #0277bd;
+            font-weight: 700;
+            font-size: 1.2em;
+            text-align: center;
+        }
         @media (max-width: 700px) {
-            .dashboard { padding:1.2em 0.2em;}
-            .menu-list { flex-wrap: wrap;}
-            .menu-item { width: 30vw; height:50px;}
-            .summary-box { flex-direction:column; }
+            .dashboard { padding: 1.3em 0.4em; margin: 1.5em 1em;}
+            .menu-list { justify-content: center; gap: 1em;}
+            .menu-item { width: 28vw; height: 50px; font-size: 0.9em; }
+            .summary-box { flex-direction: column; gap: 1em; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>

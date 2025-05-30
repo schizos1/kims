@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center">내 오답노트</h2>
+  {% if wrong_by_subject_lesson %}
+    {% for subject, lessons in wrong_by_subject_lesson.items %}
+      <h3>{{ subject.name }}</h3>
+      <ul>
+        {% for lesson, questions in lessons.items %}
+          <li>
+            <a href="{% url 'wrong_note_quiz' note.subject.id note.lesson.id %}" class="btn btn-outline-primary rounded-pill px-4">
+  문제 다시 풀기
+</a>
+
+          </li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  {% else %}
+    <p>오답노트에 등록된 문제가 없습니다.</p>
+  {% endif %}
+</div>
+{% endblock %}

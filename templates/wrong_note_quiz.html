@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load quiz_extras %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center fw-bold" style="font-size:2.4rem; letter-spacing:1px; color:#31708f;">
+    {{ subject.name }} - {{ lesson.unit }} 오답노트 문제풀이
+  </h2>
+
+  <div class="mb-4">
+    <h5 class="fw-semibold">단원 개념 설명</h5>
+    <p class="lead">{{ concept_description }}</p>
+  </div>
+
+  <form method="post" action="">
+    {% csrf_token %}
+
+    {% for question in questions %}
+      <div class="card mb-4 shadow-sm rounded-4 p-4 border-primary border-2">
+        <div class="mb-3 fw-bold fs-5 text-primary">
+          <span class="me-3">{{ forloop.counter }}.</span>
+          {{ question.text }}
+          {% if question.image %}
+            <br>
+            <img src="{{ question.image }}" alt="문제 이미지" class="img-fluid mt-3 rounded" style="max-height: 180px;">
+          {% endif %}
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 g-3">
+          {% for i in "1234" %}
+            <div class="col">
+              <label class="d-flex align-items-center p-3 border rounded cursor-pointer choice-label">
+                <input type="radio" name="q{{ question.id }}" value="{{ i }}" class="form-check-input me-3" required>
+                <span class="fs-5 me-2 fw-bold text-info">
+                  {% if i == "1" %}①
+                  {% elif i == "2" %}②
+                  {% elif i == "3" %}③
+                  {% elif i == "4" %}④
+                  {% endif %}
+                </span>
+                {% with choice_text=question|get_choice_text:i choice_image=question|get_choice_image:i %}
+                  {% if choice_image %}
+                    <img src="{{ choice_image }}" alt="선택지 이미지" class="choice-image me-2 rounded" />
+                  {% endif %}
+                  <span>{{ choice_text }}</span>
+                {% endwith %}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-center text-muted fs-5">오답 문제가 없습니다. 축하합니다!</div>
+    {% endfor %}
+
+    {% if questions %}
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+        답안 제출하기
+      </button>
+    </div>
+    {% endif %}
+  </form>
+</div>
+
+<style>
+.cursor-pointer:hover {
+  box-shadow: 0 6px 18px rgba(49, 112, 143, 0.4);
+  background-color: #d6f0fc;
+  transition: 0.3s;
+}
+.choice-label {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.choice-label input[type="radio"] {
+  cursor: pointer;
+}
+.choice-image {
+  max-width: 40px;
+  max-height: 40px;
+  object-fit: contain;
+}
+</style>
+{% endblock %}

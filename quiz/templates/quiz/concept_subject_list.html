@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 text-center fw-bold" style="font-size:2.2rem; letter-spacing:1px;">
+    <span style="background: linear-gradient(90deg,#9be7ff,#fdd8ff,#ffe37c); 
+    border-radius: 2em; padding:0.2em 1em 0.35em 1em; box-shadow:0 8px 34px #ffefb6b7;">
+      🌈 개념 문제 과목 선택
+    </span>
+  </h2>
+  <div class="row justify-content-center">
+
+    <!-- 사운드 효과(hover/click) -->
+    <audio id="snd-hover" src="https://cdn.pixabay.com/audio/2022/10/16/audio_124bfa3f82.mp3"></audio>
+    <audio id="snd-click" src="https://cdn.pixabay.com/audio/2022/10/16/audio_1236817e47.mp3"></audio>
+
+    <!-- 🌟 필수 과목 -->
+    <div class="mb-5">
+      <div class="d-flex align-items-center mb-2">
+        <i class="fa-solid fa-crown fa-2x me-2 text-warning pastel-shadow"></i>
+        <h4 class="fw-bold mb-0" style="color:#38a3ec;">필수 과목</h4>
+      </div>
+      <div class="row g-4 justify-content-center">
+        {% for subject in required_subjects %}
+          <div class="col-6 col-md-3">
+            <a href="{% url 'concept_lesson_list' subject.id %}" 
+               class="subject-card required-card shadow pastel-border text-decoration-none animate__animated animate__bounceIn"
+               style="animation-delay: {{ forloop.counter|add:'0.1' }}s;">
+              <div class="subject-emoji mb-2" style="font-size:2.8rem;">
+                {% if subject.name == '국어' %} 📖
+                {% elif subject.name == '수학' %} ➕
+                {% elif subject.name == '사회' %} 🌎
+                {% elif subject.name == '과학' %} 🔬
+                {% endif %}
+              </div>
+              <div class="subject-icon mb-2" style="font-size:2.3rem;">
+                {% if subject.name == '국어' %}<i class="fa-solid fa-spell-check text-danger"></i>
+                {% elif subject.name == '수학' %}<i class="fa-solid fa-calculator text-info"></i>
+                {% elif subject.name == '사회' %}<i class="fa-solid fa-landmark-flag text-success"></i>
+                {% elif subject.name == '과학' %}<i class="fa-solid fa-atom text-purple"></i>
+                {% endif %}
+              </div>
+              <div class="fw-bold" style="font-size:1.25rem;letter-spacing:1px;">
+                {{ subject.name }}
+              </div>
+              <div style="font-size:1rem; color:#71a5e2; margin-top:4px;">
+                {% if subject.name == '국어' %}읽기와 쓰기의 세계
+                {% elif subject.name == '수학' %}숫자와 도형의 모험
+                {% elif subject.name == '사회' %}세상 탐험
+                {% elif subject.name == '과학' %}호기심 실험실
+                {% endif %}
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 🎨 선택 과목: 더 작고, 팬시/컬러/아이콘 -->
+    <div>
+      <div class="d-flex align-items-center mb-2 mt-4">
+        <i class="fa-solid fa-wand-magic-sparkles fa-lg me-2 pastel-shadow" style="color:#d277ff;"></i>
+        <h5 class="fw-bold mb-0" style="color:#d277ff;">선택 과목</h5>
+      </div>
+      <div class="row g-3 justify-content-center">
+        {% for subject in elective_subjects %}
+          <div class="col-6 col-sm-4 col-md-2">
+            <a href="{% url 'concept_lesson_list' subject.id %}" 
+               class="subject-card elective-card shadow pastel-border text-decoration-none animate__animated animate__zoomIn"
+               style="animation-delay: {{ forloop.counter|add:'0.2' }}s;">
+              <div class="subject-emoji mb-1" style="font-size:1.5rem;">
+                {% if subject.name == '영어' %} 🇺🇸
+                {% elif subject.name == '도덕' %} 🧘
+                {% elif subject.name == '체육' %} 🏃‍♂️
+                {% elif subject.name == '음악' %} 🎵
+                {% elif subject.name == '미술' %} 🎨
+                {% elif subject.name == '실과' %} 🌱
+                {% endif %}
+              </div>
+              <div class="subject-icon mb-1" style="font-size:1.2rem; color:#babbe3;">
+                {% if subject.name == '영어' %}<i class="fa-solid fa-language"></i>
+                {% elif subject.name == '도덕' %}<i class="fa-solid fa-hand-holding-heart"></i>
+                {% elif subject.name == '체육' %}<i class="fa-solid fa-person-running"></i>
+                {% elif subject.name == '음악' %}<i class="fa-solid fa-music"></i>
+                {% elif subject.name == '미술' %}<i class="fa-solid fa-palette"></i>
+                {% elif subject.name == '실과' %}<i class="fa-solid fa-seedling"></i>
+                {% endif %}
+              </div>
+              <div class="fw-semibold" style="font-size:1rem;">
+                {{ subject.name }}
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="text-muted small mt-2">💡 오늘 원하는 선택과목을 마음껏 골라보세요!</div>
+    </div>
+  </div>
+</div>
+<!-- 사운드 애니메이션 스크립트 -->
+<script>
+document.querySelectorAll('.subject-card').forEach(function(card){
+    card.addEventListener('mouseenter', function(){
+        var snd = document.getElementById('snd-hover');
+        snd.currentTime = 0; snd.volume = 0.24; snd.play();
+        card.style.transform = "scale(1.08) rotate(-1.5deg)";
+        card.style.boxShadow = "0 8px 38px #54c3ff";
+    });
+    card.addEventListener('mouseleave', function(){
+        card.style.transform = "";
+        card.style.boxShadow = "";
+    });
+    card.addEventListener('click', function(){
+        var snd = document.getElementById('snd-click');
+        snd.currentTime = 0; snd.volume = 0.36; snd.play();
+    });
+});
+</script>
+<style>
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+.subject-card {
+    border-radius: 1.9em;
+    padding: 1.7em 1em 1.2em 1em;
+    min-height: 170px;
+    display: block;
+    transition: 0.2s;
+    background: rgba(255,255,255,0.77);
+    box-shadow: 0 8px 28px #c5e2fa65;
+    border: 2.5px solid #e2e8fb;
+    position: relative;
+    overflow: hidden;
+    cursor:pointer;
+}
+.subject-card:hover {
+    background: linear-gradient(120deg,#f0e9ff 10%,#ccf5fc 100%);
+    transform: translateY(-8px) scale(1.06);
+    box-shadow: 0 20px 40px #e7d6ff60;
+    border-color: #abe5ff;
+}
+.required-card {
+    background: linear-gradient(135deg,#e1f2fe 40%,#ffe6f6 100%);
+    border: 3px solid #aeefff;
+    box-shadow: 0 4px 30px #aeefff90;
+}
+.elective-card {
+    background: linear-gradient(120deg,#f7f9ff 60%,#f3ecff 100%);
+    border: 2px solid #dad7f8;
+    min-height: 135px;
+    font-size: 0.98rem;
+}
+.pastel-border { box-shadow: 0 8px 32px #ffd6fb3c, 0 2px 10px #bae5ff23; }
+.pastel-shadow { text-shadow: 0 4px 22px #bae7fd66, 0 2px 6px #ffe3ff55; }
+.subject-emoji {
+    filter: drop-shadow(0 2px 10px #ffe99d80);
+    text-shadow: 0 2px 14px #bae5ff77;
+    animation: bounceInEmoji 0.8s cubic-bezier(.41,1.65,.4,.8);
+}
+@keyframes bounceInEmoji {
+    0% {transform: scale(0.5) translateY(70px);}
+    80% {transform: scale(1.14) translateY(-8px);}
+    100% {transform: scale(1.0) translateY(0);}
+}
+</style>
+{% endblock %}

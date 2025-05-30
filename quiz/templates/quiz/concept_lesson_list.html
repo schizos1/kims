@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-5 text-center fw-bold" style="font-size:2.4rem; letter-spacing:1px; color:#3a6ea5;">
+    {{ subject.name }} 단원 선택
+  </h2>
+  <div class="row g-4 justify-content-center">
+    {% for lesson in lessons %}
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <a href="{% url 'concept_question_list' subject.id lesson.id %}" class="lesson-card text-decoration-none shadow rounded-4 d-flex flex-column justify-content-center align-items-center p-4 h-100">
+          <div class="lesson-icon mb-3">
+            <i class="fa-solid fa-book-open fa-3x text-primary"></i>
+          </div>
+          <div class="lesson-title fw-bold fs-5 text-dark text-center mb-1">
+            {{ lesson.unit_name }}
+          </div>
+          <div class="lesson-grade text-secondary fs-6">
+            {{ lesson.grade }}
+          </div>
+        </a>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center text-muted fs-5">등록된 단원이 없습니다.</div>
+    {% endfor %}
+  </div>
+  <div class="mt-4 text-center">
+    <a href="{% url 'concept_subject_list' %}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+      ← 과목 선택으로 돌아가기
+    </a>
+  </div>
+</div>
+
+<style>
+.lesson-card {
+  background: linear-gradient(135deg, #e0f0ff, #c2d8ff);
+  border: 2px solid #91b6ff;
+  transition: all 0.3s ease;
+}
+.lesson-card:hover {
+  background: linear-gradient(135deg, #c2d8ff, #91b6ff);
+  box-shadow: 0 8px 20px rgba(65, 132, 255, 0.5);
+  transform: translateY(-6px);
+}
+.lesson-icon i {
+  filter: drop-shadow(0 2px 6px rgba(0, 90, 255, 0.4));
+}
+</style>
+{% endblock %}

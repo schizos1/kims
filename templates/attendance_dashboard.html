@@ -26,20 +26,16 @@
   <div class="card shadow-sm p-3 mb-4">
     <h5 class="mb-3">🗓️ 출석 캘린더 (이번 달)</h5>
     <div class="row row-cols-7 g-1">
-      {% for i in range %}
-        {% if i < first_weekday %}
-          <div class="col"></div>
-        {% else %}
-          {% with day=i-first_weekday+1 %}
-            <div class="col">
-              {% if day in attendance_days %}
-                <span class="badge bg-info text-dark" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;">{{ day }}</span>
-              {% else %}
-                <span class="badge bg-light text-muted" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;">{{ day }}</span>
-              {% endif %}
-            </div>
-          {% endwith %}
-        {% endif %}
+      {% for day in calendar_days %}
+        <div class="col">
+          {% if day %}
+            {% if day in attendance_days %}
+              <span class="badge bg-info text-dark" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;">{{ day }}</span>
+            {% else %}
+              <span class="badge bg-light text-muted" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;">{{ day }}</span>
+            {% endif %}
+          {% endif %}
+        </div>
       {% endfor %}
     </div>
   </div>
