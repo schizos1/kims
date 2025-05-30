@@ -1,35 +1,31 @@
-<!--
-wrong_note.html
-- 오답노트 + 재도전 버튼
--->
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>오답노트</title>
-    <style>
-        .wn-table { width:100%; border-collapse:collapse; margin-top:1.5em;}
-        .wn-table th, .wn-table td { border-bottom:1px solid #eee; padding:0.8em;}
-        .re-btn { padding:0.25em 1.1em; background:#46c7ba; color:#fff; border-radius:0.7em; border:none; cursor:pointer;}
-    </style>
-</head>
-<body>
-    <h2>오답노트</h2>
-    <table class="wn-table">
-        <tr><th>문제</th><th>정답</th><th>재도전</th></tr>
-        {% for w in wrongs %}
-        <tr>
-            <td>{{ w.question.text|truncatewords:10 }}</td>
-            <td>{{ w.question.answer }}</td>
-            <td>
-                <form method="post" action="/quiz/retry/{{ w.question.id }}/">{% csrf_token %}
-                    <button class="re-btn">재도전</button>
-                </form>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="3">오답 기록이 없습니다.</td></tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center">내 오답노트</h2>
+  {% if note_list %}
+    {% for note in note_list %}
+      <h3>{{ note.subject.name }}</h3>
+      <ul>
+        <li>
+          <strong>{{ note.lesson.unit }}</strong> - 오답 {{ note.wrong_count }}개 / 총 {{ note.total_questions }}개 (오답률 {{ note.wrong_rate }}%)
+          <br>
+          <a href="{% url 'wrong_note_quiz' note.subject.id note.lesson.id %}" class="btn btn-outline-primary rounded-pill px-4">
+            문제 다시 풀기
+          </a>
+          <!-- 개별 문제 재도전은 리스트에 포함된 각 문제에 대해 재도전 버튼 제공 -->
+          {% for q in note.questions %}
+            <form method="post" action="{% url 'retry_question' q.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-outline-secondary rounded-pill px-3 mb-1" type="submit">
+                문제 재도전 #{{ forloop.counter }}
+              </button>
+            </form>
+          {% endfor %}
+        </li>
+      </ul>
+    {% endfor %}
+  {% else %}
+    <p>오답노트에 등록된 문제가 없습니다.</p>
+  {% endif %}
+</div>
+{% endblock %}

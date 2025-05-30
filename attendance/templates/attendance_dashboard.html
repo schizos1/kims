@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>출석 대시보드 - {{ user.username }}</h2>
+<p>오늘: {{ today }}</p>
+<p>
+  {% if is_attended_today %}
+    ✅ 오늘 출석 완료
+  {% else %}
+    ❌ 오늘 출석하지 않음
+  {% endif %}
+</p>
+
+<table style="border-collapse: collapse; width: 100%; max-width: 400px;">
+  <thead>
+    <tr>
+      <th style="padding: 5px; border: 1px solid #ccc;">월</th>
+      <th style="padding: 5px; border: 1px solid #ccc;">화</th>
+      <th style="padding: 5px; border: 1px solid #ccc;">수</th>
+      <th style="padding: 5px; border: 1px solid #ccc;">목</th>
+      <th style="padding: 5px; border: 1px solid #ccc;">금</th>
+      <th style="padding: 5px; border: 1px solid #ccc;">토</th>
+      <th style="padding: 5px; border: 1px solid #ccc;">일</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in calendar_cells|slice:"0:7" %}
+      {% if forloop.first %}
+      <tr>
+      {% endif %}
+      <td style="padding: 10px; border: 1px solid #ccc; text-align: center;
+                 background-color: {% if i in attendance_days %}#b3e6b3{% elif i == today.day %}#ffd9b3{% else %}#fff{% endif %};">
+        {{ i }}
+      </td>
+      {% if forloop.counter|divisibleby:7 %}
+      </tr><tr>
+      {% endif %}
+    {% endfor %}
+    {% for i in calendar_cells|slice:"7:" %}
+      <td style="padding: 10px; border: 1px solid #ccc; text-align: center;
+                 background-color: {% if i in attendance_days %}#b3e6b3{% elif i == today.day %}#ffd9b3{% else %}#fff{% endif %};">
+        {{ i }}
+      </td>
+      {% if forloop.counter|divisibleby:7 %}
+      </tr><tr>
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

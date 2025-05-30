@@ -34,3 +34,11 @@ def attendance_dashboard(request):
         "last_day": last_day,
     }
     return render(request, "attendance_dashboard.html", context)
+@login_required
+def some_main_view(request):
+    user = request.user
+    today = date.today()
+
+    # 오늘 출석 기록이 없으면 생성
+    if not DailyAttendance.objects.filter(user=user, date=today).exists():
+        DailyAttendance.objects.create(user=user, date=today)

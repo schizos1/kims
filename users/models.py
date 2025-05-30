@@ -29,3 +29,14 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.nickname
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    nickname = models.CharField(max_length=20)
+    mascot_name = models.CharField(max_length=20, blank=True)
+    selected_theme = models.ForeignKey(Theme, null=True, blank=True, on_delete=models.SET_NULL)
+    
+    last_accessed = models.DateTimeField(null=True, blank=True)  # 접속일자 필드 추가
+
+    def __str__(self):
+        return self.nickname

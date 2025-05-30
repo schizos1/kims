@@ -1,16 +1,10 @@
-<!--
-student_dashboard.html
-- 학생 이름/마스코트, 메뉴 버튼(상단), 아래 대시보드: 트로피/포인트/리포트/달력 등
-- 아이들이 좋아할 파스텔톤 컬러와 부드러운 둥근 느낌 강조
--->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>{{ userprofile.nickname }}의 대시보드</title>
-    <meta name="viewport" content="width=440, initial-scale=1.0">
+    <meta name="viewport" content="width=440, initial-scale=1.0" />
     <style>
-        /* 배경은 파스텔톤 부드러운 그라데이션 */
         body {
             background: linear-gradient(135deg, #e6f0ff, #cce4ff);
             font-family: 'Noto Sans KR', sans-serif;
@@ -52,6 +46,7 @@ student_dashboard.html
             justify-content: flex-start;
             gap: 1.4em;
             margin-bottom: 2.5em;
+            align-items: center;
         }
         .menu-item {
             width: 110px;
@@ -86,6 +81,37 @@ student_dashboard.html
             margin-bottom: 0.1em;
             color: #1a4dc4;
             text-shadow: 0 0 4px #88b5ff;
+        }
+        .logout-form {
+            margin-left: auto;
+        }
+        .logout-button {
+            width: 110px;
+            height: 58px;
+            border-radius: 1.5em;
+            background: linear-gradient(145deg, #f8d7da, #f5c2c7);
+            box-shadow:
+                4px 4px 10px #e2a0a8,
+                -4px -4px 10px #fce4e6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05em;
+            font-weight: 800;
+            color: #a71d2a;
+            border: none;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.25s ease;
+        }
+        .logout-button:hover {
+            background: linear-gradient(145deg, #f5c2c7, #f8d7da);
+            box-shadow:
+                6px 6px 14px #b44d59,
+                -6px -6px 14px #f7b5bd;
+            transform: scale(1.1);
+            color: #7a101a;
         }
         .summary-box {
             display: flex;
@@ -137,6 +163,30 @@ student_dashboard.html
             font-size: 1.2em;
             text-align: center;
         }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 0.8em;
+        }
+        .calendar-day {
+            background: #fff;
+            border-radius: 0.8em;
+            padding: 0.7em 0.2em;
+            box-shadow:
+                inset 1px 1px 4px #fcebb9,
+                inset -1px -1px 4px #fff7da;
+            color: #856404;
+            font-weight: 700;
+            user-select: none;
+        }
+        .calendar-day.attended {
+            background: #f9d462;
+            color: #784f01;
+            font-weight: 900;
+            box-shadow:
+                0 0 8px 2px #f9d462;
+        }
         .learn-chart-box {
             background:#e1f5fe;
             border-radius:1.5em;
@@ -153,6 +203,8 @@ student_dashboard.html
             .menu-list { justify-content: center; gap: 1em;}
             .menu-item { width: 28vw; height: 50px; font-size: 0.9em; }
             .summary-box { flex-direction: column; gap: 1em; }
+            .logout-form { margin-left: 0; margin-top: 1em; width: 100%; }
+            .logout-button { width: 100%; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
@@ -171,12 +223,20 @@ student_dashboard.html
     <!-- 2. 상단 메뉴 버튼 -->
     <div class="menu-list">
         <a href="/quiz/concept_select/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-graduation-cap"></i></span>문제풀기</a>
-        <a href="/quiz/wrong_note/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-repeat"></i></span>오답노트</a>
+        <a href="/quiz/wrong_note_list/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-repeat"></i></span>오답노트</a>
         <a href="/trophies/my/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-trophy"></i></span>트로피</a>
         <a href="/attendance/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-calendar-check"></i></span>출석</a>
         <a href="/shop/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-store"></i></span>상점</a>
         <a href="/mypage/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-user"></i></span>마이페이지</a>
         <a href="/minigame/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-gamepad"></i></span>미니게임</a>
+
+        <!-- 로그아웃 폼 버튼 -->
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-button" title="로그아웃">
+                <span class="menu-icon"><i class="fa-solid fa-right-from-bracket"></i></span> 로그아웃
+            </button>
+        </form>
     </div>
     
     <!-- 3. 대시보드 주요 정보 -->
@@ -195,16 +255,31 @@ student_dashboard.html
         </div>
     </div>
     
-    <!-- 4. 리포트/달력 등 -->
+    <!-- 4. 출석 정보 -->
     <div class="report-area">
         <div class="calendar-box">
             <div class="calendar-title"><i class="fa-solid fa-calendar-days"></i> 출석 달력</div>
-            <!-- 달력/출석 위젯 삽입 -->
-            <div style="margin-top:0.7em;">(여기에 출석 달력 or 캘린더 위젯 표시!)</div>
+            <div class="calendar-grid">
+                {% for day in calendar_cells %}
+                    {% if day == "" %}
+                        <div class="calendar-day"></div>
+                    {% elif day in attendance_days %}
+                        <div class="calendar-day attended">{{ day }}</div>
+                    {% else %}
+                        <div class="calendar-day">{{ day }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div style="margin-top: 0.8em;">
+                오늘 출석 여부: <strong>{% if is_attended_today %}출석 완료!{% else %}미출석{% endif %}</strong>
+            </div>
+            <div>
+                연속 출석: <strong>{{ consecutive_days|default:"0" }}일</strong> |
+                최장 연속 기록: <strong>{{ longest_streak|default:"0" }}일</strong>
+            </div>
         </div>
         <div class="learn-chart-box">
             <div class="learn-title"><i class="fa-solid fa-chart-pie"></i> 학습 리포트/통계</div>
-            <!-- 차트/통계/진도 등 시각화 -->
             <div style="margin-top:0.7em;">(문제 정답률/오답률, 과목별 진도 그래프 등 표시!)</div>
         </div>
     </div>

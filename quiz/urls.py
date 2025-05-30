@@ -1,8 +1,3 @@
-"""
-quiz/urls.py
-- 퀴즈(문제풀이) 관련 URL 라우팅
-- 개념/기출문제, 과목/단원/문제 등 핵심 흐름 연결
-"""
 from django.urls import path
 from . import views
 
@@ -23,10 +18,14 @@ urlpatterns = [
     path('submit_answers/<int:subject_id>/<int:lesson_id>/', views.submit_answers, name='submit_answers'),
 
     # 오답노트 메인 리스트
-    path('wrong_note/', views.wrong_note_list, name='wrong_note_list'),
+    path('wrong_note_list/', views.wrong_note_list, name='wrong_note_list'),
 
     # 오답노트 문제풀이
-    path('wrong_note/subject/<int:subject_id>/lesson/<int:lesson_id>/', views.wrong_note_quiz, name='wrong_note_quiz'),
+    path('wrong_note_list/subject/<int:subject_id>/lesson/<int:lesson_id>/', views.wrong_note_quiz, name='wrong_note_quiz'),
+
+
+    # 오답노트 개별 문제 재도전용 뷰
+    path('retry/<int:question_id>/', views.retry_question, name='retry_question'),
 
     # 기출문제도 동일한 패턴으로 확장 가능
     # path('past/subject/', ...),
