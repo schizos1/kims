@@ -1,13 +1,178 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}학습 유형 선택{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<style>
+  /* concept_select.html 페이지 특정 스타일 */
+  .page-title-container {
+    text-align: center;
+    margin-bottom: 2.5em; /* 제목과 카드 사이 간격 */
+    padding-top: 1em;
+  }
+  .page-title-decorated {
+    display: inline-block;
+    background: linear-gradient(90deg,#89f7fe,#66a6ff,#89f7fe); /* 파랑 계열 그라데이션 */
+    border-radius: 2em; 
+    padding:0.3em 1.2em 0.45em 1.2em; 
+    box-shadow:0 8px 25px rgba(100,150,250,0.25);
+    font-size: 2rem; 
+    font-weight: 700;
+    color: #fff; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    letter-spacing:1px;
+  }
+
+  .selection-card-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2.5em;
+    flex-wrap: wrap;
+    margin-top: 2em;
+    padding: 0 1em;
+  }
+
+  .selection-card { /* 개념/기출 선택 카드 공통 스타일 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 280px; /* 카드 너비 */
+    min-height: 220px; /* 카드 최소 높이 */
+    padding: 2em;
+    border-radius: 25px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(50, 100, 200, 0.15);
+    text-decoration: none;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid #e0e8f0;
+  }
+
+  .selection-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 18px 35px rgba(50, 100, 200, 0.25);
+  }
+
+  .selection-card .card-icon-large { /* 큰 아이콘용 */
+    font-size: 4em; /* 아이콘 크기 더 크게 */
+    margin-bottom: 0.4em;
+    transition: transform 0.3s ease;
+  }
+  
+  .selection-card:hover .card-icon-large {
+      transform: scale(1.1) rotate(-5deg);
+  }
+
+  .selection-card .card-title-large { /* 큰 제목용 */
+    font-size: 1.6em;
+    font-weight: 700;
+    margin-bottom: 0.3em;
+  }
+  
+  .selection-card .card-description-small { /* 작은 설명용 */
+      font-size: 0.95em;
+      color: #5f6c7b;
+      line-height: 1.4;
+  }
+
+  /* 개념 학습 카드 스타일 */
+  .concept-choice-card .card-icon-large { color: #3a86ff; }
+  .concept-choice-card .card-title-large { color: #3a86ff; }
+  .concept-choice-card { background: linear-gradient(145deg, #e6f7ff, #d0eaff); }
+  .concept-choice-card:hover { border-color: #3a86ff; }
+
+  /* 기출 문제 카드 스타일 */
+  .past-choice-card .card-icon-large { color: #ff6b6b; }
+  .past-choice-card .card-title-large { color: #ff6b6b; }
+  .past-choice-card { background: linear-gradient(145deg, #fff0f0, #ffe0e0); }
+  .past-choice-card:hover { border-color: #ff6b6b; }
+
+</style>
+{% endblock %}
+
+
 {% block content %}
-<div class="container py-5 text-center">
-  <h2 class="mb-4">문제 유형을 선택하세요</h2>
-  <div class="row mb-5">
-    <div class="col">
-      <a href="{% url 'concept_subject_list' %}" class="btn btn-lg btn-info rounded-pill px-5 py-3 fs-3 mx-3 mb-2">개념문제</a>
-      <!-- 기출문제 연결시 이 부분 추가 -->
-     
+<div class="container py-4">
+
+    <div class="page-title-container">
+        <h2 class="page-title-decorated">
+            🎯 학습 유형 선택
+        </h2>
     </div>
-  </div>
+
+    {# base.html에 공통 오디오 태그가 있다면 여기서 생략 #}
+
+    <div class="selection-card-grid">
+        <a href="{% url 'quiz:concept_subject_list' %}" {# 개념 학습 과목 선택 페이지로 이동 #}
+           class="selection-card concept-choice-card animate__animated animate__pulse" 
+           data-sound-hover="default-hover" data-sound-click="default-click">
+            <div class="card-icon-large"><i class="fa-solid fa-lightbulb"></i></div>
+            <div class="card-title-large">개념 학습</div>
+            <p class="card-description-small">차근차근 개념부터 탄탄하게!</p>
+        </a>
+
+        <a href="{% url 'quiz:past_select' %}" {# 기출 문제 과목 선택 페이지로 이동 #}
+           class="selection-card past-choice-card animate__animated animate__pulse" 
+           data-sound-hover="default-hover" data-sound-click="default-click">
+            <div class="card-icon-large"><i class="fa-solid fa-file-lines"></i></div>
+            <div class="card-title-large">기출 문제</div>
+            <p class="card-description-small">실전처럼 문제를 풀어보세요!</p>
+        </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 3.5em; margin-bottom: 1em;">
+        <a href="{% url 'users:student_dashboard' %}" class="menu-item fancy-button" 
+           style="width: 220px; background: linear-gradient(135deg, #90a4ae, #607d8b);"
+           data-sound-hover="default-hover" data-sound-click="default-click">
+           <span class="menu-icon" style="font-size: 1.2em; color:white;"><i class="fas fa-arrow-left"></i></span>
+           <span class="menu-text" style="font-size: 1em; color:white;">대시보드로 돌아가기</span>
+        </a>
+    </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{# 이 페이지의 .selection-card 에도 사운드 효과를 적용하려면, #}
+{# base.html의 dashboard_scripts.js 로직이 data-sound-* 속성을 가진 요소에 적용되거나, #}
+{# 여기서 스크립트를 추가합니다. 여기서는 data-sound-* 가 있으므로 dashboard_scripts.js가 처리한다고 가정 #}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const defaultHoverSound = document.getElementById('sound-default-hover'); 
+    const defaultClickSound = document.getElementById('sound-default-click');
+
+    document.querySelectorAll('.selection-card').forEach(function(card) {
+        const cardHoverSoundId = card.dataset.soundHover;
+        const cardClickSoundId = card.dataset.soundClick;
+        
+        const cardHoverAudio = cardHoverSoundId ? document.getElementById('sound-' + cardHoverSoundId) : defaultHoverSound;
+        const cardClickAudio = cardClickSoundId ? document.getElementById('sound-' + cardClickSoundId) : defaultClickSound;
+
+        if (cardHoverAudio) {
+            card.addEventListener('mouseenter', function() {
+                cardHoverAudio.currentTime = 0;
+                cardHoverAudio.play().catch(function(error) {});
+            });
+        }
+
+        if (cardClickAudio) {
+            card.addEventListener('click', function(event) {
+                if (card.tagName === 'A' && card.href) {
+                    event.preventDefault(); 
+                    cardClickAudio.currentTime = 0;
+                    const soundPromise = cardClickAudio.play();
+                    if (soundPromise !== undefined) {
+                        soundPromise.then(_ => { window.location.href = card.href; })
+                                    .catch(error => { window.location.href = card.href; });
+                    } else { window.location.href = card.href; }
+                }
+            });
+        }
+    });
+});
+</script>
 {% endblock %}

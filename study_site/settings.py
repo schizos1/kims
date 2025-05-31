@@ -57,6 +57,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'users.context_processors.user_profile_for_base',
             ],
         },
     },
@@ -93,5 +94,7 @@ LOGGING = {
     'handlers': {'console': {'class': 'logging.StreamHandler',}},
     'root': {'handlers': ['console'], 'level': 'DEBUG',},
 }
-
+# 미디어 파일 처리 설정
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 LOGOUT_REDIRECT_URL = '/'

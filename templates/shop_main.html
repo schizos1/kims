@@ -1,37 +1,135 @@
-<!--
-shop_main.html
-- 상점, 아이템/용돈 신청
--->
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>상점</title>
-    <style>
-        .shop-list { display:flex; flex-wrap:wrap; gap:1.3em;}
-        .shop-item { width:150px; border-radius:1em; background:#f7faff; box-shadow:0 2px 10px #e3f0f8; padding:1.1em; text-align:center;}
-        .item-title { font-weight:700; color:#4097cf;}
-        .buy-btn { margin-top:0.7em; padding:0.35em 1.2em; background:#4bd1b0; color:#fff; border-radius:0.9em; border:none; cursor:pointer;}
-    </style>
-</head>
-<body>
-    <h2>상점</h2>
-    <div class="shop-list">
-        {% for item in items %}
-        <div class="shop-item">
-            <div class="item-title">{{ item.name }}</div>
-            <div>{{ item.price }} 포인트</div>
-            <form method="post" action="/shop/buy/{{ item.id }}/">{% csrf_token %}
-                <button class="buy-btn">구매</button>
-            </form>
-        </div>
-        {% empty %}
-        <div>등록된 아이템이 없습니다.</div>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}상점{% endblock %}
+
+{% block extra_head %}
+{# 이 페이지에만 적용될 CSS 스타일입니다. #}
+{# 나중에는 이 스타일들을 별도의 .css 파일 (예: static/shop/css/shop_styles.css)로 옮기고 여기서 링크하는 것이 좋습니다. #}
+<style>
+    .shop-page-container { /* 페이지 전체를 감싸는 div (선택 사항) */
+        max-width: 900px;
+        margin: 2em auto;
+        padding: 1.5em;
+        /* background: #fff; */ /* base.html 배경을 따르거나, 필요시 지정 */
+        /* border-radius: 1.5em; */
+        /* box-shadow: 0 5px 15px rgba(0,0,0,0.05); */
+    }
+
+    .shop-page-title { /* <h2>상점</h2> 제목 */
+        text-align: center;
+        color: #4CAF50; /* 예시: 상점 느낌의 초록색 */
+        margin-bottom: 1.5em;
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    .shop-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5em; /* 간격 */
+        justify-content: center; /* 아이템 중앙 정렬 */
+        margin-bottom: 2em;
+    }
+
+    .shop-item {
+        width: 200px; /* 아이템 너비 */
+        border-radius: 1em;
+        background: #f8f9fa; /* 아이템 배경색 */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08); /* 부드러운 그림자 */
+        padding: 1.5em;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* 내부 요소 간격 조정 */
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .shop-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+    .item-title {
+        font-weight: 700;
+        color: #337ab7; /* 아이템 제목 색상 */
+        font-size: 1.1em;
+        margin-bottom: 0.5em;
+    }
+    .item-price { /* 가격 표시를 위한 새 클래스 (선택 사항) */
+        color: #e67e22; /* 포인트/가격 색상 */
+        font-weight: bold;
+        margin-bottom: 1em;
+    }
+
+    .buy-btn {
+        margin-top: 0.7em;
+        padding: 0.6em 1.5em; /* 패딩 조절 */
+        background: #5cb85c; /* 구매 버튼 색상 */
+        color: #fff;
+        border-radius: 0.9em;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        width: 100%; /* 버튼 너비 채움 */
+    }
+    .buy-btn:hover {
+        background: #4cae4c; /* 호버 시 약간 어둡게 */
+    }
+
+    .allowance-section { /* 용돈 신청 섹션 스타일 */
+        margin-top: 2em;
+        padding-top: 2em;
+        border-top: 1px solid #eee;
+        text-align: center;
+    }
+    .allowance-section .buy-btn { /* 용돈 신청 버튼은 너비를 자동으로 */
+        width: auto; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="shop-page-container">
+    <h2 class="shop-page-title">🛍️ 상점 🛍️</h2>
+
+    {% if messages %} {# 메시지 표시 (구매 결과 등) #}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}" role="alert" style="text-align:center; margin-bottom:1.5em;">
+                {{ message }}
+            </div>
         {% endfor %}
+    {% endif %}
+
+    {% if items %}
+        <div class="shop-list">
+            {% for item_obj in items %} {# 변수명을 item에서 item_obj로 변경 (템플릿 item 태그와 혼동 방지) #}
+            <div class="shop-item">
+                <div> {# 내용물 위쪽 정렬을 위한 추가 div #}
+                    <div class="item-title">{{ item_obj.name }}</div>
+                    <div class="item-price">{{ item_obj.price }} 포인트</div>
+                    {# 여기에 아이템 이미지나 상세 설명 등을 추가할 수 있습니다 #}
+                    {# 예: <img src="{{ item_obj.image.url }}" alt="{{ item_obj.name }}" style="width:100px; height:100px; object-fit:cover; margin-bottom:10px;"> #}
+                    {# <p style="font-size:0.85em; color:#777;">{{ item_obj.description }}</p> #}
+                </div>
+                {# ✨ 중요: action URL은 실제 shop 앱의 urls.py 설정에 맞게 수정해야 합니다. ✨ #}
+                <form method="post" action="#" style="margin-top:auto;"> {# ✨ action을 "#" 으로 변경 ✨ #}
+    {% csrf_token %}
+    <button type="submit" class="buy-btn">구매하기</button>
+</form>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center">판매 중인 아이템이 아직 없습니다. 곧 준비될 예정입니다!</p>
+    {% endif %}
+    
+    <div class="allowance-section">
+        {# ✨ 중요: action URL은 실제 shop 앱 또는 users 앱의 urls.py 설정에 맞게 수정해야 합니다. ✨ #}
+        <form method="post" action="#"> {# ✨ action을 "#" 으로 변경 ✨ #}
+    {% csrf_token %}
+    <button type="submit" class="buy-btn">포인트로 용돈 신청하기 (준비중)</button>
+</form>
     </div>
-    <hr>
-    <form method="post" action="/shop/allowance/">{% csrf_token %}
-        <button class="buy-btn">포인트로 용돈 신청하기</button>
-    </form>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,48 +1,362 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container py-4">
-  <h2 class="text-center mb-3">📅 출석 대시보드</h2>
-
-  <div class="mb-4">
-    <div class="card p-3 shadow-sm pastel-bg">
-      <div class="d-flex align-items-center">
-        <div style="font-size: 2rem;">👦</div>
-        <div class="ms-3">
-          <strong>{{ user.username }}</strong> 님,
-          {% if is_attended_today %}
-            <span class="badge bg-success">오늘 출석 완료!</span>
-          {% else %}
-            <span class="badge bg-warning text-dark">아직 출석 전!</span>
-          {% endif %}
-        </div>
-      </div>
-      <div class="mt-2">
-        <b>연속 출석:</b> {{ streak }} 일<br>
-        <b>최장 연속 기록:</b> {{ longest_streak }} 일
-      </div>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <!-- 경로: /home/schizos/study_site/attendance/templates/attendance_dashboard.html -->
+    <!-- 페이지 제목, 사용자 닉네임 또는 사용자명 표시 -->
+    <title>{{ userprofile.nickname|default:user.username }}의 대시보드</title>
+    <meta name="viewport" content="width=440, initial-scale=1.0" />
+    <!-- 현대적인 타이포그래피를 위한 구글 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- 대화형 캘린더를 위한 FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.css" rel="stylesheet">
+    <style>
+        /* 바디에 그라디언트 배경 적용 */
+        body {
+            background: linear-gradient(135deg, #e6f0ff, #cce4ff);
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        /* 대시보드 컨테이너, 파스텔 스타일과 그림자 */
+        .dashboard {
+            max-width: 800px;
+            margin: 3em auto;
+            padding: 2.5em 2.5em;
+            background: #ffffffcc;
+            border-radius: 2.5em;
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.15);
+        }
+        /* 헤더 섹션, 마스코트와 이름 정렬 */
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.8em;
+        }
+        /* 마스코트 이미지, 테두리와 그림자 스타일 */
+        .mascot {
+            width: 80px;
+            height: 80px;
+            border-radius: 1.5em;
+            margin-right: 1.3em;
+            background: #d0f0f9;
+            box-shadow: 0 4px 16px rgba(102, 178, 255, 0.4);
+            object-fit: contain;
+            border: 3px solid #7ec6ff;
+        }
+        /* 학생 이름, 굵고 색상 있는 텍스트와 그림자 */
+        .student-name {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #3a7bd5;
+            text-shadow: 0 1px 3px rgba(0, 83, 179, 0.3);
+        }
+        /* 메뉴 리스트, 플렉스 레이아웃과 간격 */
+        .menu-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 1.4em;
+            margin-bottom: 2.5em;
+            align-items: center;
+        }
+        /* 메뉴 항목, 그라디언트와 호버 효과 */
+        .menu-item {
+            width: 110px;
+            height: 58px;
+            border-radius: 1.5em;
+            background: linear-gradient(145deg, #e1f2ff, #b9dbff);
+            box-shadow:
+                4px 4px 10px #a0c7ff,
+                -4px -4px 10px #f0fcff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05em;
+            font-weight: 800;
+            color: #2c5c99;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            user-select: none;
+            cursor: pointer;
+        }
+        /* 메뉴 항목 호버 효과 */
+        .menu-item:hover {
+            background: linear-gradient(145deg, #b9dbff, #e1f2ff);
+            box-shadow:
+                6px 6px 14px #7eaaff,
+                -6px -6px 14px #d0efff;
+            transform: scale(1.1);
+            color: #1a3a66;
+        }
+        /* 메뉴 항목 아이콘 스타일 */
+        .menu-icon {
+            font-size: 1.8em;
+            margin-bottom: 0.1em;
+            color: #1a4dc4;
+            text-shadow: 0 0 4px #88b5ff;
+        }
+        /* 로그아웃 폼, 오른쪽 정렬 */
+        .logout-form {
+            margin-left: auto;
+        }
+        /* 로그아웃 버튼, 그라디언트와 호버 효과 */
+        .logout-button {
+            width: 110px;
+            height: 58px;
+            border-radius: 1.5em;
+            background: linear-gradient(145deg, #f8d7da, #f5c2c7);
+            box-shadow:
+                4px 4px 10px #e2a0a8,
+                -4px -4px 10px #fce4e6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05em;
+            font-weight: 800;
+            color: #a71d2a;
+            border: none;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.25s ease;
+        }
+        /* 로그아웃 버튼 호버 효과 */
+        .logout-button:hover {
+            background: linear-gradient(145deg, #f5c2c7, #f8d7da);
+            box-shadow:
+                6px 6px 14px #b44d59,
+                -6px -6px 14px #f7b5bd;
+            transform: scale(1.1);
+            color: #7a101a;
+        }
+        /* 요약 박스, 통계 플렉스 레이아웃 */
+        .summary-box {
+            display: flex;
+            gap: 1.6em;
+            margin-bottom: 1.8em;
+            justify-content: space-around;
+        }
+        /* 정보 박스, 파스텔 배경과 그림자 */
+        .info-box {
+            flex: 1;
+            background: #e6f0ff;
+            border-radius: 1.2em;
+            box-shadow:
+                inset 2px 2px 8px #b1d0ff,
+                inset -2px -2px 8px #ffffff;
+            text-align: center;
+            padding: 1.3em 0.9em;
+            transition: background 0.3s ease;
+        }
+        /* 정보 박스 호버 효과 */
+        .info-box:hover {
+            background: #c9e1ff;
+            box-shadow:
+                0 0 15px 3px #89b7ff;
+        }
+        /* 정보 박스 제목 스타일 */
+        .info-title {
+            color: #3d7edc;
+            font-size: 1.12em;
+            font-weight: 700;
+            margin-bottom: 0.5em;
+            text-shadow: 0 0 2px #5f9eff;
+        }
+        /* 정보 박스 값 스타일 */
+        .info-value {
+            font-size: 1.9em;
+            font-weight: 900;
+            color: #2c5dbb;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px #5a8ce6;
+        }
+        /* 보고서 영역, 캘린더와 차트 포함 */
+        .report-area {
+            margin-top: 1.8em;
+        }
+        /* 캘린더 박스, 파스텔 노랑 배경 */
+        .calendar-box {
+            background: #fff3cd;
+            border-radius: 1.5em;
+            padding: 1.3em;
+            box-shadow: 0 4px 15px rgba(250, 217, 131, 0.6);
+            margin-bottom: 1.4em;
+            color: #856404;
+            font-weight: 700;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        /* 정적 캘린더를 위한 그리드 레이아웃 (대비용) */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 0.8em;
+        }
+        /* 캘린더 날짜 스타일 */
+        .calendar-day {
+            background: #fff;
+            border-radius: 0.8em;
+            padding: 0.7em 0.2em;
+            box-shadow:
+                inset 1px 1px 4px #fcebb9,
+                inset -1px -1px 4px #fff7da;
+            color: #856404;
+            font-weight: 700;
+            user-select: none;
+        }
+        /* 출석한 날짜 강조 */
+        .calendar-day.attended {
+            background: #f9d462;
+            color: #784f01;
+            font-weight: 900;
+            box-shadow:
+                0 0 8px 2px #f9d462;
+        }
+        /* 학습 차트 박스, 파스텔 파랑 배경 */
+        .learn-chart-box {
+            background: #e1f5fe;
+            border-radius: 1.5em;
+            padding: 1.3em;
+            box-shadow: 0 4px 15px rgba(129, 212, 250, 0.6);
+            margin-bottom: 1.4em;
+            color: #0277bd;
+            font-weight: 700;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        /* 작은 화면을 위한 반응형 디자인 */
+        @media (max-width: 700px) {
+            .dashboard { padding: 1.3em 0.4em; margin: 1.5em 1em; }
+            .menu-list { justify-content: center; gap: 1em; }
+            .menu-item { width: 28vw; height: 50px; font-size: 0.9em; }
+            .summary-box { flex-direction: column; gap: 1em; }
+            .logout-form { margin-left: 0; margin-top: 1em; width: 100%; }
+            .logout-button { width: 100%; }
+        }
+        /* FullCalendar 사용자 정의 스타일 */
+        #calendar { max-width: 100%; margin: 0 auto; }
+        .fc-button {
+            background: #3a86ff !important;
+            border: none !important;
+            border-radius: 10px !important;
+            padding: 6px 12px !important;
+            color: #fff !important;
+            transition: background 0.3s !important;
+        }
+        .fc-button:hover {
+            background: #2a6dd9 !important;
+        }
+        .fc-event {
+            border-radius: 8px !important;
+            padding: 2px 5px !important;
+            font-size: 0.9em !important;
+            cursor: pointer !important;
+        }
+        .fc-daygrid-day {
+            border-radius: 8px !important;
+            transition: all 0.3s;
+        }
+        .fc-daygrid-day:hover {
+            background: #e6f0fa !important;
+        }
+    </style>
+    <!-- 아이콘을 위한 Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+    <!-- 대화형 캘린더를 위한 FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.5/locales/ko.js"></script>
+</head>
+<body>
+<div class="dashboard">
+    <!-- 헤더 섹션, 사용자 프로필과 마스코트 표시 -->
+    <div class="header">
+        {% if userprofile and userprofile.selected_theme and userprofile.selected_theme.mascot_image %}
+          <img src="{{ userprofile.selected_theme.mascot_image }}" class="mascot" alt="마스코트">
+        {% endif %}
+        <!-- 닉네임이 있으면 표시, 없으면 사용자명으로 대체 -->
+        <div class="student-name">{{ userprofile.nickname|default:user.username }} 님</div>
     </div>
-  </div>
+    
+    <!-- 내비게이션 링크를 포함한 메뉴 리스트 -->
+    <div class="menu-list">
+        <a href="{% url 'quiz:concept_select' %}" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-graduation-cap"></i></span>문제풀기</a>
+        <a href="{% url 'quiz:wrong_note_list' %}" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-repeat"></i></span>오답노트</a>
+        <a href="/trophies/my/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-trophy"></i></span>트로피</a>
+        <a href="/attendance/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-calendar-check"></i></span>출석</a>
+        <a href="/shop/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-store"></i></span>상점</a>
+        <a href="/mypage/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-user"></i></span>마이페이지</a>
+        <a href="/minigame/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-gamepad"></i></span>미니게임</a>
 
-  <div class="card shadow-sm p-3 mb-4">
-    <h5 class="mb-3">🗓️ 출석 캘린더 (이번 달)</h5>
-    <div class="row row-cols-7 g-1">
-      {% for day in calendar_days %}
-        <div class="col">
-          {% if day %}
-            {% if day in attendance_days %}
-              <span class="badge bg-info text-dark" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;">{{ day }}</span>
-            {% else %}
-              <span class="badge bg-light text-muted" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;">{{ day }}</span>
-            {% endif %}
-          {% endif %}
-        </div>
-      {% endfor %}
+        <!-- 스타일링된 버튼으로 로그아웃 폼 -->
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-button" title="로그아웃">
+                <span class="menu-icon"><i class="fa-solid fa-right-from-bracket"></i></span> 로그아웃
+            </button>
+        </form>
     </div>
-  </div>
-
-  <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary mt-2">대시보드로 돌아가기</a>
+    
+    <!-- 트로피, 포인트, 퀴즈 통계를 보여주는 요약 박스 -->
+    <div class="summary-box">
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-trophy"></i> 획득 트로피</div>
+            <div class="info-value">{{ user_trophy_count|default:"0" }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-coins"></i> 내 포인트</div>
+            <div class="info-value">{{ user_point|default:"0" }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-chart-line"></i> 누적 문제풀이</div>
+            <div class="info-value">{{ user_quiz_count|default:"0" }}</div>
+        </div>
+    </div>
+    
+    <!-- 캘린더와 통계를 포함한 보고서 영역 -->
+    <div class="report-area">
+        <div class="calendar-box">
+            <div class="calendar-title"><i class="fa-solid fa-calendar-days"></i> 출석 달력</div>
+            <!-- 동적 출석 표시를 위한 FullCalendar 컨테이너 -->
+            <div id="calendar"></div>
+            <div style="margin-top: 0.8em;">
+                오늘 출석 여부: <strong>{% if is_attended_today %}출석 완료!{% else %}미출석{% endif %}</strong>
+            </div>
+            <div>
+                연속 출석: <strong>{{ consecutive_days|default:"0" }} 일</strong> |
+                최장 연속 기록: <strong>{{ longest_streak|default:"0" }} 일</strong>
+            </div>
+        </div>
+        <div class="learn-chart-box">
+            <div class="learn-title"><i class="fa-solid fa-chart-pie"></i> 학습 리포트/통계</div>
+            <div style="margin-top:0.7em;">(문제 정답률/오답률, 과목별 진도 그래프 등 표시!)</div>
+        </div>
+    </div>
 </div>
-<style>
-.pastel-bg { background: #f7f9ff; }
-</style>
-{% endblock %}
+
+<!-- FullCalendar 초기화, 출석 이벤트 표시 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'ko',
+      events: '{% url "attendance_events" %}',
+      eventClick: function(info) {
+        // 클릭 시 출석 세부 정보 표시
+        alert('출석 시간: ' + info.event.extendedProps.checked_at);
+      },
+      dayMaxEvents: true,
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,dayGridWeek'
+      }
+    });
+    calendar.render();
+  });
+</script>
+</body>
+</html>

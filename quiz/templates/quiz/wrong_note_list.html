@@ -1,54 +1,233 @@
 {% extends "base.html" %}
-{% load quiz_extras %}
+{% load static %}
+
+{% block title %}나의 오답노트{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<style>
+/* ===== 오답노트 fancy 카드 그리드 ===== */
+.fancy-card-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2.2em;
+    margin: 2.3em 0 2.5em 0;
+    justify-items: center;
+}
+
+/* ===== 각 카드 ===== */
+.fancy-wrong-note-card {
+    background: linear-gradient(120deg, #f9fafe 60%, #e0f5ff 100%);
+    border-radius: 1.8em;
+    box-shadow: 0 7px 24px #a0e1ff23, 0 2px 8px #ffd3e98e;
+    border: 2.2px solid #d6eaffbb;
+    width: 100%;
+    max-width: 350px;
+    min-height: 174px;
+    padding: 1.2em 1.1em 1.1em 1.1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.19s;
+    position: relative;
+}
+.fancy-wrong-note-card:hover, .fancy-wrong-note-card:focus {
+    transform: translateY(-8px) scale(1.045) rotate(-1deg);
+    box-shadow: 0 16px 36px #7fcaff39, 0 10px 32px #ffd3e98e;
+    background: linear-gradient(120deg, #e5f1ff 60%, #f8e1fd 100%);
+    outline: none;
+}
+
+/* ===== 카드 헤더 ===== */
+.card-header-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.68em;
+    margin-bottom: 0.77em;
+    justify-content: center;
+}
+.card-header-icon {
+    font-size: 2.2em;
+    color: #8dcfff;
+    background: #e3f5ff;
+    border-radius: 1.1em;
+    padding: 0.22em 0.31em 0.19em 0.31em;
+    box-shadow: 0 1px 7px #c1e9ff33;
+    margin-right: 0.08em;
+    transition: background 0.16s, color 0.16s;
+}
+.fancy-wrong-note-card[data-subject="국어"] .card-header-icon { color: #ff9e80; background: #ffe4e0; }
+.fancy-wrong-note-card[data-subject="수학"] .card-header-icon { color: #81c784; background: #e3fce5; }
+.fancy-wrong-note-card[data-subject="사회"] .card-header-icon { color: #64b5f6; background: #e2f3ff; }
+.fancy-wrong-note-card[data-subject="과학"] .card-header-icon { color: #ba68c8; background: #f5e9ff; }
+.fancy-wrong-note-card .card-header-icon { /* 기타 과목 */
+    color: #ffb300; background: #fff9e0;
+}
+
+.card-title-custom {
+    font-size: 1.23em;
+    font-weight: 800;
+    color: #257ec6;
+    text-shadow: 0 2px 9px #baeaff25;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+}
+.lesson-name {
+    font-size: 0.96em;
+    font-weight: 600;
+    color: #888da9;
+    margin-left: 0.41em;
+}
+
+.card-stats {
+    text-align: center;
+    font-size: 1.03em;
+    color: #455a64;
+    margin-bottom: 1em;
+    margin-top: 0.23em;
+}
+
+/* ===== 다시풀기 버튼 ===== */
+.retry-button-container {
+    width: 100%;
+    display: flex; justify-content: center; align-items: center;
+    margin-top: 0.7em;
+}
+.btn-retry {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg,#a8d1ff,#6c92be);
+    color: #fff;
+    font-size: 1em;
+    font-weight: 700;
+    border-radius: 1.3em;
+    border: none;
+    padding: 0.68em 1.4em 0.61em 1.3em;
+    margin-top: 0.1em;
+    box-shadow: 0 2px 12px #7bbcff23;
+    text-decoration: none;
+    transition: background 0.17s, box-shadow 0.15s, color 0.16s, transform 0.14s;
+}
+.btn-retry:hover, .btn-retry:focus {
+    background: linear-gradient(135deg,#7bbcff,#205092);
+    color: #fffde7;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 5px 18px #7bbcff33;
+    outline: none;
+}
+.btn-retry i { margin-right: 0.5em; font-size: 1.11em; }
+
+/* ===== 오답 없음 카드 ===== */
+.no-wrong-answers-container {
+    background: linear-gradient(120deg, #ecfff5 60%, #f4f8ff 100%);
+    border-radius: 2em;
+    box-shadow: 0 7px 18px #95ffc62c;
+    padding: 2.5em 1.7em 2.2em 1.7em;
+    text-align: center;
+    margin: 2.4em auto 2.3em auto;
+    max-width: 480px;
+}
+.no-wrong-answers-container .icon {
+    font-size: 3em;
+    color: #6ace93;
+    margin-bottom: 0.4em;
+}
+.action-link {
+    display: inline-flex;
+    align-items: center;
+    color: #3172c4;
+    font-weight: 700;
+    font-size: 1.03em;
+    text-decoration: none;
+    border-radius: 0.5em;
+    padding: 0.25em 0.67em;
+    background: #e0f5ff61;
+    transition: background 0.16s, color 0.15s;
+}
+.action-link:hover, .action-link:focus {
+    background: #d5edfc;
+    color: #1d518a;
+    outline: none;
+}
+
+/* 반응형 */
+@media (max-width: 650px) {
+    .fancy-card-list-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.2em;}
+    .fancy-wrong-note-card { min-height: 130px; padding: 0.7em 0.3em 0.9em 0.3em; }
+    .card-header-icon { font-size: 1.5em; }
+    .card-title-custom { font-size: 1em; }
+    .btn-retry { font-size: 0.91em; padding: 0.48em 0.8em; }
+    .no-wrong-answers-container { padding: 1.2em 0.5em 1.2em 0.5em; max-width: 98vw;}
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <h2 class="mb-4 text-center fw-bold" style="font-size:2.4rem; letter-spacing:1px; color:#34495e;">
-    오답노트 목록
-  </h2>
+<div class="container py-4">
 
-  {% if note_list %}
-    <div class="row g-4">
-      {% for note in note_list %}
-        <div class="col-12 col-md-6">
-          <div class="card shadow-sm rounded-4 p-4 h-100">
-            <h4 class="mb-3 text-primary">{{ note.subject.name }} - {{ note.lesson.unit_name }}</h4>
-            <p class="mb-2 fw-semibold">
-              오답 수: <span class="text-danger">{{ note.wrong_count }}</span> / 전체 문제: {{ note.total_questions }}
-              (오답률: {{ note.wrong_rate }}%)
-            </p>
-            <p class="mb-3">오답 문제 10개 미만 시 전체 표시</p>
-            <ul class="list-group list-group-flush">
-              {% for question in note.questions %}
-                <li class="list-group-item">
-                  {{ forloop.counter }}. {{ question.text|truncatechars:50 }}
-                  {% if question.image %}
-                    <br>
-                    <img src="{{ question.image }}" alt="문제 이미지" style="max-height: 80px; margin-top: 5px;">
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
-            <div class="mt-3 text-end">
-              <a href="{% url 'concept_question_list' note.subject.id note.lesson.id %}" class="btn btn-outline-primary rounded-pill px-4">
-                문제 다시 풀기
-              </a>
-            </div>
-          </div>
+    <div class="page-title-container">
+        <h2 class="page-title-decorated">
+            📝 나의 오답노트
+        </h2>
+    </div>
+
+    {% if cards %}
+        <div class="fancy-card-list-grid">
+            {% for card_data in cards %}
+                <div class="fancy-wrong-note-card animate__animated animate__fadeInUp"
+                     data-subject="{{ card_data.subject.name }}">
+                    <div>
+                        <div class="card-header-custom">
+                            <span class="card-header-icon">
+                                {% if card_data.subject.name == "국어" %}<i class="fas fa-book-reader"></i>
+                                {% elif card_data.subject.name == "수학" %}<i class="fas fa-calculator"></i>
+                                {% elif card_data.subject.name == "사회" %}<i class="fas fa-users"></i>
+                                {% elif card_data.subject.name == "과학" %}<i class="fas fa-atom"></i>
+                                {% else %}<i class="fas fa-edit"></i>
+                                {% endif %}
+                            </span>
+                            <h5 class="card-title-custom">
+                                {{ card_data.subject.name }}
+                                {% if card_data.lesson %}
+                                    <span class="lesson-name">- {{ card_data.lesson.unit_name }}</span>
+                                {% else %}
+                                    <span class="lesson-name">- (단원 없음)</span>
+                                {% endif %}
+                            </h5>
+                        </div>
+                        <div class="card-stats">
+                            틀린 문제 수: <strong>{{ card_data.wrong_count }}</strong>개<br>
+                            {% if card_data.total_questions %}
+                                (해당 그룹 전체 문제: {{ card_data.total_questions }}개)
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="retry-button-container">
+                        <a href="{% url 'quiz:wrong_note_quiz' subject_id=card_data.subject.id lesson_id=card_data.lesson_id_for_url %}"
+                           class="btn-retry">
+                            <i class="fas fa-redo-alt"></i> 다시 풀기
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="text-center text-muted fs-5 mt-5">
-      아직 오답노트에 등록된 문제가 없습니다.
-    </div>
-  {% endif %}
-</div>
+    {% else %}
+        <div class="no-wrong-answers-container animate__animated animate__fadeIn">
+            <div class="icon"><i class="fas fa-check-circle"></i></div>
+            <p class="fs-5"><strong>훌륭해요!</strong></p>
+            <p>현재 오답노트에 기록된 문제가 없습니다.</p>
+            <p><a href="{% url 'quiz:concept_select' %}" class="action-link">새로운 문제 풀러 가기! <i class="fas fa-arrow-right ms-1"></i></a></p>
+        </div>
+    {% endif %}
 
-<style>
-  .list-group-item {
-    font-size: 1rem;
-    letter-spacing: 0.02em;
-  }
-</style>
+    <div style="text-align: center; margin-top: 3.5em; margin-bottom: 1em;">
+        <a href="{% url 'users:student_dashboard' %}" class="menu-item fancy-button"
+           style="width: 200px; background: linear-gradient(135deg, #a8d1ff, #6c92be);"
+           data-sound-hover="default-hover" data-sound-click="default-click">
+           <span class="menu-icon" style="font-size: 1.2em;"><i class="fas fa-arrow-left"></i></span>
+           <span class="menu-text" style="font-size: 1em;">대시보드로</span>
+        </a>
+    </div>
+</div>
 {% endblock %}

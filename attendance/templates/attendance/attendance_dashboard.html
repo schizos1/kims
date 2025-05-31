@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ user.username }}님의 출석부{% endblock %}
+
+{% block extra_head %}
+{# 만약 이 페이지에서만 필요한 추가 CSS나 JS가 있다면 여기에 넣습니다. #}
+{# 보내주신 CSS가 이미 base.html이나 공통 CSS에 포함되어 있다면 별도 링크는 필요 없을 수 있습니다. #}
+{# <link rel="stylesheet" href="{% static 'css/your_main_site_styles.css' %}"> #}
+<style>
+    /* 추가적으로 이 페이지만을 위한 아주 약간의 CSS 조정이 필요하다면 여기에 넣을 수 있습니다. */
+    /* 예를 들어, 달력 내 활동 기록 텍스트의 세부 스타일 등 */
+    .calendar-day .activity-info {
+        font-size: 0.7em;
+        margin-top: 4px;
+        color: #007bff; /* 예시 색상 */
+        line-height: 1.1;
+    }
+    .calendar-day .activity-info i {
+        margin-right: 2px;
+    }
+    /* 오늘 날짜에 대한 특별한 강조 (기존 CSS에 today 스타일이 없다면) */
+    .calendar-day.today {
+        border: 2px solid #ffc107; /* 예시: 노란색 테두리 */
+        background-color: #fff9e6; /* 예시: 연한 노란색 배경 */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard"> {# 전체 대시보드 컨테이너 (기존 CSS의 .dashboard 클래스 활용) #}
+
+    {# 페이지 제목 - 기존 CSS의 .calendar-title 또는 .page-title-decorated 등을 활용할 수 있습니다. #}
+    {# 여기서는 .calendar-title을 사용한다고 가정하겠습니다. #}
+    <div class="header" style="margin-bottom: 1.5em;"> {# 간단한 헤더 #}
+        <h2 class="calendar-title" style="text-align:center; width:100%;">📅 {{ current_year_display }}년 {{ current_month_display }} 출석부</h2>
+    </div>
+    
+    <div class="attendance-summary text-center mb-4"> {# 요약 정보 - 기존 CSS의 스타일을 따르도록 클래스 부여 가능 #}
+        <p>{{ user.username }}님, 오늘 ({{ today.month }}월 {{ today.day }}일)
+            {% if is_attended_today %}
+                <span style="color: green; font-weight: bold;">✅ 출석 완료!</span>
+            {% else %}
+                <span style="color: red; font-weight: bold;">❌ 미출석</span>
+                <form method="post" action="{% url 'attendance:record_attendance' %}" style="display: inline-block; margin-left: 10px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success py-1 px-2" style="font-size:0.85rem;">지금 출석</button>
+                </form>
+            {% endif %}
+        </p>
+        <p>현재 연속 출석: <strong style="color:#4CAF50;">{{ consecutive_days }}일</strong> | 최장 연속 출석: <strong style="color:#4CAF50;">{{ longest_streak }}일</strong></p>
+    </div>
+
+    {# 달력 영역 - 기존 CSS의 .calendar-box 와 .calendar-grid 활용 #}
+    <div class="calendar-box">
+        {# 달력 요일 헤더 - 기존 CSS에 .calendar-day-name 같은 클래스가 있다면 활용 #}
+        <div class="calendar-grid" style="padding-bottom: 10px; border-bottom: 1px solid #eee; margin-bottom:5px;">
+            {% for day_header in "월화수목금토일"|make_list %}
+            <div class="calendar-day calendar-day-name"><strong>{{ day_header }}</strong></div>
+            {% endfor %}
+        </div>
+
+        {# 달력 날짜 부분 #}
+        <div class="calendar-grid">
+            {% for week_data in calendar_weeks_data %}
+                {% for day_cell in week_data %}
+                <div class="calendar-day 
+                            {% if day_cell.day_num == today.day and current_month_int == today.month and current_year_display == today.year %}today{% endif %}
+                            {% if day_cell.is_attended %}attended{% endif %}
+                            {% if not day_cell.day_num %}calendar-empty{% endif %}"
+                     {% if day_cell.day_num %}
+                         data-day="{{ day_cell.day_num }}"
+                         data-month="{{ current_month_int }}"
+                         data-year="{{ current_year_display }}"
+                         data-attended="{% if day_cell.is_attended %}출석{% else %}미출석{% endif %}"
+                         data-problems="{{ day_cell.activities.problems_solved|default:0 }}"
+                         style="cursor: pointer;"
+                     {% endif %}
+                >
+                    {% if day_cell.day_num %}
+                        <span class="day-number">{{ day_cell.day_num }}</span>
+                        
+                        {% if day_cell.is_attended and not day_cell.activities.problems_solved %} 
+                            {# 출석만 하고 다른 활동이 없다면 간단히 표시 #}
+                            {# (위 CSS에서 .calendar-day.attended::after 로 ☀️ 표시 예시) #}
+                        {% endif %}
+
+                        {% if day_cell.activities.problems_solved > 0 %}
+                        <div class="activity-info">
+                            {# <i class="fas fa-pencil-alt"></i> #} 퀴즈: {{ day_cell.activities.problems_solved }}
+                        </div>
+                        {% endif %}
+                        {# 여기에 다른 활동 기록(예: 포인트 획득)을 위한 div 추가 가능 #}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    
+    {# 추가적인 학습 리포트/통계 영역이 필요하다면 기존 CSS의 .learn-chart-box 등을 활용 #}
+
+
+</div> {# End of .dashboard #}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.calendar-grid .calendar-day[data-day]').forEach(cell => {
+        cell.addEventListener('click', function() {
+            const day = this.getAttribute('data-day');
+            if (!day) return;
+
+            const month = this.getAttribute('data-month');
+            const year = this.getAttribute('data-year');
+            const attended = this.getAttribute('data-attended');
+            const problems = this.getAttribute('data-problems');
+
+            let details = `${year}년 ${month}월 ${day}일 활동:\n`;
+            details += `출석: ${attended}\n`;
+            if (parseInt(problems) > 0) {
+                details += `푼 문제 수: ${problems}개`;
+            }
+            
+            if (attended === '미출석' && parseInt(problems) == 0) {
+                // 특별한 활동이 없으면 굳이 alert를 띄우지 않거나 다른 메시지를 표시할 수 있습니다.
+                // alert(`${year}년 ${month}월 ${day}일\n기록된 활동이 없습니다.`);
+            } else {
+                alert(details); // 실제로는 더 예쁜 UI(모달, 툴팁)로 대체 권장
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

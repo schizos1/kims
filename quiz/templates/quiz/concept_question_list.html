@@ -1,71 +1,78 @@
 {% extends "base.html" %}
 {% load quiz_extras %}
-
 {% block content %}
 <div class="container py-5">
-  <h2 class="mb-4 text-center fw-bold" style="font-size:2.2rem; letter-spacing:1px;">
+  <h2 class="text-center fw-bold mb-4" style="font-size:2.3rem; color:#316ec4;">
     {{ subject.name }} - {{ lesson.unit_name }} 문제풀이
   </h2>
-
-  <div class="mb-4">
-    <h5 class="fw-semibold">개념 설명</h5>
-    <p class="lead">{{ lesson.concept }}</p>
+  <div class="mb-4 p-4" style="background:linear-gradient(90deg, #e6f6ff 60%, #f8fcff 100%);border-radius:1.2rem;">
+    <h5 class="fw-bold mb-2" style="color:#5392FF;">개념 설명</h5>
+    <p class="lead" style="color:#333; font-size:1.19rem;">{{ lesson.concept }}</p>
   </div>
-
-  <form method="post" action="{% url 'submit_answers' subject.id lesson.id %}">
+  <form method="post" action="{% url 'quiz:submit_answers' subject.id lesson.id %}" autocomplete="off">
     {% csrf_token %}
-
     {% for question in questions %}
-      <div class="card mb-4 shadow-sm p-3">
-        <div class="mb-3 fw-bold fs-5">
-          <span class="me-2">{{ forloop.counter }}.</span>
-          <span>{{ question.text }}</span>
+      <div class="question-block mb-5 py-4 px-3"
+           style="background: #fff; border-radius: 0.7rem; box-shadow: 0 2px 16px #c7d7ee55; border: 1.2px solid #e2e8f7;">
+        <div class="fw-bold text-center mb-4" style="font-size:1.5rem; color:#2761b6;">
+          <span class="q-number me-2" style="font-size:2rem;">{{ forloop.counter }}.</span>
+          <span style="font-size:1.35rem;">{{ question.text }}</span>
           {% if question.image %}
-            <br>
-            <img src="{{ question.image }}" alt="문제 이미지" class="img-fluid mt-2" style="max-height: 200px;">
+            <div class="mt-3">
+              <img src="{{ question.image }}" alt="문제 이미지" class="img-fluid" style="max-height:70px;">
+            </div>
           {% endif %}
         </div>
-
-        <div class="row row-cols-1 row-cols-md-2 g-3">
+        <div class="choices-area d-flex flex-column gap-3 align-items-center mt-3">
           {% for i in "1234" %}
-            <div class="col">
-              <label class="d-flex align-items-center border rounded p-2 cursor-pointer hover-shadow" style="cursor:pointer;">
-                <input type="radio" name="q{{ question.id }}" value="{{ i }}" class="form-check-input me-3" required>
-                <span class="fs-5 me-2 fw-bold text-primary">
-                  {% if i == "1" %}①
-                  {% elif i == "2" %}②
-                  {% elif i == "3" %}③
-                  {% elif i == "4" %}④
-                  {% endif %}
-                </span>
-                {% with choice_text=question|get_choice_text:i choice_image=question|get_choice_image:i %}
-                  {% if choice_image %}
-                    <img src="{{ choice_image }}" alt="선택지 이미지" style="max-width: 40px; max-height: 40px; margin-right: 10px;">
-                  {% endif %}
-                  <span>{{ choice_text }}</span>
-                {% endwith %}
-              </label>
-            </div>
+            <label class="choice-line w-100 d-flex align-items-center justify-content-center py-2"
+                   style="gap:1.1rem; font-size:1.23rem; cursor:pointer;">
+              <input type="radio" name="q_{{ question.id }}" value="{{ i }}" class="form-check-input me-2" style="transform:scale(1.18);" required>
+              <span class="fw-bold" style="color:#4687f7; font-size:1.35rem; min-width:2em; text-align:center;">
+                {% if i == "1" %}①{% elif i == "2" %}②{% elif i == "3" %}③{% elif i == "4" %}④{% endif %}
+              </span>
+              {% with choice_text=question|get_choice_text:i choice_image=question|get_choice_image:i %}
+                {% if choice_image %}
+                  <img src="{{ choice_image }}" alt="선택지 이미지" style="max-width:32px; max-height:32px;">
+                {% endif %}
+                <span style="font-size:1.13rem;">{{ choice_text }}</span>
+              {% endwith %}
+            </label>
           {% endfor %}
         </div>
       </div>
     {% empty %}
       <div class="text-center text-muted fs-5">이 단원에는 등록된 문제가 없습니다.</div>
     {% endfor %}
-
-    <div class="text-center mt-4">
-      <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow">
+    <div class="text-center mt-5">
+      <button type="submit" class="btn btn-lg px-5 py-2 shadow-sm fw-bold" style="background:linear-gradient(90deg,#6ac8ff 60%,#4488ff 100%);border:none;border-radius:2rem;color:#fff;font-size:1.15rem;">
         답안 제출하기
       </button>
     </div>
   </form>
 </div>
-
 <style>
-.cursor-pointer:hover {
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-  background-color: #e9f5ff;
-  transition: 0.3s;
+.question-block {
+  margin-bottom: 3.3rem !important;
+  border-radius: 0.7rem !important;
+  box-shadow: 0 2px 16px #c7d7ee55 !important;
+  border: 1.2px solid #e2e8f7 !important;
+  background: #fff !important;
+}
+.choice-line {
+  border: none !important;
+  background: none !important;
+  transition: 0.12s;
+}
+.choice-line:hover, .choice-line:focus-within {
+  background: #f1f7ff;
+}
+.choices-area label {
+  margin-bottom: 0.33rem !important;
+}
+@media (max-width: 576px) {
+  .question-block { padding: 0.7rem 0.2rem !important; }
+  .choice-line { font-size:1.05rem !important; }
 }
 </style>
 {% endblock %}

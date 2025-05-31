@@ -8,7 +8,7 @@
   </h2>
 
   {% if questions %}
-    <form method="post" action="{% url 'submit_answers' subject.id lesson.id %}">
+    <form method="post" action="{% url 'quiz:submit_answers' subject.id lesson.id %}">
       {% csrf_token %}
 
       {% for question in questions %}

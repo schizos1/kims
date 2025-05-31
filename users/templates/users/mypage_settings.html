@@ -1,0 +1,157 @@
+{# users/templates/users/mypage_settings.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ userprofile.nickname|default:user.username }}님의 설정{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <style>
+        /* ... (기존 스타일은 그대로) ... */
+        .settings-card { background-color: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); margin-bottom: 30px; }
+        .settings-card h3 { color: #4A90E2; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { font-weight: bold; display: block; margin-bottom: 8px; }
+        .form-control, .form-control-select, .form-control-number { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .btn-submit-action { /* 버튼 클래스 이름 변경 및 스타일 통일 */
+            background-color: #5cb85c; color: white; padding: 10px 20px; 
+            border: none; border-radius: 8px; cursor: pointer; font-size: 1em; margin-top:10px;
+        }
+        .btn-submit-action:hover { background-color: #4cae4c; }
+        .current-info { font-size: 0.9em; color: #777; margin-top: 5px; }
+
+        .mascot-selection-gallery { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 8px; }
+        .mascot-option label { border: 2px solid transparent; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; display: block; }
+        .mascot-option img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 5px; border-radius: 8px; background-color: #fff; padding:3px; border: 1px solid #eee;}
+        .mascot-option span { font-size: 0.85em; display: block; color: #555; }
+        .mascot-option input[type="radio"] { opacity: 0; position: absolute; width: 0; height: 0; } 
+        .mascot-option input[type="radio"]:checked + .mascot-option-display { border-color: #4A90E2; box-shadow: 0 0 12px rgba(74, 144, 226, 0.6); transform: scale(1.05); }
+        .mascot-option-display { border: 2px solid #eee; border-radius: 10px; padding: 10px; transition: all 0.2s; }
+        .mascot-option-display:hover { border-color: #90caf9; box-shadow: 0 0 8px rgba(144, 202, 249, 0.4); }
+
+        .transaction-list { list-style-type: none; padding-left: 0; }
+        .transaction-list li { padding: 10px; border-bottom: 1px solid #eee; }
+        .transaction-list li:last-child { border-bottom: none; }
+        .transaction-points-deducted { color: red; font-weight: bold;}
+        .transaction-points-earned { color: green; font-weight: bold;}
+    </style>
+
+    <h2 class="text-center mb-4">⚙️ {{ userprofile.nickname|default:user.username }}님 설정</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {# --- 프로필, 마스코트, 테마 설정 폼 --- #}
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_profile_settings"> {# 작업 구분용 hidden input #}
+
+        <div class="settings-card">
+            <h3>👤 프로필 및 마스코트</h3>
+            <div class="form-group">
+                <label for="nickname">닉네임 (최대 20자):</label>
+                <input type="text" name="nickname" id="nickname" value="{{ userprofile.nickname|default:user.username }}" class="form-control" maxlength="20">
+            </div>
+            <div class="form-group">
+                <label for="mascot_name">마스코트 애칭 (최대 20자):</label>
+                <input type="text" name="mascot_name" id="mascot_name" value="{{ userprofile.mascot_name|default:'' }}" class="form-control" placeholder="예: 용감한 라이언" maxlength="20">
+            </div>
+            <div class="form-group">
+                <label>마스코트 선택:</label>
+                {% if userprofile.selected_mascot %}
+                    <p class="current-info">현재 선택: <strong>{{ userprofile.selected_mascot.name }}</strong>
+                        <img src="{{ userprofile.selected_mascot.image.url }}" alt="{{ userprofile.selected_mascot.name }}" style="width:24px; height:24px; vertical-align:middle; margin-left:5px; border-radius:3px;">
+                    </p>
+                {% else %}
+                    <p class="current-info">선택된 마스코트가 없습니다.</p>
+                {% endif %}
+                <div class="mascot-selection-gallery">
+                    <div class="mascot-option">
+                        <input type="radio" name="gallery_mascot_select" value="none" id="mascot_none" {% if not userprofile.selected_mascot %}checked{% endif %}>
+                        <label for="mascot_none" class="mascot-option-display" style="width: 82px; height: 102px; display:flex; align-items:center; justify-content:center; font-size:0.9em; color:#777;">선택 안함</label>
+                    </div>
+                    {% for mascot_obj in gallery_mascots %}
+                    <div class="mascot-option">
+                        <input type="radio" name="gallery_mascot_select" value="{{ mascot_obj.id }}" id="mascot_{{ mascot_obj.id }}" {% if userprofile.selected_mascot and userprofile.selected_mascot.id == mascot_obj.id %}checked{% endif %}>
+                        <label for="mascot_{{ mascot_obj.id }}" class="mascot-option-display">
+                            <img src="{{ mascot_obj.image.url }}" alt="{{ mascot_obj.name }}">
+                            <span>{{ mascot_obj.name }}</span>
+                        </label>
+                    </div>
+                    {% empty %}
+                    <p>선택 가능한 마스코트가 없습니다.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {# --- 테마 설정 카드 (사용자 요청에 따라 유지) --- #}
+        <div class="settings-card">
+            <h3>🎨 테마 설정</h3>
+            <div class="form-group">
+                <label for="select_theme">테마 선택:</label>
+                <select name="select_theme" id="select_theme" class="form-control-select">
+                    <option value="" {% if not userprofile.selected_theme %}selected{% endif %}>테마 선택 안함</option>
+                    {% for theme_obj in themes %}
+                        <option value="{{ theme_obj.id }}" {% if userprofile.selected_theme and userprofile.selected_theme.id == theme_obj.id %}selected{% endif %}>
+                            {{ theme_obj.display_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if userprofile.selected_theme %}
+                <p class="current-info mt-2">현재 적용된 테마: <strong>{{ userprofile.selected_theme.display_name }}</strong></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 10px; margin-bottom: 30px;">
+            <button type="submit" class="btn-submit-action">프로필/마스코트/테마 저장</button>
+        </div>
+    </form> {# 프로필/마스코트/테마 설정 폼 끝 #}
+
+
+    {# --- 포인트 사용 신청 (용돈) --- #}
+    <div class="settings-card">
+        <h3>💰 포인트 사용 신청 (용돈으로 전환)</h3>
+        <p class="current-info">현재 사용 가능 포인트: <strong>{{ available_points|default:0 }} P</strong></p>
+        
+        <form method="post" class="mt-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="request_allowance"> {# 작업 구분용 hidden input #}
+            <div class="form-group">
+                <label for="points_to_use">사용할 포인트:</label>
+                <input type="number" name="points_to_use" id="points_to_use" class="form-control-number" placeholder="예: 1000" min="1" required>
+            </div>
+            <button type="submit" class="btn-submit-action" style="background-color: #007bff;">용돈 신청하기</button> {# 버튼 색상 변경 #}
+        </form>
+    </div>
+
+    {# --- 포인트 사용 내역 --- #}
+    <div class="settings-card">
+        <h3>📜 최근 포인트 거래 내역 (최대 10건)</h3>
+        {% if point_transactions %}
+            <ul class="transaction-list">
+                {% for transaction in point_transactions %}
+                    <li>
+                        <span style="color: #888; font-size: 0.9em;">{{ transaction.timestamp|date:"Y.m.d H:i" }}</span> - 
+                        <strong>{{ transaction.get_transaction_type_display }}</strong>
+                        {% if transaction.description %}({{ transaction.description }}){% endif %}: 
+                        <span class="{% if transaction.points_changed < 0 %}transaction-points-deducted{% else %}transaction-points-earned{% endif %}">
+                            {{ transaction.points_changed }}P
+                        </span>
+                    </li>
+                {% empty %}
+                    <p>포인트 거래 내역이 없습니다.</p>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>포인트 거래 내역이 없습니다.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

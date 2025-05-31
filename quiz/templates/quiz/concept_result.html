@@ -1,205 +1,76 @@
 {% extends "base.html" %}
-{% load quiz_extras %}
-
 {% block content %}
-<div class="container py-5">
-  <h2 class="mb-4 text-center fw-bold" style="font-size:2.4rem; letter-spacing:1px; color:#344055;">
-    {{ subject.name }} - {{ lesson.unit }} 채점 결과
-  </h2>
-
-  <div class="text-center mb-5">
-    <h3>총 <span class="text-gradient">{{ total }}</span>문제 중 <span class="text-gradient-correct">{{ correct }}</span>문제 정답</h3>
-    <h4>점수: <span class="text-gradient-score">{{ score }}점</span></h4>
-    <div class="mt-4">
-      <a href="{% url 'concept_question_list' subject.id lesson.id %}" class="btn btn-gradient-primary btn-lg me-3 px-5 rounded-pill shadow-lg">
-        다음 문제 풀기
-      </a>
-      <a href="{% url 'concept_subject_list' %}" class="btn btn-outline-gradient-secondary btn-lg px-5 rounded-pill shadow">
-        과목 선택으로 돌아가기
-      </a>
+<div style="width:100vw;min-height:100vh;background:#f9fcff;">
+  <div class="result-box">
+     {{ subject.name }} - {{ lesson.unit_name }}<br>채점 결과
+    <p>
+      <span class="score-main">총 {{ total }}문제 중 <span class="score-correct">{{ correct }}</span>문제 정답</span><br>
+      점수: <span class="score-point">{{ score }}점</span>
+    </p>
+    <div class="result-btns">
+      <a href="{% url 'quiz:concept_question_list' subject.id lesson.id %}" class="btn-next">다음 문제 풀기</a>
+      <a href="{% url 'quiz:concept_subject_list' %}" class="btn-back">과목 선택으로 돌아가기</a>
     </div>
   </div>
-
-  {% for res in results %}
-  <div class="result-card mb-5 shadow rounded-4 {% if res.is_correct %}correct{% else %}incorrect{% endif %} animate-float">
-    <div class="card-body p-4 d-flex align-items-start gap-3">
-      <div class="icon-wrapper">
-        {% if res.is_correct %}
-          <i class="fa-solid fa-star fa-3x text-yellow star-spin"></i>
-        {% else %}
-          <i class="fa-solid fa-cloud-showers-heavy fa-3x text-skyblue cloud-sad"></i>
-        {% endif %}
-      </div>
-      <div class="content-wrapper flex-grow-1">
-        <div class="fs-5 fw-bold text-dark mb-2">
-          {{ forloop.counter }}. {{ res.question.text }}
-          {% if res.question.image %}
-            <br>
-            <img src="{{ res.question.image }}" alt="문제 이미지" class="img-fluid rounded mt-2" style="max-height: 180px;">
-          {% endif %}
-        </div>
-
-        <div class="answer-bubble-wrapper mb-2">
-          <div class="answer-bubble {% if res.is_correct %}bubble-correct{% else %}bubble-incorrect{% endif %}">
-            <strong>선택 답안:</strong> {{ res.user_choice }}. {{ res.question|get_choice_text:res.user_choice }}
-          </div>
-        </div>
-
-        <div class="answer-bubble-wrapper">
-          <div class="answer-bubble bubble-correct">
-            <strong>정답:</strong> {{ res.question.answer }}. {{ res.question|get_choice_text:res.question.answer }}
-          </div>
-        </div>
-
-        <div class="mt-3 text-muted explanation" style="white-space: pre-line;">
-          <strong>해설:</strong>
-          <p>{{ res.question.explanation|default:"해설이 없습니다." }}</p>
-          {% if res.question.explanation_image %}
-            <img src="{{ res.question.explanation_image }}" alt="해설 이미지" class="img-fluid rounded" style="max-height: 160px;">
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
 </div>
-
 <style>
-/* 텍스트 그라데이션 */
-.text-gradient {
-  background: linear-gradient(90deg, #fbc7a4, #fceabb);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 900;
-  font-size: 1.6rem;
+/* (위에서 안내한 style 그대로) */
+.result-box {
+  margin: 100px auto 0 auto;
+  max-width: 550px;
+  background: #fffbe7;
+  box-shadow: 0 12px 44px #ffb6b640;
+  border-radius: 2.2rem;
+  padding: 2.8rem 1.2rem 2.5rem 1.2rem;
+  text-align: center;
 }
-.text-gradient-correct {
-  background: linear-gradient(90deg, #a0eac8, #38b48b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.result-box h2 {
+  color: purple;
+  font-size: 2.2rem;
   font-weight: 900;
-  font-size: 1.6rem;
+  margin-bottom: 2.1rem;
 }
-.text-gradient-score {
-  background: linear-gradient(90deg, #f9a8d4, #f472b6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 900;
-  font-size: 1.7rem;
-}
-
-/* 버튼 그라데이션 */
-.btn-gradient-primary {
-  background: linear-gradient(135deg, #9de0ff, #ffc3f9);
-  border: none;
-  color: #2c3e50;
+.result-box p {
+  color: #0bb;
+  font-size: 1.16rem;
   font-weight: 700;
-  box-shadow: 0 10px 20px rgba(157, 224, 255, 0.7);
-  transition: all 0.3s ease;
+  margin: 2.5rem 0;
 }
-.btn-gradient-primary:hover {
-  background: linear-gradient(135deg, #6cc9ff, #ff9bde);
+.score-main { color: #ff48c8; }
+.score-correct { color: #38b48b; }
+.score-point { font-size: 2rem; color: #f68; font-weight: 900; }
+
+.result-btns { margin-top: 1.4rem; }
+.result-btns a {
+  display: inline-block;
+  background: #81e8ff;
+  color: #2675d7;
+  padding: 0.8em 2.5em;
+  margin: 8px;
+  border-radius: 2rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: 0.16s;
+  box-shadow: 0 3px 12px #b3e6f633;
+}
+.result-btns a.btn-back {
+  background: #fff;
+  border: 2px solid #8af;
+  color: #2675d7;
+}
+.result-btns a:hover {
+  background: #5dd5fa;
   color: #fff;
-  box-shadow: 0 15px 30px rgba(255, 122, 200, 0.8);
 }
-
-/* 아웃라인 그라데이션 버튼 */
-.btn-outline-gradient-secondary {
-  background: transparent;
-  border: 2px solid #c3c6e4;
-  color: #344055;
-  font-weight: 600;
-  transition: all 0.3s ease;
+.result-btns a.btn-back:hover {
+  background: #f8faff;
+  color: #3697e0;
+  border-color: #47d0ff;
 }
-.btn-outline-gradient-secondary:hover {
-  border-color: #bb8ee0;
-  background: #f9f7ff;
-  color: #5a3fbb;
-  box-shadow: 0 5px 15px rgba(186, 165, 247, 0.7);
-}
-
-/* 카드 디자인 */
-.result-card {
-  background: #fff8f3;
-  border-radius: 1.7rem;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-.result-card.correct {
-  border-color: #4caf50;
-}
-.result-card.incorrect {
-  border-color: #e53e3e;
-}
-.result-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(255, 182, 193, 0.5);
-}
-
-/* 아이콘 */
-.icon-wrapper {
-  width: 80px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.text-yellow {
-  color: #f9d423;
-}
-.text-skyblue {
-  color: #7ec8e3;
-}
-.star-spin {
-  animation: spin 3s linear infinite;
-}
-.cloud-sad {
-  animation: floatCloud 4s ease-in-out infinite alternate;
-}
-
-/* 애니메이션 키프레임 */
-@keyframes spin {
-  from { transform: rotate(0deg);}
-  to { transform: rotate(360deg);}
-}
-@keyframes floatCloud {
-  from { transform: translateY(0);}
-  to { transform: translateY(-10px);}
-}
-
-/* 답안 풍선말 */
-.answer-bubble-wrapper {
-  max-width: 70%;
-}
-.answer-bubble {
-  padding: 0.6rem 1rem;
-  border-radius: 1.5rem;
-  font-size: 1.05rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-.bubble-correct {
-  background: linear-gradient(135deg, #c0f2d8, #a6e4bc);
-  border: 2px solid #42b983;
-  color: #225537;
-}
-.bubble-incorrect {
-  background: linear-gradient(135deg, #f5c7c7, #f7a6a6);
-  border: 2px solid #e05454;
-  color: #6f2b2b;
-}
-
-/* 해설 */
-.explanation strong {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #444;
-}
-
-/* 반응형 */
-@media (max-width: 768px) {
-  .answer-bubble-wrapper {
-    max-width: 100%;
-  }
+@media (max-width: 650px) {
+  .result-box { max-width: 99vw; padding: 1.3rem 0.1rem 1.7rem 0.1rem; }
+  .result-box h2 { font-size: 1.2rem; }
+  .result-btns a { font-size: 0.96rem; padding: 0.56em 1.4em; }
 }
 </style>
-
 {% endblock %}

@@ -1,33 +1,78 @@
-<!--
-my_trophies.html
-- 트로피 보관함, 획득시 애니메이션/사운드(기본 샘플)
--->
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>내 트로피</title>
-    <style>
-        .trophy-list { display:flex; flex-wrap:wrap; gap:1.2em; }
-        .trophy-item { width:110px; height:110px; border-radius:1.3em; background:#f5faff; box-shadow:0 2px 10px #e8f0f7; display:flex; flex-direction:column; align-items:center; justify-content:center;}
-        .trophy-icon { font-size:2.5em; color:#e7c53a; margin-bottom:0.5em;}
-        .trophy-name { font-weight:700; color:#557abb;}
-        .animate { animation: pop 0.8s; }
-        @keyframes pop { 0%{transform:scale(0.2);} 70%{transform:scale(1.25);} 100%{transform:scale(1);} }
-    </style>
-    <audio id="sfx" src="https://cdn.pixabay.com/audio/2022/12/19/audio_12f3a0a1d7.mp3"></audio>
-</head>
-<body>
-    <h2>내 트로피</h2>
-    <div class="trophy-list">
-        {% for ut in user_trophies %}
-        <div class="trophy-item animate" onclick="document.getElementById('sfx').play();">
-            <div class="trophy-icon"><i class="fa-solid fa-trophy"></i></div>
-            <div class="trophy-name">{{ ut.trophy.name }}</div>
+{% extends "base.html" %}
+{% block content %}
+<div style="width:100vw;min-height:100vh;background:#f9fcff;">
+  <div style="max-width:700px;margin:50px auto 0 auto;">
+    <h2 style="text-align:center;color:#8145d9;font-size:2.1rem;font-weight:900;margin-bottom:2.3rem;">
+      내 트로피
+    </h2>
+
+    <div style="text-align:center;margin-bottom:2.4rem;">
+      <span style="font-size:1.18rem;font-weight:700;color:#436fff;">트로피 수집률:&nbsp;</span>
+      <span style="font-size:1.35rem;font-weight:900;color:#13e3a1;">
+        {{ acquired_trophy_count }}/{{ total_trophy_count }} ({{ overall_progress_percent }}%) {# 뷰에서 전달한 변수 사용 #}
+      </span>
+      <div style="margin:1.1em auto 0 auto;max-width:390px;">
+        <div style="background:#eaf8ff;border-radius:2em;overflow:hidden;height:18px;">
+          <div style="
+            width:{{ overall_progress_percent }}%;
+            height:18px;
+            background:linear-gradient(90deg,#98f6d3 30%,#54bfff 100%);
+            border-radius:2em;
+            transition:0.7s;
+          "></div>
         </div>
-        {% empty %}
-        <div>아직 획득한 트로피가 없습니다.</div>
-        {% endfor %}
+      </div>
     </div>
-</body>
-</html>
+
+    <div class="trophy-list" style="display:flex;flex-wrap:wrap;gap:1.5em;justify-content:center;">
+      {% for item in display_trophies %}
+        {% if item.is_acquired %}
+          <div class="trophy-item animate" onclick="document.getElementById('sfx').play();"
+            style="width:110px;height:110px;border-radius:1.3em;background:#fff4e7;box-shadow:0 2px 12px #ffe7b6a8;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:.22s; padding: 5px; box-sizing: border-box;">
+            {# ✨✨✨ 아이콘 표시 부분 수정 (획득) ✨✨✨ #}
+            <div class="trophy-icon" style="width: 50px; height: 50px; margin-bottom:0.5em; display: flex; align-items: center; justify-content: center;">
+              {% if item.trophy_object.icon %}
+                <img src="{{ item.trophy_object.icon }}" alt="{{ item.trophy_object.name }} 아이콘" style="max-width:100%; max-height:100%; object-fit: contain;">
+              {% else %}
+                <i class="fa-solid fa-trophy" style="font-size:2.5em; color: #e7c53a;"></i> {# 기본 아이콘 #}
+              {% endif %}
+            </div>
+            {# ✨✨✨ 여기까지 수정 ✨✨✨ #}
+            <div class="trophy-name" style="font-weight:700;color:#557abb;font-size:1.02em;text-align:center; word-break: keep-all;">{{ item.trophy_object.name }}</div>
+          </div>
+        {% else %}
+          <div class="trophy-item trophy-locked"
+            style="width:110px;height:110px;border-radius:1.3em;background:#f4f6fa;box-shadow:0 2px 8px #bcc0cd70;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:.42;filter:grayscale(0.9) brightness(1.18);pointer-events:none; padding: 5px; box-sizing: border-box;">
+            {# ✨✨✨ 아이콘 표시 부분 수정 (미획득) ✨✨✨ #}
+            <div class="trophy-icon" style="width: 50px; height: 50px; margin-bottom:0.5em; display: flex; align-items: center; justify-content: center;">
+              {% if item.trophy_object.icon %}
+                <img src="{{ item.trophy_object.icon }}" alt="{{ item.trophy_object.name }} 아이콘" style="max-width:100%; max-height:100%; object-fit: contain;">
+              {% else %}
+                <i class="fa-solid fa-trophy" style="font-size:2.5em; color: #a8aeb6;"></i> {# 기본 아이콘 #}
+              {% endif %}
+            </div>
+            {# ✨✨✨ 여기까지 수정 ✨✨✨ #}
+            <div class="trophy-name" style="font-weight:700;color:#a8aeb6;font-size:1.02em;text-align:center; word-break: keep-all;">{{ item.trophy_object.name }}</div>
+            
+            {% if item.progress_info %}
+            <div class="trophy-progress-details" style="font-size:0.75em; color:#777; margin-top:3px; text-align:center;">
+                {{ item.progress_info.message }} <br>
+                ({{ item.progress_info.current }}/{{ item.progress_info.target }})
+                <div style="width:80%; background:#ddd; border-radius:1em; height:6px; margin:3px auto 0 auto; overflow:hidden;">
+                    <div style="width:{{ item.progress_info.percentage }}%; background: #81c784; height:6px;"></div>
+                </div>
+            </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <audio id="sfx" src="https://cdn.pixabay.com/audio/2022/12/19/audio_12f3a0a1d7.mp3"></audio>
+  </div>
+</div>
+<style>
+.animate { animation: pop 0.8s; }
+@keyframes pop { 0%{transform:scale(0.2);} 70%{transform:scale(1.18);} 100%{transform:scale(1);} }
+</style>
+{% endblock %}

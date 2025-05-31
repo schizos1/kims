@@ -1,0 +1,60 @@
+<div class="menu-list">
+    {# ✨✨✨ 사용자 마스코트 및 닉네임 표시 부분 (새로 추가) ✨✨✨ #}
+    {% if request.user.is_authenticated and user_profile_for_base %}
+        {# 이 div를 클릭하면 마이페이지 설정으로 이동하도록 링크를 걸 수도 있습니다. #}
+        {# 예: <a href="{% url 'users:mypage_settings' %}" class="menu-item-user-profile-link"> #}
+        <div class="menu-item-user-profile"> {# CSS 클래스로 스타일 적용 #}
+            {% if user_profile_for_base.active_mascot_image_url %}
+                <img src="{{ user_profile_for_base.active_mascot_image_url }}" class="menu-user-mascot" alt="{{ user_profile_for_base.mascot_name|default:'마스코트' }}">
+            {% else %}
+                <span class="menu-user-mascot-placeholder">🧸</span> {# 기본 마스코트 아이콘 #}
+            {% endif %}
+            <span class="menu-user-nickname">
+                {{ user_profile_for_base.nickname|default:request.user.username }}님
+            </span>
+        </div>
+        {# </a> #}
+    {% endif %}
+    {# ✨✨✨ 여기까지 추가 ✨✨✨ #}
+
+    {# --- 기존 메뉴 항목들 --- #}
+    <a href="{% url 'users:student_dashboard' %}" class="fancy-button">
+        <span class="menu-icon"><i class="fa-solid fa-gauge-high"></i></span>
+        <span class="menu-text">대시보드</span>
+    </a>
+    <a href="{% url 'quiz:concept_select' %}" class="fancy-button">
+        <span class="menu-icon"><i class="fa-solid fa-graduation-cap"></i></span>
+        <span class="menu-text">문제풀기</span>
+    </a>
+    <a href="{% url 'quiz:wrong_note_list' %}" class="fancy-button">
+        <span class="menu-icon"><i class="fa-solid fa-repeat"></i></span>
+        <span class="menu-text">오답노트</span>
+    </a>
+    <a href="{% url 'trophies:my_trophies' %}" class="fancy-button">
+        <span class="menu-icon"><i class="fa-solid fa-trophy"></i></span>
+        <span class="menu-text">트로피</span>
+    </a>
+    <a href="{% url 'minigame:minigame_lobby' %}" class="fancy-button">
+        <span class="menu-icon"><i class="fa-solid fa-gamepad"></i></span>
+        <span class="menu-text">미니게임</span>
+    </a>
+    <a href="{% url 'shop:shop_main' %}" class="fancy-button">
+        <span class="menu-icon"><i class="fa-solid fa-store"></i></span>
+        <span class="menu-text">상점</span>
+    </a>
+    <a href="{% url 'attendance:calendar' %}" class="fancy-button">
+        <span class="menu-icon"><i class="fa-solid fa-calendar-check"></i></span>
+        <span class="menu-text">출석</span>
+    </a>
+    <a href="{% url 'users:mypage_settings' %}" class="fancy-button">
+        <span class="menu-icon"><i class="fa-solid fa-user-cog"></i></span>
+        <span class="menu-text">마이페이지</span>
+    </a>
+    <form method="post" action="{% url 'logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="logout-button fancy-button" title="로그아웃">
+            <span class="menu-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+            <span class="menu-text">로그아웃</span>
+        </button>
+    </form>
+</div>

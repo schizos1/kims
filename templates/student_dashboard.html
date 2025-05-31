@@ -1,245 +1,24 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8" />
-    <title>{{ userprofile.nickname }}의 대시보드</title>
-    <meta name="viewport" content="width=440, initial-scale=1.0" />
-    <style>
-        body {
-            background: linear-gradient(135deg, #e6f0ff, #cce4ff);
-            font-family: 'Noto Sans KR', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .dashboard {
-            max-width: 800px;
-            margin: 3em auto;
-            padding: 2.5em 2.5em;
-            background: #ffffffcc;
-            border-radius: 2.5em;
-            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.15);
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.8em;
-        }
-        .mascot {
-            width: 80px;
-            height: 80px;
-            border-radius: 1.5em;
-            margin-right: 1.3em;
-            background: #d0f0f9;
-            box-shadow: 0 4px 16px rgba(102, 178, 255, 0.4);
-            object-fit: contain;
-            border: 3px solid #7ec6ff;
-        }
-        .student-name {
-            font-size: 1.8em;
-            font-weight: 900;
-            color: #3a7bd5;
-            text-shadow: 0 1px 3px rgba(0, 83, 179, 0.3);
-        }
-        .menu-list {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            gap: 1.4em;
-            margin-bottom: 2.5em;
-            align-items: center;
-        }
-        .menu-item {
-            width: 110px;
-            height: 58px;
-            border-radius: 1.5em;
-            background: linear-gradient(145deg, #e1f2ff, #b9dbff);
-            box-shadow:
-                4px 4px 10px #a0c7ff,
-                -4px -4px 10px #f0fcff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.05em;
-            font-weight: 800;
-            color: #2c5c99;
-            text-decoration: none;
-            transition: all 0.25s ease;
-            user-select: none;
-            cursor: pointer;
-        }
-        .menu-item:hover {
-            background: linear-gradient(145deg, #b9dbff, #e1f2ff);
-            box-shadow:
-                6px 6px 14px #7eaaff,
-                -6px -6px 14px #d0efff;
-            transform: scale(1.1);
-            color: #1a3a66;
-        }
-        .menu-icon {
-            font-size: 1.8em;
-            margin-bottom: 0.1em;
-            color: #1a4dc4;
-            text-shadow: 0 0 4px #88b5ff;
-        }
-        .logout-form {
-            margin-left: auto;
-        }
-        .logout-button {
-            width: 110px;
-            height: 58px;
-            border-radius: 1.5em;
-            background: linear-gradient(145deg, #f8d7da, #f5c2c7);
-            box-shadow:
-                4px 4px 10px #e2a0a8,
-                -4px -4px 10px #fce4e6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.05em;
-            font-weight: 800;
-            color: #a71d2a;
-            border: none;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.25s ease;
-        }
-        .logout-button:hover {
-            background: linear-gradient(145deg, #f5c2c7, #f8d7da);
-            box-shadow:
-                6px 6px 14px #b44d59,
-                -6px -6px 14px #f7b5bd;
-            transform: scale(1.1);
-            color: #7a101a;
-        }
-        .summary-box {
-            display: flex;
-            gap: 1.6em;
-            margin-bottom: 1.8em;
-            justify-content: space-around;
-        }
-        .info-box {
-            flex: 1;
-            background: #e6f0ff;
-            border-radius: 1.2em;
-            box-shadow:
-                inset 2px 2px 8px #b1d0ff,
-                inset -2px -2px 8px #ffffff;
-            text-align: center;
-            padding: 1.3em 0.9em;
-            transition: background 0.3s ease;
-        }
-        .info-box:hover {
-            background: #c9e1ff;
-            box-shadow:
-                0 0 15px 3px #89b7ff;
-        }
-        .info-title {
-            color: #3d7edc;
-            font-size: 1.12em;
-            font-weight: 700;
-            margin-bottom: 0.5em;
-            text-shadow: 0 0 2px #5f9eff;
-        }
-        .info-value {
-            font-size: 1.9em;
-            font-weight: 900;
-            color: #2c5dbb;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px #5a8ce6;
-        }
-        .report-area {
-            margin-top: 1.8em;
-        }
-        .calendar-box {
-            background:#fff3cd;
-            border-radius:1.5em;
-            padding:1.3em;
-            box-shadow: 0 4px 15px rgba(250, 217, 131, 0.6);
-            margin-bottom: 1.4em;
-            color: #856404;
-            font-weight: 700;
-            font-size: 1.2em;
-            text-align: center;
-        }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            margin-top: 0.8em;
-        }
-        .calendar-day {
-            background: #fff;
-            border-radius: 0.8em;
-            padding: 0.7em 0.2em;
-            box-shadow:
-                inset 1px 1px 4px #fcebb9,
-                inset -1px -1px 4px #fff7da;
-            color: #856404;
-            font-weight: 700;
-            user-select: none;
-        }
-        .calendar-day.attended {
-            background: #f9d462;
-            color: #784f01;
-            font-weight: 900;
-            box-shadow:
-                0 0 8px 2px #f9d462;
-        }
-        .learn-chart-box {
-            background:#e1f5fe;
-            border-radius:1.5em;
-            padding:1.3em;
-            box-shadow: 0 4px 15px rgba(129, 212, 250, 0.6);
-            margin-bottom: 1.4em;
-            color: #0277bd;
-            font-weight: 700;
-            font-size: 1.2em;
-            text-align: center;
-        }
-        @media (max-width: 700px) {
-            .dashboard { padding: 1.3em 0.4em; margin: 1.5em 1em;}
-            .menu-list { justify-content: center; gap: 1em;}
-            .menu-item { width: 28vw; height: 50px; font-size: 0.9em; }
-            .summary-box { flex-direction: column; gap: 1em; }
-            .logout-form { margin-left: 0; margin-top: 1em; width: 100%; }
-            .logout-button { width: 100%; }
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-</head>
-<body>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ userprofile.nickname|default:user.username }}의 학습 대시보드{% endblock %}
+
+{% block extra_head %}
+    <!-- 대시보드 전용 CSS는 base.html에 이미 있으므로 불필요 -->
+{% endblock %}
+
+{% block content %}
 <div class="dashboard">
-
-    <!-- 1. 학생 이름/마스코트 -->
     <div class="header">
-        {% if userprofile.selected_theme and userprofile.selected_theme.mascot_image %}
-          <img src="{{ userprofile.selected_theme.mascot_image }}" class="mascot" alt="마스코트">
-        {% endif %}
-        <div class="student-name">{{ userprofile.nickname }} 님</div>
-    </div>
+    {% if userprofile.active_mascot_image_url %} {# ✨ active_mascot_image_url 사용 ✨ #}
+        <img src="{{ userprofile.active_mascot_image_url }}" class="mascot" alt="{{ userprofile.mascot_name|default:'마스코트' }}">
+    {% else %}
+        {# 기본 마스코트 아이콘 또는 플레이스홀더 #}
+        <div class="mascot" style="display: flex; align-items: center; justify-content: center; font-size: 2.5em; background-color: #e0f7fa;">🧸</div>
+    {% endif %}
+    <div class="student-name">{{ userprofile.nickname|default:user.username }} 님</div>
+</div>
     
-    <!-- 2. 상단 메뉴 버튼 -->
-    <div class="menu-list">
-        <a href="/quiz/concept_select/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-graduation-cap"></i></span>문제풀기</a>
-        <a href="/quiz/wrong_note_list/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-repeat"></i></span>오답노트</a>
-        <a href="/trophies/my/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-trophy"></i></span>트로피</a>
-        <a href="/attendance/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-calendar-check"></i></span>출석</a>
-        <a href="/shop/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-store"></i></span>상점</a>
-        <a href="/mypage/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-user"></i></span>마이페이지</a>
-        <a href="/minigame/" class="menu-item"><span class="menu-icon"><i class="fa-solid fa-gamepad"></i></span>미니게임</a>
-
-        <!-- 로그아웃 폼 버튼 -->
-        <form method="post" action="{% url 'logout' %}" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="logout-button" title="로그아웃">
-                <span class="menu-icon"><i class="fa-solid fa-right-from-bracket"></i></span> 로그아웃
-            </button>
-        </form>
-    </div>
-    
-    <!-- 3. 대시보드 주요 정보 -->
     <div class="summary-box">
         <div class="info-box">
             <div class="info-title"><i class="fa-solid fa-trophy"></i> 획득 트로피</div>
@@ -247,7 +26,7 @@
         </div>
         <div class="info-box">
             <div class="info-title"><i class="fa-solid fa-coins"></i> 내 포인트</div>
-            <div class="info-value">{{ user_point|default:"0" }}</div>
+            <div class="info-value">{{ user_point|default:userprofile.points|default:"0" }}</div>
         </div>
         <div class="info-box">
             <div class="info-title"><i class="fa-solid fa-chart-line"></i> 누적 문제풀이</div>
@@ -255,14 +34,20 @@
         </div>
     </div>
     
-    <!-- 4. 출석 정보 -->
     <div class="report-area">
         <div class="calendar-box">
-            <div class="calendar-title"><i class="fa-solid fa-calendar-days"></i> 출석 달력</div>
+            <div class="calendar-title">
+                <i class="fa-solid fa-calendar-days"></i> 
+                {{ current_year }}년 {{ current_month_name }} 출석 달력 
+                <span style="font-size: 0.8em; color: #a58504;">(월요일 시작)</span>
+            </div>
             <div class="calendar-grid">
+                {% for day_name in "월화수목금토일"|make_list %}
+                    <div class="calendar-day calendar-day-name">{{ day_name }}</div>
+                {% endfor %}
                 {% for day in calendar_cells %}
                     {% if day == "" %}
-                        <div class="calendar-day"></div>
+                        <div class="calendar-day calendar-empty"></div>
                     {% elif day in attendance_days %}
                         <div class="calendar-day attended">{{ day }}</div>
                     {% else %}
@@ -270,19 +55,47 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            <div style="margin-top: 0.8em;">
-                오늘 출석 여부: <strong>{% if is_attended_today %}출석 완료!{% else %}미출석{% endif %}</strong>
+            <div class="calendar-status">
+                오늘 출석 여부: <strong>{% if is_attended_today %}출석 완료! <i class="fa-solid fa-circle-check" style="color: #28a745;"></i>{% else %}미출석 <i class="fa-solid fa-circle-xmark" style="color: #dc3545;"></i>{% endif %}</strong>
             </div>
-            <div>
+            <div class="calendar-streak">
                 연속 출석: <strong>{{ consecutive_days|default:"0" }}일</strong> |
                 최장 연속 기록: <strong>{{ longest_streak|default:"0" }}일</strong>
             </div>
         </div>
+
         <div class="learn-chart-box">
             <div class="learn-title"><i class="fa-solid fa-chart-pie"></i> 학습 리포트/통계</div>
-            <div style="margin-top:0.7em;">(문제 정답률/오답률, 과목별 진도 그래프 등 표시!)</div>
+            <div class="stat-section">
+                <h4>📊 전체 학습 현황</h4>
+                <p>
+                    <strong>누적 문제 풀이 수:</strong> {{ user_quiz_count|default:"0" }} 회<br>
+                    <strong>전체 정답률:</strong> {{ overall_accuracy|default:"0.0"|floatformat:1 }}%
+                </p>
+                <hr class="divider">
+                <h4>📚 과목별 학습 현황</h4>
+                {% if subject_stats_list %}
+                    <ul class="subject-stats-list">
+                        {% for subject_stat in subject_stats_list %}
+                            <li>
+                                <strong>{{ subject_stat.name }}</strong>
+                                <div class="subject-detail">
+                                    - 정답률: {{ subject_stat.accuracy|floatformat:1 }}%
+                                    ({{ subject_stat.correct_attempted }}/{{ subject_stat.total_attempted }})<br>
+                                    - 학습 진행도: {{ subject_stat.progress|floatformat:1 }}%
+                                    ({{ subject_stat.unique_attempted_count }}/{{ subject_stat.total_questions }})
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: {{ subject_stat.progress }}%;"></div>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>아직 학습 기록이 충분하지 않아 과목별 통계를 표시할 수 없습니다.<br>문제를 풀어보세요!</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-</body>
-</html>
+{% endblock %}

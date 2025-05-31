@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    오답 다시 풀기 - 
+    {% if subject and lesson %}{{ subject.name }} - {{ lesson.unit_name }}
+    {% elif subject %}{{ subject.name }} - (단원 없음)
+    {% else %}오답 문제
+    {% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<style>
+    /* ... (이전과 동일한 페이지 특정 CSS 스타일들) ... */
+    .page-title-container { /* 페이지 제목을 위한 컨테이너 */
+        text-align: center;
+        margin-bottom: 1.5em; /* 기존보다 마진 줄임 */
+        padding-top: 1em;
+    }
+    .page-title-decorated { /* dashboard_styles.css 에 이미 정의되어 있다면 여기서 중복 정의 불필요 */
+        display: inline-block;
+        background: linear-gradient(90deg,#ffcdd2,#b2ebf2,#fff59d); /* 색상 변경 (핑크-민트-노랑) */
+        border-radius: 2em; 
+        padding:0.3em 1.2em 0.45em 1.2em; 
+        box-shadow:0 6px 20px rgba(0,0,0,0.07);
+        font-size: 1.8rem; /* 크기 살짝 줄임 */
+        font-weight: 700;
+        color: #546e7a; 
+        letter-spacing:0.5px;
+    }
+
+    .quiz-card { /* 문제 카드를 위한 새로운 클래스 */
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 2em;
+        margin-bottom: 1.8em;
+        box-shadow: 0 8px 25px rgba(0, 80, 160, 0.1);
+        border: 1px solid #e0eafc;
+    }
+    .quiz-card .card-title-custom { /* Bootstrap .card-title과 구분 */
+        color: #3a7bd5; /* 대시보드 제목과 유사한 색상 */
+        font-weight: 700;
+        font-size: 1.3em;
+        margin-bottom: 1em;
+        border-bottom: 2px solid #e0eafc;
+        padding-bottom: 0.5em;
+    }
+    .quiz-card .card-text {
+        font-size: 1.05em;
+        line-height: 1.7;
+        color: #37474f;
+        margin-bottom: 1.5em;
+    }
+    .quiz-card .form-check {
+        margin-bottom: 0.8em;
+        padding: 0.75em 1em;
+        border-radius: 12px;
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        cursor: pointer;
+    }
+    .quiz-card .form-check:hover {
+        background-color: #e9ecef;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .quiz-card .form-check-input {
+        margin-top: 0.4em; /* 라벨과 정렬 */
+    }
+    .quiz-card .form-check-label {
+        font-weight: 500;
+        color: #495057;
+        cursor: pointer;
+        width: 100%; /* 라벨 전체 클릭 가능하도록 */
+    }
+    .quiz-card .form-check-input:checked + .form-check-label {
+        color: #007bff; /* 선택 시 라벨 색상 변경 */
+        font-weight: 700;
+    }
+    .quiz-card .img-fluid { /* 선택지 이미지 크기 제한 */
+        max-height: 80px; /* 이미지 최대 높이 */
+        margin-left: 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .submit-button-container {
+        text-align: center;
+        margin-top: 2em;
+    }
+    .btn-submit-quiz { /* 답안 제출 버튼 스타일 */
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        padding: 0.8em 2.5em;
+        border-radius: 50px;
+        font-size: 1.1em;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+    }
+    .btn-submit-quiz:hover {
+        background: linear-gradient(135deg, #5a6fdd 0%, #623aa0 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 7px 20px rgba(102, 126, 234, 0.45);
+    }
+
+    /* 모든 오답 해결 시/문제 없을 시 메시지 박스 */
+    .feedback-box { /* .alert 클래스와 함께 사용 */
+        padding: 1.5em;
+        border-radius: 15px;
+        margin-top: 1em;
+    }
+    .feedback-box h4 {
+        font-weight: 700;
+        margin-bottom: 0.5em;
+    }
+    .feedback-box .btn {
+        font-weight: 600;
+        margin: 0.5em;
+        padding: 0.6em 1.2em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="page-title-container">
+        <h2 class="page-title-decorated">
+            📝 
+            {% if subject and lesson %}
+                {{ subject.name }} - {{ lesson.unit_name }} 오답 다시 풀기
+            {% elif subject %}
+                {{ subject.name }} - (단원 없음) 오답 다시 풀기
+            {% else %}
+                오답 다시 풀기
+            {% endif %}
+        </h2>
+    </div>
+
+    {% if all_corrected %}
+        <div class="alert alert-success text-center feedback-box animate__animated animate__tada" role="alert">
+            <h4>🎉 모든 오답 문제를 해결했습니다! 🎉</h4>
+            <p class="mb-3">다른 단원의 오답을 확인하거나, 새로운 문제를 풀어보세요.</p>
+            <a href="{% url 'quiz:wrong_note_list' %}" class="btn btn-info rounded-pill">오답노트 목록으로</a>
+            <a href="{% url 'quiz:concept_select' %}" class="btn btn-primary rounded-pill">다른 문제 풀러가기</a>
+        </div>
+    {% elif questions %}
+        {# 폼 액션 URL에서 lesson.id가 None일 경우 '0' 전달 (뷰에서 이 '0'을 처리해야 함) #}
+        <form method="post" action="{% url 'quiz:wrong_note_quiz' subject_id=subject.id lesson_id=lesson.id|default_if_none:'0' %}">
+            {% csrf_token %}
+            {% for question in questions %}
+                <div class="quiz-card animate__animated animate__fadeInUp mb-4">
+                    <h5 class="card-title-custom">
+                        문제 {{ forloop.counter }}
+                        {% if is_retry_page %} (재도전) {% endif %}
+                    </h5>
+                    <div class="card-text question-text">{{ question.text|linebreaksbr }}</div>
+                    {% if question.image %}
+                        <img src="{{ question.image }}" alt="문제 이미지" class="img-fluid mb-3" style="max-width: 300px; border-radius: 8px;">
+                    {% endif %}
+                    
+                    <div class="choices-container mt-3">
+                        {# === 선택지 수정: getattr 필터 대신 직접 필드명 사용 === #}
+                        {% if question.choice1_text %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="q_{{ question.id }}" id="choice{{ question.id }}_1" value="1" required>
+                            <label class="form-check-label" for="choice{{ question.id }}_1">
+                                {{ question.choice1_text }}
+                                {% if question.choice1_image %}
+                                    <img src="{{ question.choice1_image }}" alt="선택지1 이미지" class="img-fluid">
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% if question.choice2_text %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="q_{{ question.id }}" id="choice{{ question.id }}_2" value="2" required>
+                            <label class="form-check-label" for="choice{{ question.id }}_2">
+                                {{ question.choice2_text }}
+                                {% if question.choice2_image %}
+                                    <img src="{{ question.choice2_image }}" alt="선택지2 이미지" class="img-fluid">
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% if question.choice3_text %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="q_{{ question.id }}" id="choice{{ question.id }}_3" value="3" required>
+                            <label class="form-check-label" for="choice{{ question.id }}_3">
+                                {{ question.choice3_text }}
+                                {% if question.choice3_image %}
+                                    <img src="{{ question.choice3_image }}" alt="선택지3 이미지" class="img-fluid">
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endif %}
+                        {% if question.choice4_text %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="q_{{ question.id }}" id="choice{{ question.id }}_4" value="4" required>
+                            <label class="form-check-label" for="choice{{ question.id }}_4">
+                                {{ question.choice4_text }}
+                                {% if question.choice4_image %}
+                                    <img src="{{ question.choice4_image }}" alt="선택지4 이미지" class="img-fluid">
+                                {% endif %}
+                            </label>
+                        </div>
+                        {% endif %}
+                        {# === 선택지 수정 끝 === #}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="submit-button-container">
+                <button type="submit" class="btn btn-submit-quiz rounded-pill">
+                    <i class="fas fa-paper-plane me-2"></i> 답안 제출하기
+                </button>
+            </div>
+        </form>
+    {% elif is_retry_page and not questions %}
+        <div class="alert alert-warning text-center feedback-box" role="alert">
+            문제를 불러오는 데 실패했습니다. <a href="{% url 'quiz:wrong_note_list' %}" class="alert-link">오답노트 목록으로 돌아가기</a>.
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center feedback-box" role="alert">
+            <p>이 단원에는 현재 다시 풀 오답 문제가 없습니다.</p>
+            <a href="{% url 'quiz:wrong_note_list' %}" class="btn btn-secondary mt-2 rounded-pill">오답노트 목록으로</a>
+        </div>
+    {% endif %}
+
+    {% if not all_corrected %}
+    <div style="text-align: center; margin-top: 3em; margin-bottom: 1em;">
+        <a href="{% url 'users:student_dashboard' %}" class="menu-item fancy-button" 
+           style="width: 200px; background: linear-gradient(135deg, #a8d1ff, #6c92be);"
+           data-sound-hover="default-hover" data-sound-click="default-click">
+           <span class="menu-icon" style="font-size: 1.2em;"><i class="fas fa-arrow-left"></i></span>
+           <span class="menu-text" style="font-size: 1em;">대시보드로</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{# 이 페이지 전용 JavaScript (예: 선택지 클릭 시 효과 등) #}
+{% endblock %}

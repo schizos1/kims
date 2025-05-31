@@ -1,48 +1,136 @@
 {% extends "base.html" %}
 {% block content %}
+{% load quiz_extras %}
 <div class="container py-5">
-  <h2 class="mb-5 text-center fw-bold" style="font-size:2.4rem; letter-spacing:1px; color:#3a6ea5;">
+  <h2 class="lesson-select-title mb-5 text-center">
     {{ subject.name }} 단원 선택
   </h2>
-  <div class="row g-4 justify-content-center">
+  <div class="lesson-card-grid">
     {% for lesson in lessons %}
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <a href="{% url 'concept_question_list' subject.id lesson.id %}" class="lesson-card text-decoration-none shadow rounded-4 d-flex flex-column justify-content-center align-items-center p-4 h-100">
-          <div class="lesson-icon mb-3">
-            <i class="fa-solid fa-book-open fa-3x text-primary"></i>
-          </div>
-          <div class="lesson-title fw-bold fs-5 text-dark text-center mb-1">
-            {{ lesson.unit_name }}
-          </div>
-          <div class="lesson-grade text-secondary fs-6">
-            {{ lesson.grade }}
-          </div>
-        </a>
-      </div>
+      <a href="{% url 'quiz:concept_question_list' subject.id lesson.obj.id %}"
+         class="lesson-select-card animate__animated animate__fadeInUp"
+         style="animation-delay: {{ lesson.animation_delay_s }};">
+        <div class="lesson-card-emoji mb-1">
+          <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div class="lesson-card-title">
+          {{ lesson.obj.unit_name }}
+        </div>
+        <div class="lesson-card-grade">
+          {{ lesson.obj.grade }}
+        </div>
+      </a>
     {% empty %}
-      <div class="col-12 text-center text-muted fs-5">등록된 단원이 없습니다.</div>
+      <div class="no-lesson-message text-center text-muted fs-5">등록된 단원이 없습니다.</div>
     {% endfor %}
   </div>
   <div class="mt-4 text-center">
-    <a href="{% url 'concept_subject_list' %}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+    <a href="{% url 'quiz:concept_subject_list' %}" class="back-btn-to-subject">
       ← 과목 선택으로 돌아가기
     </a>
   </div>
 </div>
+{% endblock %}
 
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
 <style>
-.lesson-card {
-  background: linear-gradient(135deg, #e0f0ff, #c2d8ff);
-  border: 2px solid #91b6ff;
-  transition: all 0.3s ease;
+.lesson-select-title {
+  font-size: 2.15rem;
+  font-weight: 900;
+  letter-spacing: 1.1px;
+  color: #2766c2;
+  background: linear-gradient(90deg,#d8eafd 65%, #ffe0f6 100%);
+  border-radius: 1.1em 1.1em 0 0;
+  padding: 0.4em 0 0.32em 0;
+  box-shadow: 0 3px 11px #80c4fa23;
 }
-.lesson-card:hover {
-  background: linear-gradient(135deg, #c2d8ff, #91b6ff);
-  box-shadow: 0 8px 20px rgba(65, 132, 255, 0.5);
-  transform: translateY(-6px);
+.lesson-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1.3em;
+  margin-bottom: 1.2em;
+  justify-items: center;
 }
-.lesson-icon i {
-  filter: drop-shadow(0 2px 6px rgba(0, 90, 255, 0.4));
+.lesson-select-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(120deg, #b7d9f7 65%, #ffb9ee 100%);
+  border-radius: 1.25em;
+  box-shadow: 0 2px 11px #468bd344, 0 1px 3px #f381e6a1;
+  border: 2.2px solid #589adfce;
+  padding: 0.88em 0.5em 0.8em 0.5em;
+  text-decoration: none;
+  margin-bottom: 0.45em;
+  min-width: 0;
+  max-width: 148px;
+  min-height: 95px;
+  transition: transform 0.18s, box-shadow 0.14s, background 0.14s;
+  cursor: pointer;
+  position: relative;
+}
+.lesson-select-card:hover {
+  background: linear-gradient(120deg, #74b8eb 65%, #ff90e6 100%);
+  transform: translateY(-7px) scale(1.045);
+  box-shadow: 0 11px 34px #479cf457, 0 8px 20px #ff93e47a;
+  border: 2.6px solid #346fb5;
+}
+.lesson-card-emoji {
+  font-size: 1.75rem;
+  color: #3189e2;
+  background: linear-gradient(120deg, #f4fafd 55%, #e2eaff 100%);
+  border-radius: 1em;
+  box-shadow: 0 1px 7px #a8e9ff82;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.22em;
+}
+.lesson-card-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #2359a4;
+  margin-bottom: 0.08em;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 5px #b7e4ff33;
+}
+.lesson-card-grade {
+  font-size: 0.97em;
+  color: #6a6e99;
+  margin-top: 0.03em;
+}
+.back-btn-to-subject {
+  display: inline-block;
+  background: linear-gradient(90deg, #b0d5f9 60%, #eab5fa 100%);
+  color: #2766c2;
+  font-weight: 800;
+  font-size: 1.03em;
+  border-radius: 1.13em;
+  padding: 0.54em 1.77em;
+  border: none;
+  text-decoration: none;
+  box-shadow: 0 1px 9px #b9eaff21;
+  transition: background 0.17s, color 0.13s, box-shadow 0.12s;
+  margin-top: 1.15em;
+}
+.back-btn-to-subject:hover {
+  background: linear-gradient(90deg,#7ebcf4 60%, #ee94eb 100%);
+  color: #164582;
+  box-shadow: 0 3px 14px #8cc6fd45;
+}
+@media (max-width: 900px) {
+  .lesson-card-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.77em;}
+  .lesson-select-title { font-size: 1.2rem; }
+  .lesson-select-card { max-width: 110px; min-height: 70px; }
+  .lesson-card-emoji { font-size: 1.15rem; width: 25px; height: 25px; }
+}
+@media (max-width: 600px) {
+  .lesson-card-grid { grid-template-columns: 1fr; gap: 0.4em;}
+  .lesson-select-card { min-height: 54px; padding: 0.5em 0.2em;}
 }
 </style>
 {% endblock %}

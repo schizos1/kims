@@ -6,3 +6,57 @@
 <p>여기서 과목/학년/단원 선택 후 문제풀이로 이동</p>
 </body>
 </html>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}개념 학습 과목 선택{% endblock %}
+
+{% block content %}
+<div class="dashboard"> {# 대시보드와 유사한 전체 컨테이너 스타일을 사용하려면 이 클래스 유지 #}
+    <div class="page-header" style="text-align: center; margin-bottom: 2em;">
+        {# 페이지 제목 스타일은 dashboard_styles.css 에 .page-header 등으로 추가 정의 가능 #}
+        <h1 style="color: #3a7bd5; font-weight: 700;">개념 학습</h1>
+        <p style="font-size: 1.1em; color: #555;">학습하고 싶은 과목을 선택해주세요.</p>
+    </div>
+
+    {# 과목 목록을 표시하는 로직은 해당 뷰(concept_select 뷰)에서 context로 전달받아야 합니다. #}
+    {# 예를 들어, 뷰에서 'subjects'라는 이름으로 과목 목록을 전달했다면: #}
+    
+    {% if subjects %}
+        <div class="subject-selection-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5em;">
+            {% for subject in subjects %}
+                {# 각 과목을 클릭하면 해당 과목의 단원 목록 페이지로 이동 #}
+                {# 'quiz:concept_lesson_list' URL 이름과 subject.id 가 필요하다고 가정 #}
+                <a href="{% url 'quiz:concept_lesson_list' subject_id=subject.id %}" class="menu-item fancy-button" 
+                   style="width: auto; max-width: 200px; height: 80px; background: linear-gradient(135deg, #f5f7fa, #e0e5ec);"
+                   data-sound-hover="default-hover" data-sound-click="default-click">
+                    <span class="menu-icon" style="font-size: 1.8em; color: #5c6bc0;">
+                        {# 과목별 아이콘이 있다면 여기에 표시 #}
+                        {% if subject.name == "국어" %}<i class="fas fa-book"></i>
+                        {% elif subject.name == "수학" %}<i class="fas fa-calculator"></i>
+                        {% elif subject.name == "사회" %}<i class="fas fa-landmark"></i>
+                        {% elif subject.name == "과학" %}<i class="fas fa-flask"></i>
+                        {% else %}<i class="fas fa-chalkboard-teacher"></i>
+                        {% endif %}
+                    </span>
+                    <span class="menu-text" style="font-size: 1em; color: #37474f;">{{ subject.name }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #777;">선택 가능한 과목이 아직 없습니다.</p>
+    {% endif %}
+
+    <div style="text-align: center; margin-top: 3em;">
+        <a href="{% url 'users:student_dashboard' %}" class="fancy-button" 
+           style="background: linear-gradient(135deg, #a8d1ff, #6c92be); width: 180px;">
+           <span class="menu-icon"><i class="fas fa-arrow-left"></i></span><span class="menu-text">대시보드로 돌아가기</span>
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{# 이 페이지에서만 특별히 사용해야 하는 JavaScript가 있다면 여기에 작성 #}
+{% endblock %}

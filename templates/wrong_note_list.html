@@ -8,7 +8,7 @@
       <ul>
         <li>
           {{ note.lesson.unit }}
-          <a href="{% url 'wrong_note_quiz' note.subject.id note.lesson.id %}" class="btn btn-outline-primary rounded-pill px-4">
+          <a href="{% url 'quiz:wrong_note_quiz' note.subject.id note.lesson.id %}" class="btn btn-outline-primary rounded-pill px-4">
             문제 다시 풀기
           </a>
           <span>오답 {{ note.wrong_count }}개 / 전체 {{ note.total_questions }}개 ({{ note.wrong_rate }}%)</span>
