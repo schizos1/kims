@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'trophies',
     'core',
     'attendance',
-    'shop',
+    'store',
     'minigame',
     'channels',        # 실시간 처리를 위한 Channels
     'pdf_importer',    # PDF 임포트 기능

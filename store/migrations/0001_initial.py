@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('purchased_at', models.DateTimeField(auto_now_add=True, verbose_name='구매일시')),
                 ('used', models.BooleanField(default=False, verbose_name='사용여부')),
-                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shop.item', verbose_name='아이템')),
+                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.item', verbose_name='아이템')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.userprofile', verbose_name='구매자')),
             ],
         ),

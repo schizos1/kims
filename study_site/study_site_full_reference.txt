@@ -1,0 +1,106 @@
+@@ -20,51 +20,51 @@ study_site/
+├── study_site/
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── users/         # 학생/프로필/테마
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── urls.py
+│   └── ...
+├── quiz/          # 문제/풀이/오답노트
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   ├── urls.py
+│   └── ...
+├── trophies/      # 트로피
+│   ├── models.py
+│   ├── views.py
+│   ├── admin.py
+│   └── ...
+├── attendance/    # 출석/연속출석
+│   ├── models.py
+│   ├── views.py
+│   └── ...
+├
+├── store/          # 상점/아이템/구매
+│   ├── models.py
+│   ├── views.py
+│   └── ...
+├── minigame/      # 미니게임
+│   └── ...
+├── core/          # 전역설정/프롬프트/이미지/사운드
+│   ├── models.py
+│   ├── admin.py
+│   └── ...
+├── templates/
+│   ├── base.html
+│   ├── student_dashboard.html
+│   ├── admin_dashboard.html
+│   ├── mypage.html
+│   ├── ...
+└── static/
+    └── ... (css/js/img 등)
+
+=========================================
+3. 주요 models.py (필드 설명)
+-----------------------------------------
+
+[users/models.py]
+-----------------
+from django.db import models
+@@ -151,51 +151,51 @@ class Trophy(models.Model):
+    required_streak = models.IntegerField(default=0)
+    required_point_used = models.IntegerField(default=0)
+
+class UserTrophy(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    trophy = models.ForeignKey(Trophy, on_delete=models.CASCADE)
+    acquired_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+[attendance/models.py]
+----------------------
+from django.db import models
+from users.models import UserProfile
+
+class DailyAttendance(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    date = models.DateField()
+    checked_at = models.DateTimeField(auto_now_add=True)
+
+class AttendanceStreak(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    current_streak = models.IntegerField(default=0)
+    longest_streak = models.IntegerField(default=0)
+    last_date = models.DateField(null=True, blank=True)
+
+
+[store/models.py]
+----------------
+from django.db import models
+from users.models import UserProfile
+
+class Item(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=200)
+    image_url = models.URLField(blank=True)
+    price = models.IntegerField()
+    is_active = models.BooleanField(default=True)
+
+class Purchase(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+
+class AllowanceRequest(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    requested_at = models.DateTimeField(auto_now_add=True)
+    is_approved = models.BooleanField(default=False)
+
+[core/models.py]
+----------------
+from django.db import models

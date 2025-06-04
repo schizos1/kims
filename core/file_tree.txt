@@ -1,0 +1,9 @@
+core/
+    views.py            # login shortcuts
+    views_quiz.py       # dashboards and quiz-related views
+    views_learn.py      # concept learning views
+    services/
+        __init__.py
+        quiz_service.py     # quiz statistics utilities
+        trophy_service.py   # trophy wrapping functions
+    utils.py           # shared helpers

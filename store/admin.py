@@ -1,8 +1,4 @@
-"""
-경로: shop/admin.py
-설명: 아이템, 구매기록, 용돈신청 등 관리자 등록
-"""
-
+"""상점 관리자 등록 모듈."""
 from django.contrib import admin
 from .models import Item, Purchase, AllowanceRequest
 

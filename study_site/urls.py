@@ -13,7 +13,7 @@ urlpatterns = [
     path('quiz/', include('quiz.urls')),
     path('trophies/', include('trophies.urls')),
     path('attendance/', include('attendance.urls')),
-    path('shop/', include('shop.urls')),
+    path('store/', include('store.urls')),
     path('student_dashboard/', include('users.urls')), # '/mypage/' 경로로 users 앱의 URL들 연결
     path('minigame/', include('minigame.urls', namespace='minigame')),
     path('', include('core.urls')),  # 메인/홈 화면 (프로젝트 루트)
