@@ -53,12 +53,12 @@ def play_game(request, game_key):
     elif game_key == "piano":
         # 피아노 미니게임: 별도 컨텍스트 없이 템플릿만 전달
         template_name = "minigame/piano.html"
+    elif game_key == "fishing":
+        game_mode = request.GET.get('mode', 'single')
+        context['game_mode'] = game_mode
+        template_name = "minigame/fishing.html"
     else:
         # 나머지 게임은 템플릿 네이밍 컨벤션 통일
         template_name = f"minigame/{game_key}.html"
 
     return render(request, template_name, context)
-
-@login_required
-def fishing_game(request):
-    return render(request, "minigame/fishing.html")

@@ -34,7 +34,7 @@ def check_and_award_trophies(user):
             if not UserTrophy.objects.filter(user=user, trophy=trophy).exists():
                 if check_trophy_condition(user, user_profile, trophy):
                     UserTrophy.objects.create(user=user, trophy=trophy)
-                    uuser_profile.points = F('points') + trophy.points
+                    user_profile.points = F('points') + trophy.points
                     user_profile.save(update_fields=['points'])
                     awarded = True
                     logger.info(
