@@ -1,9 +1,9 @@
 from django.urls import path
-from . import views
+from . import views_display, views_award
 
 app_name = 'trophies'
 
 urlpatterns = [
-    path('my/', views.my_trophies, name='my_trophies'),
-    # ... (트로피 상세/랭킹 등)
+    path('my/', views_display.my_trophies, name='my_trophies'),
+    path('award/', views_award.award_trophies, name='award_trophies'),
 ]

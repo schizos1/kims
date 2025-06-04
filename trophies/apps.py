@@ -7,4 +7,5 @@ class TrophiesConfig(AppConfig):
     verbose_name = "트로피 관리"
 
     def ready(self):
-        import trophies.signals  # 시그널 로드
+         # 시그널 모듈들을 로드하여 로그인 및 퀴즈 이벤트에 대응한다.
+        from . import signals, signals_login  # noqa: F401
