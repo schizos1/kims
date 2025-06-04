@@ -13,9 +13,19 @@
 <h3 style="text-align:center; margin-top:2em;">🎏 익이의 물고기 컬렉션 🎏</h3>
 <div id="collection" class="collection-list"></div>
 <link rel="stylesheet" href="{% static 'minigame/css/fishing.css' %}">
-<script src="{% static 'minigame/js/fishing/sound.js' %}"></script>
-<script src="{% static 'minigame/js/fishing/lake_bg.js' %}"></script>
-<script src="{% static 'minigame/js/fishing/rod.js' %}"></script>
-<script src="{% static 'minigame/js/fishing/fishing_logic.js' %}"></script>
-<script src="{% static 'minigame/js/fishing/main.js' %}"></script>
+{% block extra_js %}
+<script>
+    const GAME_MODE = "{{ game_mode|default:'single'|escapejs }}";
+</script>
+<script src="{% static 'js/games/fishing/sound.js' %}"></script>
+<script src="{% static 'js/games/fishing/lake_bg.js' %}"></script>
+<script src="{% static 'js/games/fishing/rod.js' %}"></script>
+<script src="{% static 'js/games/fishing/fishing_logic.js' %}"></script>
+{% if game_mode == 'multi' %}
+<script>
+    alert('멀티플레이는 아직 준비 중입니다.');
+</script>
+{% else %}
+<script src="{% static 'js/games/fishing/main.js' %}"></script>
+{% endif %}
 {% endblock %}

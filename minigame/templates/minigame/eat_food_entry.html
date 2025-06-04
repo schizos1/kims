@@ -59,12 +59,12 @@
         const USER_NAME_FROM_DJANGO = "{{ user_username|escapejs|default:'' }}"; 
     </script>
 
-     <script src="{% static 'minigame/js/eat_food/eat_food_common.js' %}"></script>
+    <script src="{% static 'js/games/eat_food/common.js' %}"></script>
     
     {% if game_mode == 'single' %}
-        <script src="{% static 'minigame/js/eat_food/eat_food_single.js' %}"></script>
+        <script src="{% static 'js/games/eat_food/single.js' %}"></script>
     {% elif game_mode == 'multi' %}
-        <script src="{% static 'minigame/js/eat_food/eat_food_multi.js' %}"></script>
+        <script src="{% static 'js/games/eat_food/multi.js' %}"></script>
     {% endif %}
     
     <script>

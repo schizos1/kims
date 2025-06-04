@@ -51,10 +51,15 @@
                         <form method="get" action="{% url 'minigame:play_game' game_key='piano' %}" style="margin:0;">
                             <button type="submit" class="play-btn play-btn-single">피아노 연주</button>
                         </form>
-                     {% elif g.key == "fishing" %}
-            <form method="get" action="{% url 'minigame:minigame_fishing' %}" style="margin:0;">
-                <button type="submit" class="play-btn play-btn-single">낚시 시작</button>
-            </form>
+                    {% elif g.key == "fishing" %}
+                        <form method="get" action="{% url 'minigame:play_game' game_key='fishing' %}" style="margin:0;">
+                            <input type="hidden" name="mode" value="single">
+                            <button type="submit" class="play-btn play-btn-single">낚시 시작</button>
+                        </form>
+                        <form method="get" action="{% url 'minigame:play_game' game_key='fishing' %}" style="margin:0;">
+                            <input type="hidden" name="mode" value="multi">
+                            <button type="submit" class="play-btn play-btn-multi">멀티플레이 (준비중)</button>
+                        </form>
                     {% elif g.key %}
                         <form method="get" action="{% url 'minigame:play_game' game_key=g.key %}" style="margin:0;">
                             <button type="submit" class="play-btn play-btn-single">게임 시작</button>

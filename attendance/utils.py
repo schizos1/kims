@@ -1,5 +1,9 @@
 from datetime import date, timedelta
+import logging
+
 from .models import AttendanceStreak
+
+logger = logging.getLogger(__name__)
 
 def update_attendance_streak(user):
     today = date.today()
@@ -20,4 +24,4 @@ def update_attendance_streak(user):
             streak.last_date = today
             streak.save()
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error("Error updating attendance streak: %s", e)
