@@ -1,0 +1,20 @@
+
+#piano-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+body { background: #f7fafc; }
+#piano-canvas {
+  border-radius: 1.3em;
+  margin-top: 18px;
+  box-shadow: 0 7px 36px #c7d8ee77;
+  display: block; margin-left: auto; margin-right: auto;
+}
+.piano-title {
+  margin-top: 24px;
+  font-size: 2rem;
+  color: #6699cc;
+  font-family: 'Noto Sans KR', sans-serif;
+  text-shadow: 1px 1px 2px #ddeaff;
+}

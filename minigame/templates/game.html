@@ -1,0 +1,6 @@
+<!-- minigame/templates/minigame/game.html -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+  window.username = "{{ request.user.username }}";  // Django에서 전달
+</script>
+<script src="{% static 'minigame/js/game_socket.js' %}"></script>

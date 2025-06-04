@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-임시값'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['192.168.31.199']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'attendance',
     'store',
     'minigame',
-    'channels',        # 실시간 처리를 위한 Channels
     'pdf_importer',    # PDF 임포트 기능
 ]
 
@@ -67,16 +66,16 @@ TEMPLATES = [
 ]
 
 # Channels (ASGI) 세팅
-ASGI_APPLICATION = 'study_site.asgi.application'
+#ASGI_APPLICATION = 'study_site.asgi.application'
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-        # 운영 환경에서는 channels_redis로 변경 권장!
-        # "BACKEND": "channels_redis.core.RedisChannelLayer",
-        # "CONFIG": {"hosts": [("127.0.0.1", 6379)],},
-    }
-}
+#CHANNEL_LAYERS = {
+#    "default": {
+#        "BACKEND": "channels.layers.InMemoryChannelLayer",
+#        # 운영 환경에서는 channels_redis로 변경 권장!
+#        # "BACKEND": "channels_redis.core.RedisChannelLayer",
+#        # "CONFIG": {"hosts": [("127.0.0.1", 6379)],},
+#    }
+#}
 
 WSGI_APPLICATION = 'study_site.wsgi.application'
 
@@ -100,6 +99,7 @@ USE_TZ = True
 STATIC_ROOT = str(BASE_DIR / 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
+    BASE_DIR / "static",
     BASE_DIR / "users/static",
     BASE_DIR / "minigame/static",
 ]
