@@ -2,11 +2,11 @@
 // 'eat_food' 게임의 Socket.IO 이벤트 처리 및 세션 관리
 
 import SingleGameSession from '../game_logics/eat_food/single_game_session.js';
-// 멀티플레이어용 세션 클래스가 있다면 import (예: import MultiGameSession from '../game_logics/eat_food/multi_game_session.js';)
+import MultiGameSession from '../game_logics/eat_food/multi_game_session.js';
 
 // 이 핸들러 범위 내에서 활성 세션 관리
 const activeSingleSessions = new Map();
-// const activeMultiSessions = new Map(); // 멀티플레이어용
+const activeMultiSessions = new Map();
 
 export default function initializeEatFoodGameHandler(io, socket) {
     console.log(`[EatFoodHandler] Initializing for socket ${socket.id}`);
@@ -45,9 +45,31 @@ export default function initializeEatFoodGameHandler(io, socket) {
         }
     });
 
-    // --- 멀티플레이어 게임 관련 이벤트 핸들러 (예시) ---
-    // socket.on('join_multi_room', (roomData) => { ... });
-    // socket.on('multi_player_action', (actionData) => { ... });
+    // --- 멀티플레이어 게임 관련 이벤트 핸들러 ---
+    socket.on('join_multi_room', ({ room, userData }) => {
+        if (!activeMultiSessions.has(room)) {
+            activeMultiSessions.set(room, new MultiGameSession(io, room));
+        }
+        activeMultiSessions.get(room).addPlayer(socket, userData);
+    });
+
+    socket.on('multi_move', (data) => {
+        for (const session of activeMultiSessions.values()) {
+            if (session.hasPlayer(socket.id)) {
+                session.handlePlayerMove(socket.id, data);
+                break;
+            }
+        }
+    });
+
+    socket.on('multi_eat_attempt', (data) => {
+        for (const session of activeMultiSessions.values()) {
+            if (session.hasPlayer(socket.id)) {
+                session.handlePlayerEatAttempt(socket.id, data);
+                break;
+            }
+        }
+    });
 
 
     // 이 핸들러에 연결된 소켓이 끊어졌을 때 정리 로직
@@ -63,9 +85,13 @@ export default function initializeEatFoodGameHandler(io, socket) {
             activeSingleSessions.delete(socket.id);
             console.log(`[EatFoodHandler] SingleGameSession destroyed for ${socket.id}. Total single sessions: ${activeSingleSessions.size}`);
         }
-        // 멀티플레이어 세션 정리 로직 추가
-        // const multiSession = activeMultiSessions.get(socket.id); // 또는 방 ID 기반 관리
-        // if (multiSession) { ... }
+        for (const [room, session] of activeMultiSessions) {
+            if (session.hasPlayer(socket.id)) {
+                session.removePlayer(socket.id);
+                if (session.isEmpty()) activeMultiSessions.delete(room);
+                break;
+            }
+        }
 
         // 원래의 disconnect 리스너가 있었다면 다시 호출 (다른 일반적인 정리 작업 수행 가능)
         if (originalDisconnect) {

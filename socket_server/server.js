@@ -9,6 +9,8 @@ import { fileURLToPath } from 'url';
 
 // 'eat_food' 게임 핸들러 import
 import initializeEatFoodGameHandler from './game_handlers/eat_food_game_handler.js';
+import initializeFishingGameHandler from './game_handlers/fishing_game_handler.js';
+import { userPoints } from './game_logics/eat_food/multi_game_session.js';
 
 // ES 모듈 환경에서 __dirname, __filename 설정
 const __filename = fileURLToPath(import.meta.url);
@@ -24,6 +26,12 @@ const io = new SocketIOServer(server, {
 });
 
 const PORT = process.env.PORT || 3001; // 이전과 동일하게 3001번 포트 사용
+
+// 간단한 포인트 조회 API
+app.get('/points/:id', (req, res) => {
+    const id = req.params.id;
+    res.json({ id, points: userPoints.get(id) || 0 });
+});
 
 // --- 정적 파일 제공 설정 ---
 // 1. public 폴더 (HTML 파일 등 클라이언트가 직접 접근하는 파일)
@@ -67,6 +75,7 @@ io.on('connection', (socket) => {
     // 'eat_food' 게임 관련 이벤트 처리를 전용 핸들러에 위임
     // initializeEatFoodGameHandler는 export default 함수이므로 바로 호출
     initializeEatFoodGameHandler(io, socket);
+    initializeFishingGameHandler(io, socket);
 
     // 만약 다른 게임(예: 'another_game')이 있다면, 해당 게임의 핸들러도 유사하게 호출
     // socket.on('request_game_type', (gameType) => {
