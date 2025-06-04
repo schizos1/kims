@@ -1,6 +1,5 @@
 from datetime import date, timedelta
 import logging
-
 from .models import AttendanceStreak
 
 logger = logging.getLogger(__name__)
