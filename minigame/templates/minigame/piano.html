@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div id="piano-toolbar" style="text-align:center; margin-top:10px;">
+  <label style="font-weight:bold;">🎵 악기선택: 
+    <select id="instrument-select">
+      <option value="piano">피아노</option>
+      <option value="synth">신스</option>
+      <option value="marimba">마림바</option>
+      <option value="organ">오르간</option>
+      <option value="bell">벨</option>
+    </select>
+  </label>
+</div>
+<canvas id="piano-canvas" width="1064" height="200"></canvas>
+<link rel="stylesheet" href="{% static 'minigame/css/piano.css' %}">
+<script src="{% static 'minigame/js/piano/piano.js' %}"></script>
+{% endblock %}

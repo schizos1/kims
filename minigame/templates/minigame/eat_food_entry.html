@@ -1,0 +1,116 @@
+{# minigame/templates/minigame/eat_food_entry.html #}
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block title %}먹이 먹기 게임 - {{ game_mode|capfirst }} 모드{% endblock %}
+
+{% block extra_head %}
+    {# eat_food 게임 전용 CSS (기존 eat_food.css 내용) #}
+    <link rel="stylesheet" href="{% static 'minigame/css/eat_food.css' %}"> 
+    <style>
+        /* 추가적인 페이지 전용 스타일이 있다면 여기에 */
+        #chat-area { margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; max-height: 150px; overflow-y: auto; }
+        #chat-messages p { margin: 2px 0; font-size: 0.9em; }
+        #chat-input-group { display: flex; margin-top: 5px; }
+        #chat-input-group input { flex-grow: 1; margin-right: 5px; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {# 게임 UI 요소들 (캔버스, 점수판, 버튼 등) #}
+    <div id="game-container">
+        <canvas id="canvas" width="1280" height="720"></canvas>
+        <div id="ui-layer">
+            <div id="score-board">점수: <span id="score-num">0</span></div>
+            <div id="food-left">남은 음식: <span id="foodleft-num">30</span></div>
+            <div id="progress-bar-container"><div id="progress-bar-fill"></div></div>
+        </div>
+        <div id="user-ui">
+            <label for="username">이름:</label>
+            {# 로그인한 사용자 이름을 기본값으로 사용 #}
+            <input type="text" id="username" value="{{ user_username|default:'익명게이머' }}"> 
+            <button id="actual-start-button" disabled>게임 시작 대기 중...</button> 
+        </div>
+        <div id="system-msg">에셋 로딩 중...</div>
+        
+        <div id="result-popup" style="display:none;">
+            <div id="result-content"></div>
+            <button id="close-result-button">다시하기 / 나가기</button>
+        </div>
+
+        {# 멀티플레이어 모드일 때만 보이는 채팅창 #}
+        {% if game_mode == 'multi' %}
+        <div id="chat-area">
+            <div id="chat-messages"></div>
+            <div id="chat-input-group">
+                <input type="text" id="chat-input" placeholder="채팅 메시지...">
+                <button id="chat-send-button">전송</button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Django 컨텍스트 변수를 JavaScript 변수로 전달
+        const GAME_MODE = "{{ game_mode|escapejs }}";
+        const ROOM_ID = "{{ room_id|escapejs|default:'' }}"; // room_id가 없으면 빈 문자열
+        const USER_NAME_FROM_DJANGO = "{{ user_username|escapejs|default:'' }}"; 
+    </script>
+
+     <script src="{% static 'minigame/js/eat_food/eat_food_common.js' %}"></script>
+    
+    {% if game_mode == 'single' %}
+        <script src="{% static 'minigame/js/eat_food/eat_food_single.js' %}"></script>
+    {% elif game_mode == 'multi' %}
+        <script src="{% static 'minigame/js/eat_food/eat_food_multi.js' %}"></script>
+    {% endif %}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById("actual-start-button");
+            const usernameField = document.getElementById('username');
+            const gameCanvas = document.getElementById('canvas'); // canvas 가져오기
+
+            if (USER_NAME_FROM_DJANGO && usernameField) {
+                usernameField.value = USER_NAME_FROM_DJANGO;
+            }
+            
+            if (startButton) {
+                // ... (기존 시작 버튼 활성화 로직은 동일) ...
+                const ensureAssetsLoadedInterval = setInterval(function() {
+                    console.log("DEBUG_ENTRY_HTML: Checking window.assetsLoaded - Value: ", window.assetsLoaded);
+                    if (window.assetsLoaded) { 
+                        console.log("DEBUG_ENTRY_HTML: window.assetsLoaded is true. Enabling button and setting onclick.");
+                        startButton.disabled = false;
+                        startButton.textContent = "게임 시작!";
+                        startButton.onclick = function() {
+                            if (GAME_MODE === 'single' && typeof window.startGame_single === 'function') {
+                                console.log("DEBUG_ENTRY_HTML: Calling window.startGame_single()");
+                                window.startGame_single();
+                            } else if (GAME_MODE === 'multi' && typeof window.startGame_multi === 'function') {
+                                if (ROOM_ID) {
+                                    console.log("DEBUG_ENTRY_HTML: Calling window.startGame_multi() with ROOM_ID:", ROOM_ID);
+                                    window.startGame_multi(ROOM_ID);
+                                } else { /* ... */ }
+                            } else { /* ... */ }
+                        };
+                        clearInterval(ensureAssetsLoadedInterval);
+
+                        // 👇 게임 시작 후 또는 에셋 로드 완료 후 마우스 이동 리스너 추가
+                        if (gameCanvas && GAME_MODE === 'single' && typeof window.onPlayerMove_single === 'function') {
+                            console.log("DEBUG_ENTRY_HTML: Adding mousemove listener for Single Player.");
+                            gameCanvas.addEventListener("mousemove", window.onPlayerMove_single);
+                        } else if (gameCanvas && GAME_MODE === 'multi' && typeof window.onPlayerMove_multi === 'function') {
+                            // console.log("DEBUG_ENTRY_HTML: Adding mousemove listener for Multi Player.");
+                            // gameCanvas.addEventListener("mousemove", window.onPlayerMove_multi); // 멀티용도 동일하게 추가
+                        }
+
+                    }
+                }, 100);
+            }
+            // ... (closeResult 버튼 로직) ...
+        });
+    </script>
+{% endblock %}

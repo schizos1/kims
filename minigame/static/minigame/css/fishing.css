@@ -1,0 +1,11 @@
+.fishing-header { text-align:center; margin-top:18px; }
+.score-box, .rod-box { display:inline-block; margin:0 18px; font-size:1.3em; font-weight:bold; }
+.upgrade-btn, .reset-btn { background:#ffe066; border:none; border-radius:1em; padding:0.6em 1.3em; font-weight:bold; font-size:1.1em; color:#6b4f09; margin-left:12px; transition: background 0.18s;}
+.upgrade-btn:hover, .reset-btn:hover { background:#ffd31d; }
+.fishing-canvas-wrap { display:flex; justify-content:center; margin-top:22px; }
+#fishing-canvas { border-radius:1.7em; box-shadow:0 8px 36px #bcdbf866; background: #f6fcff; }
+.collection-list { display: flex; flex-wrap:wrap; gap: 1.3em; justify-content: center; margin:2em auto; max-width:900px;}
+.fish-col { background:#fdfdfd; border-radius:1em; box-shadow:0 4px 16px #e3eaf944; padding: 1em 1.2em; min-width:84px; text-align:center; margin-bottom:1em;}
+.fish-col.owned { border: 2px solid #ffe066; background: #ffffee; }
+.fish-name { margin-top:6px; font-size:1em; color:#888; }
+.fish-badge { margin-top:3px; font-size:0.9em; color:#fff; background:#fa0; border-radius:0.7em; padding: 0.2em 0.7em; display:inline-block;}

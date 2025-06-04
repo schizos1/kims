@@ -1,0 +1,49 @@
+{# templates/minigame/eat_food.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}먹이 먹기 미니게임{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'minigame/css/eat_food.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="game-wrap">
+    <div id="user-ui">
+        <!-- 닉네임 입력 -->
+        <input id="username" maxlength="3" placeholder="닉네임 (최대 3글자)" value="{{ request.user.profile.nickname|default:request.user.username|default:'플레이어' }}">
+        <!-- 방 코드 입력 -->
+        <input id="room-id-input" maxlength="20" placeholder="방 코드 (예: abc123)" style="margin-left:8px;">
+        <!-- 게임 시작 버튼 -->
+        <button onclick="startGame()" id="start-btn">게임 시작</button>
+        <!-- 안내 텍스트 -->
+        <div style="font-size:12px;color:#6bc1ff;margin-top:5px;">같은 방 코드를 입력하면<br>친구와 함께 플레이할 수 있어요!</div>
+    </div>
+    <div id="ui-bar">
+        <div id="score-bar">
+            <div id="score-label">점수: <span id="score-num">0</span></div>
+            <div id="progress-bar-bg">
+                <div id="progress-bar-fill"></div>
+            </div>
+        </div>
+        <div id="timer-bar">
+            <span id="timer-label">남은 시간: <span id="timer-num">60</span>초</span>
+            <span id="foodleft-label">남은 먹이: <span id="foodleft-num">30</span></span>
+        </div>
+    </div>
+    <div class="canvas-wrap">
+        <canvas id="canvas" width="1280" height="720"></canvas>
+    </div>
+    <div id="system-msg"></div>
+    <!-- 결과 팝업 -->
+    <div id="result-popup" style="display:none;">
+        <div id="result-content"></div>
+        <button onclick="closeResult()">닫기</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'minigame/js/eat_food.js' %}"></script>
+{% endblock %}

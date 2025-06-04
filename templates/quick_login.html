@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>간편 로그인</title>
     <style>
         body { text-align: center; margin-top: 10vh; font-family: 'Noto Sans KR', sans-serif; background: #eaf6ff; }
@@ -19,6 +19,14 @@
         {% csrf_token %}
         <button type="submit">🧒 김익(학생) 로그인</button>
     </form>
+
+    {# ✨ 새로 추가된 "test" 계정 로그인 버튼 ✨ #}
+    <form action="{% url 'quick_login_action' 'test' %}" method="post" autocomplete="off">
+        {% csrf_token %}
+        <button type="submit">🧪 테스트(학생) 로그인</button>
+    </form>
+    {# ✨ 여기까지 추가 ✨ #}
+
     <form action="{% url 'quick_login_action' 'admin' %}" method="post" autocomplete="off">
         {% csrf_token %}
         <button type="submit">👑 관리자 로그인</button>

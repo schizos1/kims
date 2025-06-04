@@ -26,7 +26,8 @@ def quick_login_action(request, username):
     pw_map = {
         "kimrin": "0424",
         "kimik": "0928",
-        "admin": "khan0829##@"
+        "admin": "khan0829##@",
+        "test": "0928"  # "test" 사용자 정보 추가
     }
     password = pw_map.get(username)
     user = authenticate(request, username=username, password=password)

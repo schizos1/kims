@@ -1,0 +1,209 @@
+#game-wrap {
+    max-width: 1200px;
+    width: 98vw;
+    min-width: 360px;
+    margin: 2.5em auto 2em auto;
+    background: linear-gradient(115deg,#111 60%,#111 100%);
+    border-radius: 2.3em;
+    box-shadow: 0 9px 36px #bae1ff25, 0 3px 13px #ffb7d86f;
+    padding: 2.3em 1em 1.5em 1em;
+    text-align: center;
+    position: relative;
+    min-height: 600px;
+}
+#user-ui {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8em;
+    margin-bottom: 1.5em;
+}
+#user-ui button { /* 스타일 추가 */
+    font-size: 1em;
+    padding: 0.5em 1.2em;
+    border-radius: 0.7em;
+    background: linear-gradient(120deg, #89f7fe, #66a6ff);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    font-weight: bold;
+}
+#user-ui button:hover {
+    background: linear-gradient(120deg, #66a6ff, #89f7fe);
+}
+#username {
+    font-size: 1.08em;
+    border-radius: 0.7em;
+    padding: 0.45em 1em;
+    border: 1.2px solid #8bc4ff;
+    outline: none;
+    background-color: #f0f8ff; /* 배경색 추가 */
+    color: #333; /* 글자색 추가 */
+}
+#canvas {
+    width: 100%; /* JS에서 설정한 canvas width, height에 맞춰 비율 유지하도록 수정 고려 */
+    max-width: 100%;
+    /* min-width: 320px; */ /* 삭제 또는 조정. JS의 canvas.width와 CSS width 충돌 가능성 */
+    height: auto; /* JS의 canvas.height에 맞춰 비율 유지. 고정 높이가 필요하다면 JS와 일치 */
+    aspect-ratio: 1100 / 600; /* JS width/height 비율 유지 */
+    background: #000;
+    display: block;
+    border-radius: 1.3em;
+    border: 3px solid #66cef7;
+    box-shadow: 0 3px 12px #b7e6fd44;
+    margin: 0 auto; /* 가운데 정렬 */
+}
+.canvas-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+#ui-bar {
+    display: flex;
+    flex-wrap: wrap; /* 화면 작을 시 줄바꿈 허용 */
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
+    gap: 1em; /* gap 조정 */
+}
+#score-bar {
+    flex: 1 1 300px; /* flex-basis 추가 */
+    min-width: 250px; /* 최소 너비 설정 */
+}
+#timer-bar {
+    flex: 1 1 300px; /* flex-basis 추가 */
+    text-align: right;
+    min-width: 250px; /* 최소 너비 설정 */
+}
+#score-label, #timer-label, #foodleft-label {
+    color: #f7f7f7;
+    font-size: 1em; /* 반응형 위해 em 단위 사용 고려 */
+    font-weight: bold;
+    margin-right: 0.5em; /* margin 조정 */
+    text-shadow: 0 1px 12px #63e5ff66, 0 1px 1px #111;
+}
+#progress-bar-bg {
+    width: 100%; /* 부모 요소에 맞게 100% */
+    max-width: 330px; /* 최대 너비는 유지 */
+    height: 18px;
+    background: #222;
+    border-radius: 14px;
+    margin: 7px 0;
+    box-shadow: 0 2px 8px #44e8ff33;
+    display: inline-block; /* score-label과 같은 줄에 표시되도록 */
+}
+#progress-bar-fill {
+    height: 100%; /* 부모 높이에 100% */
+    background: linear-gradient(90deg,#22c1c3,#fdbb2d,#fe4d48 99%);
+    border-radius: 14px;
+    width: 0%;
+    transition: width 0.5s;
+}
+#system-msg {
+    margin: 0.7em 0 0.6em 0;
+    color: #82a7dd;
+    font-size: 1.03em;
+    min-height: 1.5em;
+    text-shadow: 0 1px 6px #82e2ff60;
+}
+#result-popup {
+    position: absolute;
+    top: 50%; /* 수직 중앙 정렬 개선 */
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: #fffbe9;
+    color: #24285a;
+    font-size: 1.1em; /* 팝업 크기 조정 */
+    border-radius: 1.3em;
+    padding: 1.5em 1.8em; /* 패딩 조정 */
+    box-shadow: 0 6px 26px #20202060;
+    z-index: 100;
+    width: 80%; /* 너비 지정 */
+    max-width: 400px; /* 최대 너비 지정 */
+}
+#result-content {
+    font-weight: 900;
+    margin-bottom: 1.2em; /* margin 조정 */
+    font-size: 1.4em; /* 폰트 크기 조정 */
+    color: #ff5e5e;
+    text-shadow: 0 2px 10px #f99, 0 1px 8px #f1f7ff;
+}
+#result-popup button {
+    font-size: 1em; /* 버튼 폰트 크기 조정 */
+    background: linear-gradient(120deg,#ffb7d8,#f3fcff 100%);
+    color: #333;
+    border: none;
+    border-radius: 0.9em;
+    padding: 0.6em 1.5em; /* 패딩 조정 */
+    box-shadow: 0 2px 8px #ddd;
+    cursor: pointer;
+}
+.nickname-glow { /* 캔버스 내 닉네임 스타일이므로 JS에서 직접 그림. 이 CSS는 불필요할 수 있음 */
+    font-weight: 900;
+    font-size: 1.09em;
+    color: #fff;
+    text-shadow: 0 0 10px #0ff6, 0 2px 22px #49f, 0 1px 1px #000;
+    filter: brightness(2);
+    letter-spacing: 0.04em;
+    font-family: 'Noto Sans KR', sans-serif;
+    /* max-width, overflow 등은 JS 드로잉 로직에서 처리 */
+}
+
+@media (max-width: 1200px) {
+    /* #game-wrap { max-width: 98vw; } */ /* 이미 width: 98vw로 설정됨 */
+    /* #canvas { width: 98vw; } */ /* 이미 width: 100%로 설정됨 */
+}
+@media (max-width: 800px) {
+    /* #canvas { width: 98vw; height: 320px; } */ /* aspect-ratio로 자동 조절 */
+    #ui-bar {
+        flex-direction: column; /* 작은 화면에서 세로 정렬 */
+        gap: 0.5em;
+    }
+    #timer-bar {
+        text-align: left; /* 세로 정렬 시 왼쪽 정렬 */
+    }
+    #score-label, #timer-label, #foodleft-label {
+        font-size: 0.9em;
+    }
+    #result-popup {
+        font-size: 1em;
+    }
+    #result-content {
+        font-size: 1.2em;
+    }
+}
+@media (max-width: 500px) {
+    /* #canvas { width: 99vw; height: 220px; } */ /* aspect-ratio로 자동 조절 */
+    #game-wrap {
+        padding: 1em 0.5em; /* 패딩 축소 */
+        min-height: auto; /* 최소 높이 자동 */
+        border-radius: 1.5em;
+    }
+    #user-ui {
+        gap: 0.5em;
+        margin-bottom: 1em;
+    }
+    #user-ui input, #user-ui button {
+        font-size: 0.9em;
+    }
+    #score-label, #timer-label, #foodleft-label {
+        font-size: 0.8em;
+    }
+    #progress-bar-bg {
+        height: 15px;
+    }
+    #result-popup {
+        padding: 1em 1.2em;
+        font-size: 0.9em;
+    }
+    #result-content {
+        font-size: 1.1em;
+    }
+    #result-popup button {
+        font-size: 0.9em;
+        padding: 0.5em 1.2em;
+    }
+}

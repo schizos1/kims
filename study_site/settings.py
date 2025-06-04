@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # 사용자 앱
     'users.apps.UsersConfig',
     'quiz',
     'trophies',
@@ -30,9 +31,12 @@ INSTALLED_APPS = [
     'attendance',
     'shop',
     'minigame',
+    'channels',        # 실시간 처리를 위한 Channels
+    'pdf_importer',    # PDF 임포트 기능
 ]
 
 MIDDLEWARE = [
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -41,7 +45,6 @@ MIDDLEWARE = [
     'attendance.middleware.AttendanceMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
 ]
 
 ROOT_URLCONF = 'study_site.urls'
@@ -63,6 +66,18 @@ TEMPLATES = [
     },
 ]
 
+# Channels (ASGI) 세팅
+ASGI_APPLICATION = 'study_site.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        # 운영 환경에서는 channels_redis로 변경 권장!
+        # "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # "CONFIG": {"hosts": [("127.0.0.1", 6379)],},
+    }
+}
+
 WSGI_APPLICATION = 'study_site.wsgi.application'
 
 DATABASES = {
@@ -82,19 +97,30 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+STATIC_ROOT = str(BASE_DIR / 'staticfiles')
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATICFILES_DIRS = [
+    BASE_DIR / "users/static",
+    BASE_DIR / "minigame/static",
+]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# study_site/settings.py 하단에 추가
 
+# 로그 설정 (개발용)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {'console': {'class': 'logging.StreamHandler',}},
-    'root': {'handlers': ['console'], 'level': 'DEBUG',},
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler',},
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
 }
-# 미디어 파일 처리 설정
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+# 로그아웃 후 리디렉트 경로
 LOGOUT_REDIRECT_URL = '/'

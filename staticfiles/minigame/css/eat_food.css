@@ -1,0 +1,87 @@
+/* --- 먹이먹기 미니게임 전용 스타일 --- */
+
+#game-wrap {
+    max-width: 600px;
+    margin: 2.5em auto 2em auto;
+    background: linear-gradient(115deg,#fff9ff 60%,#f3fcff 100%);
+    border-radius: 2.3em;
+    box-shadow: 0 9px 36px #bae1ff25, 0 3px 13px #ffb7d86f;
+    padding: 2.3em 1em 1.5em 1em;
+    text-align: center;
+    position: relative;
+    min-height: 540px;
+}
+
+#user-ui {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8em;
+    margin-bottom: 1.5em;
+}
+
+#nickname-view {
+    font-weight: bold;
+    color: #2b72b7;
+    font-size: 1.11em;
+    margin-right: 0.8em;
+}
+
+#canvas {
+    display: block;
+    margin: 0 auto 1.1em auto;
+    border: 3px solid #66cef7;
+    border-radius: 1.2em;
+    background: #f7faff;
+    box-shadow: 0 3px 12px #b7e6fd44;
+    transition: box-shadow 0.23s;
+}
+#canvas:focus { outline: none; box-shadow: 0 0 0 2px #41bfff; }
+
+.canvas-wrap {
+    display: flex; justify-content: center;
+}
+
+#chat-ui {
+    margin-top: 1em;
+}
+#chatlog {
+    height: 65px; overflow:auto; border:1.4px solid #9ad6ff; border-radius:0.7em; background: #fafdff; margin-bottom: 0.3em;
+    padding: 0.6em; font-size:0.96em; text-align:left;
+}
+#chatbox {
+    border: 1.2px solid #99d3f7; border-radius: 0.6em; padding: 0.5em 0.8em;
+    margin-right: 0.5em; background: #f7fdff;
+    font-size: 0.96em;
+}
+#system-msg {
+    margin: 0.9em 0 0.4em 0; color: #888; font-size: 0.95em;
+}
+
+#invite-tip {
+    margin-left: 0.5em; font-size: 0.98em; color: #db73ba; font-weight: 700;
+}
+
+#fullscreen-btn, #exit-btn {
+    background: linear-gradient(125deg, #e3fbff 50%, #ffe0fb 100%);
+    border: none; border-radius: 0.9em; color: #2e79ba; font-weight: 700;
+    padding: 0.58em 1.3em; margin: 1.2em 0.45em 0 0.45em;
+    font-size: 1em; cursor: pointer; box-shadow: 0 2px 10px #e0f8ff4a;
+    transition: background 0.19s, color 0.19s, box-shadow 0.15s;
+}
+#fullscreen-btn:hover, #exit-btn:hover {
+    background: linear-gradient(120deg, #8edcff 0%, #ffbff3 90%);
+    color: #fff;
+    box-shadow: 0 4px 18px #b6e3ff99;
+}
+
+@media (max-width: 750px) {
+    #game-wrap { padding: 0.5em 0.05em; min-height: 380px; }
+    #canvas { width: 99vw !important; max-width: 96vw; }
+}
+
+@media (max-width: 600px) {
+    #game-wrap { padding: 0.07em 0.02em; }
+    #chatlog { height: 48px; }
+}

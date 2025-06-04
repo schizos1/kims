@@ -1,96 +1,64 @@
+{# minigame/templates/minigame_index.html #}
 {% extends 'base.html' %}
-{% load static %} {# 만약 이 페이지에서 별도의 static 파일을 사용한다면 #}
+{% load static %}
 
 {% block title %}미니게임 목록{% endblock %}
 
 {% block extra_head %}
-{# 이 페이지에만 적용될 CSS 스타일입니다. #}
-{# 나중에는 이 스타일들을 별도의 .css 파일로 옮기고 여기서 링크하는 것이 더 좋습니다. #}
 <style>
-    .minigame-page-container { /* 페이지 전체를 감싸는 div에 적용할 클래스 (선택 사항) */
-        max-width: 900px; /* base.html의 .dashboard와 유사한 너비 */
-        margin: 2em auto;
-        padding: 1.5em;
-        background: #fff; /* 필요시 배경색 지정 */
-        border-radius: 1.5em; /* 필요시 둥근 모서리 */
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05); /* 필요시 그림자 */
-    }
-
-    .minigame-page-title { /* <h2>미니게임</h2> 제목에 적용할 클래스 */
-        text-align: center;
-        color: #337ab7; /* 예시 색상 */
-        margin-bottom: 1.5em;
-        font-size: 2em;
-        font-weight: bold;
-    }
-
-    .game-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.8em; /* 간격 약간 넓힘 */
-        justify-content: center; /* 중앙 정렬 */
-    }
-
-    .game-item {
-        width: 220px; /* 너비 약간 넓힘 */
-        border-radius: 1em;
-        background: #f8f9fa; /* 배경색 변경 */
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 그림자 약간 변경 */
-        padding: 1.5em;
-        text-align: center;
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-    .game-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    }
-
-    .game-title {
-        font-weight: 700;
-        color: #007bff; /* 색상 변경 */
-        font-size: 1.2em; /* 크기 약간 키움 */
-        margin-bottom: 0.5em;
-    }
-
-    .game-description { /* g.desc를 위한 클래스 (새로 추가) */
-        margin: 0.7em 0 1.2em 0; 
-        color: #6c757d; /* 색상 변경 */
-        font-size: 0.9em;
-        min-height: 3em; /* 설명 부분 높이 최소값 (정렬을 위해) */
-    }
-
-    .play-btn {
-        margin-top: 0.7em;
-        padding: 0.5em 1.5em; /* 패딩 조절 */
-        background: #28a745; /* 색상 변경 (성공적인 느낌의 초록) */
-        color: #fff;
-        border-radius: 0.9em;
-        border: none;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s;
-    }
-    .play-btn:hover {
-        background: #218838; /* 호버 시 약간 어둡게 */
-    }
+    /* ... (스타일은 이전 제안과 동일하게 유지) ... */
+    .minigame-page-container { max-width: 900px; margin: 2em auto; padding: 1.5em; background: #fff; border-radius: 1.5em; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .minigame-page-title { text-align: center; color: #337ab7; margin-bottom: 1.5em; font-size: 2em; font-weight: bold; }
+    .game-list { display: flex; flex-wrap: wrap; gap: 1.8em; justify-content: center; }
+    .game-item { width: 220px; border-radius: 1em; background: #f8f9fa; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 1.5em; text-align: center; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; display: flex; flex-direction: column; justify-content: space-between; }
+    .game-item:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
+    .game-title { font-weight: 700; color: #007bff; font-size: 1.2em; margin-bottom: 0.5em; }
+    .game-description { margin: 0.7em 0 1.2em 0; color: #6c757d; font-size: 0.9em; min-height: 3em; flex-grow: 1; }
+    .game-actions { margin-top: 1em; display: flex; flex-direction: column; gap: 0.5em; }
+    .play-btn { display: block; width: 100%; padding: 0.6em 1em; border-radius: 0.7em; border: none; cursor: pointer; font-weight: bold; transition: background-color 0.2s; font-size: 0.9em; }
+    .play-btn-single { background: #28a745; color: #fff; }
+    .play-btn-single:hover { background: #218838; }
+    .play-btn-multi { background: #007bff; color: #fff; }
+    .play-btn-multi:hover { background: #0056b3; }
+    .play-btn-disabled { background: #6c757d; color: #e9ecef; cursor: not-allowed; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="minigame-page-container"> {# 페이지 전체 컨텐츠를 감싸는 div (선택 사항) #}
+<div class="minigame-page-container">
     <h2 class="minigame-page-title">🎮 미니게임 🎮</h2>
     
     {% if games %}
         <div class="game-list">
             {% for g in games %}
             <div class="game-item">
-                <div class="game-title">{{ g.name }}</div>
-                <div class="game-description">{{ g.desc }}</div>
-                {# URL 생성을 위해 g.slug 또는 g.id 같은 고유 식별자를 사용하는 것이 더 안전합니다. #}
-                {# 여기서는 기존 방식을 유지하되, 나중에 변경을 고려해보세요. #}
-                <form method="get" action="#" style="margin:0;"> {# ✨ action을 "#" 또는 빈 값 "" 으로 변경 ✨ #}
-    <button type="submit" class="play-btn">게임 시작</button>
+                <div>
+                    <div class="game-title">{{ g.name }}</div>
+                    <div class="game-description">{{ g.desc }}</div>
+                </div>
+                
+                <div class="game-actions">
+                    {% if g.key == "eat_food" %}
+                        {# "먹이 먹기" 싱글플레이 버튼 #}
+                        <form method="get" action="{% url 'minigame:play_game' game_key='eat_food' %}" style="margin:0;">
+                            <input type="hidden" name="mode" value="single">
+                            <button type="submit" class="play-btn play-btn-single">싱글플레이</button>
+                        </form>
+                        
+                        {# "먹이 먹기" 멀티플레이 버튼 #}
+                        <form method="get" action="{% url 'minigame:play_eat_food' %}" style="margin:0;">
+    {# <input type="hidden" name="mode" value="single"> 또는 "multi" #}
+    {# <input type="hidden" name="room_id" value="testroom1"> (멀티 시) #}
+    {# ... #}
 </form>
+                    {% elif g.key %} {# 다른 키가 있는 게임들 #}
+                        <form method="get" action="{% url 'minigame:play_game' game_key=g.key %}" style="margin:0;">
+                            <button type="submit" class="play-btn play-btn-single">게임 시작</button> {# 일단 싱글용 버튼 스타일로 통일 #}
+                        </form>
+                    {% else %} {# 키가 없는 경우 (준비 안됨) #}
+                        <button type="button" class="play-btn play-btn-disabled" disabled>준비 중</button>
+                    {% endif %}
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -98,4 +66,20 @@
         <p class="text-center">플레이할 수 있는 미니게임이 아직 없습니다.</p>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+// 특별한 스크립트가 필요 없을 수 있으나, 향후 멀티플레이 방 ID 입력 등을 위해 남겨둠
+// document.querySelectorAll('.play-btn-multi').forEach(button => {
+//     button.closest('form').addEventListener('submit', function(event) {
+//         // const roomId = prompt("참여할 방 ID를 입력하세요 (예: testroom1):", "testroom1");
+//         // if (!roomId) {
+//         //     event.preventDefault(); 
+//         //     return;
+//         // }
+//         // this.querySelector('input[name="room_id"]').value = roomId; 
+//     });
+// });
+</script>
 {% endblock %}

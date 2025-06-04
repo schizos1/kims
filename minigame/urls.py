@@ -1,18 +1,14 @@
-# minigame/urls.py
+# minigame/urls.py (수정 후)
 
 from django.urls import path
-from . import views # minigame 앱의 views.py
+from . import views
 
-app_name = 'minigame' # 네임스페이스는 이미 잘 설정되어 있습니다.
-
+app_name = 'minigame'
 urlpatterns = [
-    # 기존: path('', views.minigame_index, name='minigame_index'),
-    # 변경: name을 'minigame_lobby'로 수정하여 템플릿과 일치시킵니다.
-    # 이 경로는 /minigame/ 으로 접속 시 미니게임 목록/선택 페이지(로비)를 보여줍니다.
-    path('', views.minigame_index, name='minigame_lobby'), 
-
-    # 특정 게임 플레이 경로 (이 부분은 그대로 유지)
-    path('play/<str:game_name>/', views.play_game, name='play_game'),
-    
-    # ... (다른 미니게임 관련 URL 패턴이 있다면 여기에 추가)
+    path('', views.minigame_index, name='minigame_index'),
+    path('play/<str:game_key>/', views.play_game, name='play_game'),
+    path('<str:game_key>/', views.play_game, name='play_game'),
+    # 👇 'game_name'을 'game_key'로 변경했습니다.
+    path('play/eat_food/', views.play_game, {'game_key':'eat_food'}, name='play_eat_food'),
+    path('fishing/', views.fishing_game, name='minigame_fishing'),
 ]

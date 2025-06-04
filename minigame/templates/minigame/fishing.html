@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="fishing-header">
+  <div id="score" class="score-box"></div>
+  <div id="rod" class="rod-box"></div>
+  <button id="upgrade-btn" class="upgrade-btn">낚싯대 업그레이드</button>
+  <button id="reset-btn" class="reset-btn">리셋</button>
+</div>
+<div class="fishing-canvas-wrap">
+  <canvas id="fishing-canvas" width="850" height="350"></canvas>
+</div>
+<h3 style="text-align:center; margin-top:2em;">🎏 익이의 물고기 컬렉션 🎏</h3>
+<div id="collection" class="collection-list"></div>
+<link rel="stylesheet" href="{% static 'minigame/css/fishing.css' %}">
+<script src="{% static 'minigame/js/fishing/sound.js' %}"></script>
+<script src="{% static 'minigame/js/fishing/lake_bg.js' %}"></script>
+<script src="{% static 'minigame/js/fishing/rod.js' %}"></script>
+<script src="{% static 'minigame/js/fishing/fishing_logic.js' %}"></script>
+<script src="{% static 'minigame/js/fishing/main.js' %}"></script>
+{% endblock %}

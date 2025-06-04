@@ -15,10 +15,11 @@ urlpatterns = [
     path('attendance/', include('attendance.urls')),
     path('shop/', include('shop.urls')),
     path('student_dashboard/', include('users.urls')), # '/mypage/' 경로로 users 앱의 URL들 연결
-    path('minigame/', include('minigame.urls')),
+    path('minigame/', include('minigame.urls', namespace='minigame')),
     path('', include('core.urls')),  # 메인/홈 화면 (프로젝트 루트)
     path('accounts/', include('django.contrib.auth.urls')), # Django 기본 인증 URL
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'), # 로그아웃
+    path('importer/', include('pdf_importer.urls'))
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

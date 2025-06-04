@@ -1,0 +1,206 @@
+{% extends "admin/base_site.html" %} {# Django 관리자 기본 템플릿 상속 #}
+{% load static %}
+
+{% block title %}{{ title|default:"PDF 업로드 및 처리" }}{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    {# 이 페이지 전용 추가 CSS가 있다면 여기에 링크 또는 직접 작성 #}
+    {# 예: <link rel="stylesheet" type="text/css" href="{% static 'pdf_importer/css/admin_pdf_upload_styles.css' %}"> #}
+    <style>
+        /* 폼 컨테이너 및 요소 스타일 (Django Admin과 유사하게) */
+        .form-container { 
+            padding: 20px; 
+        }
+        .form-container fieldset.module {
+            margin-bottom: 20px;
+        }
+        .form-container .form-row { 
+            overflow: auto; /* Clearfix */
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .form-container .form-row:last-of-type { /* 마지막 form-row는 하단 테두리 제거 */
+            border-bottom: none; 
+        }
+        .form-container .form-row > div > label { 
+            display: block; 
+            float: left;
+            width: 150px; /* 레이블 너비, 필요시 조절 */
+            padding-right: 10px;
+            font-weight: bold;
+            line-height: 1.5; /* input 높이와 맞추기 위해 */
+        }
+        .form-container .form-row .form-field-container {
+            margin-left: 170px; /* 레이블 너비 + 오른쪽 패딩 보다 크게 */
+        }
+        .form-container .form-row .form-field-container p.help { /* 도움말 텍스트 */
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 3px;
+        }
+        .form-container .form-row .errorlist { /* 폼 에러 메시지 */
+            color: #ba2121; /* Django admin 에러 색상 */
+            font-size: 0.9em;
+            margin-top: 3px;
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .form-container input[type="file"] { 
+            /* 기본 브라우저 스타일 또는 커스텀 스타일링 */
+            padding: 5px;
+        }
+        
+        /* 제출 버튼 행 스타일 */
+        .submit-row {
+            padding: 15px 0;
+            text-align: right; /* 버튼 오른쪽 정렬 */
+            border-top: 1px solid #eee;
+            margin-top: 10px;
+        }
+        .submit-row button[type="submit"] {
+            padding: 10px 15px;
+            background-color: var(--button-bg, #79aec8); /* Django admin 버튼 기본색 변수 */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .submit-row button[type="submit"]:hover { 
+            background-color: var(--button-hover-bg, #609ab6); /* Django admin 버튼 호버색 변수 */
+        }
+        
+        /* 결과 요약 및 미리보기 섹션 스타일 */
+        .summary-section { 
+            margin-top: 30px; 
+            padding-top: 15px;
+            border-top: 1px solid #ccc;
+        }
+        .summary-section h2 {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-summary, .processed-data-preview { 
+            margin-top: 10px; 
+            padding: 15px; 
+            background-color: #f8f9fa; 
+            border: 1px solid #e9ecef;
+            border-radius: 4px; 
+            white-space: pre-wrap; /* 줄바꿈 및 공백 유지 */
+            font-size: 0.9em;
+            color: #212529;
+            max-height: 400px; /* 내용이 길 경우 스크롤 */
+            overflow-y: auto;
+        }
+        .processed-data-preview pre {
+            margin: 0;
+            font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace; /* 고정폭 폰트 */
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">홈</a> &rsaquo;
+    {# 앱 목록에 pdf_importer가 등록되어 있다면 아래 링크 사용 가능 #}
+    {# <a href="{% url 'admin:app_list' app_label='pdf_importer' %}">PDF Importer</a> &rsaquo; #}
+    <a href="{% url 'admin:app_list' app_label='quiz' %}">Quiz 관리</a> &rsaquo; {# 예시: Quiz 앱 하위 기능처럼 보이도록 #}
+    {{ title|default:"PDF 업로드" }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" class="form-container">
+    <h1>{{ title|default:"PDF 업로드 및 처리" }}</h1>
+
+    {% if messages %}
+        <ul class="messagelist"> {# Django admin 메시지 스타일 적용 #}
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <fieldset class="module aligned"> {# Django admin의 fieldset 스타일 클래스 #}
+            <h2>PDF 파일 업로드</h2>
+            
+            {# form.as_p, form.as_table 대신 각 필드를 수동으로 렌더링하여 admin 스타일과 유사하게 만듭니다. #}
+            <div class="form-row field-question_pdf"> {# 'field-필드명' 클래스는 admin CSS에서 사용될 수 있음 #}
+                <div>
+                    {{ form.question_pdf.label_tag }} {# <label for="id_question_pdf">...</label> #}
+                    <div class="form-field-container">
+                        {{ form.question_pdf }} {# <input type="file" name="question_pdf" ...> #}
+                        {% if form.question_pdf.help_text %}
+                        <div class="help">{{ form.question_pdf.help_text|safe }}</div>
+                        {% endif %}
+                        {% if form.question_pdf.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.question_pdf.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row field-answer_pdf">
+                <div>
+                    {{ form.answer_pdf.label_tag }}
+                    <div class="form-field-container">
+                        {{ form.answer_pdf }}
+                        {% if form.answer_pdf.help_text %}
+                        <div class="help">{{ form.answer_pdf.help_text|safe }}</div>
+                        {% endif %}
+                        {% if form.answer_pdf.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.answer_pdf.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# 주석 처리된 추가 필드 예시: 
+            <div class="form-row field-source_description">
+                <div>
+                    {{ form.source_description.label_tag }}
+                    <div class="form-field-container">
+                        {{ form.source_description }}
+                        {% if form.source_description.help_text %}
+                        <div class="help">{{ form.source_description.help_text|safe }}</div>
+                        {% endif %}
+                        {{ form.source_description.errors }}
+                    </div>
+                </div>
+            </div>
+            #}
+        </fieldset>
+        
+        <div class="submit-row"> {# Django admin의 제출 버튼 스타일 클래스 #}
+            <button type="submit">파일 업로드 및 처리 시작</button>
+        </div>
+    </form>
+
+    {% if upload_summary %}
+    <div class="summary-section">
+        <h2>업로드 파일 정보</h2>
+        <div class="upload-summary">
+            <p>{{ upload_summary|linebreaksbr }}</p> {# 줄바꿈 유지 #}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if processed_data_preview %}
+    <div class="summary-section">
+        <h2>OCR 추출 텍스트 미리보기</h2>
+        <div class="processed-data-preview">
+            <pre>{{ processed_data_preview }}</pre>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

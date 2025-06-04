@@ -1,0 +1,79 @@
+{# minigame/templates/minigame_index.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}미니게임 목록{% endblock %}
+
+{% block extra_head %}
+<style>
+    .minigame-page-container { max-width: 900px; margin: 2em auto; padding: 1.5em; background: #fff; border-radius: 1.5em; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .minigame-page-title { text-align: center; color: #337ab7; margin-bottom: 1.5em; font-size: 2em; font-weight: bold; }
+    .game-list { display: flex; flex-wrap: wrap; gap: 1.8em; justify-content: center; }
+    .game-item { width: 220px; border-radius: 1em; background: #f8f9fa; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 1.5em; text-align: center; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; display: flex; flex-direction: column; justify-content: space-between; }
+    .game-item:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
+    .game-title { font-weight: 700; color: #007bff; font-size: 1.2em; margin-bottom: 0.5em; }
+    .game-description { margin: 0.7em 0 1.2em 0; color: #6c757d; font-size: 0.9em; min-height: 3em; flex-grow: 1; }
+    .game-actions { margin-top: 1em; display: flex; flex-direction: column; gap: 0.5em; }
+    .play-btn { display: block; width: 100%; padding: 0.6em 1em; border-radius: 0.7em; border: none; cursor: pointer; font-weight: bold; transition: background-color 0.2s; font-size: 0.9em; }
+    .play-btn-single { background: #28a745; color: #fff; }
+    .play-btn-single:hover { background: #218838; }
+    .play-btn-multi { background: #007bff; color: #fff; }
+    .play-btn-multi:hover { background: #0056b3; }
+    .play-btn-disabled { background: #6c757d; color: #e9ecef; cursor: not-allowed; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="minigame-page-container">
+    <h2 class="minigame-page-title">🎮 미니게임 🎮</h2>
+    
+    {% if games %}
+        <div class="game-list">
+            {% for g in games %}
+            <div class="game-item">
+                <div>
+                    <div class="game-title">{{ g.name }}</div>
+                    <div class="game-description">{{ g.desc }}</div>
+                </div>
+                
+                <div class="game-actions">
+                    {% if g.key == "eat_food" %}
+                        <form method="get" action="{% url 'minigame:play_eat_food' %}" style="margin:0;">
+                            <input type="hidden" name="mode" value="single">
+                            <button type="submit" class="play-btn play-btn-single">싱글플레이</button>
+                        </form>
+                        <form method="get" action="{% url 'minigame:play_eat_food' %}" style="margin:0;">
+                            <input type="hidden" name="mode" value="multi">
+                            <input type="hidden" name="room_id" value="testroom1">
+                            <button type="submit" class="play-btn play-btn-multi">멀티플레이 (Test Room)</button>
+                        </form>
+                    {% elif g.key == "piano" %}
+                        <form method="get" action="{% url 'minigame:play_game' game_key='piano' %}" style="margin:0;">
+                            <button type="submit" class="play-btn play-btn-single">피아노 연주</button>
+                        </form>
+                     {% elif g.key == "fishing" %}
+            <form method="get" action="{% url 'minigame:minigame_fishing' %}" style="margin:0;">
+                <button type="submit" class="play-btn play-btn-single">낚시 시작</button>
+            </form>
+                    {% elif g.key %}
+                        <form method="get" action="{% url 'minigame:play_game' game_key=g.key %}" style="margin:0;">
+                            <button type="submit" class="play-btn play-btn-single">게임 시작</button>
+                        </form>
+                    {% else %}
+                        <button type="button" class="play-btn play-btn-disabled" disabled>준비 중</button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center">플레이할 수 있는 미니게임이 아직 없습니다.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+// (필요 시 여기에 JS 작성)
+</script>
+{% endblock %}
