@@ -59,14 +59,14 @@ def check_trophy_condition(user, user_profile, trophy):
         bool: 조건 충족 여부
     """
     try:
-        if trophy.condition_type == 'login_days':
+        if trophy.condition_type == Trophy.ConditionType.LOGIN_DAYS:
             return user_profile.login_count >= trophy.condition_value
 
-        elif trophy.condition_type == 'total_quiz':
+        elif trophy.condition_type == Trophy.ConditionType.TOTAL_QUIZ:
             quiz_count = UserAnswerLog.objects.filter(user=user).count()
             return quiz_count >= trophy.condition_value
 
-        elif trophy.condition_type == 'subject_quiz':
+        elif trophy.condition_type == Trophy.ConditionType.SUBJECT_QUIZ:
             if trophy.required_subject:
                 subject_count = UserAnswerLog.objects.filter(
                     user=user,
@@ -76,7 +76,7 @@ def check_trophy_condition(user, user_profile, trophy):
                 return subject_count >= trophy.condition_value
             return False
 
-        elif trophy.condition_type == 'right_rate':
+        elif trophy.condition_type == Trophy.ConditionType.RIGHT_RATE:
             total = UserAnswerLog.objects.filter(user=user).count()
             if total == 0:
                 return False
@@ -84,17 +84,17 @@ def check_trophy_condition(user, user_profile, trophy):
             rate = (correct / total) * 100
             return rate >= trophy.condition_value
 
-        elif trophy.condition_type == 'total_wrong':
+        elif trophy.condition_type == Trophy.ConditionType.TOTAL_WRONG:
             wrong_count = UserAnswerLog.objects.filter(user=user, is_correct=False).count()
             return wrong_count >= trophy.condition_value
 
-        elif trophy.condition_type == 'streak':
+        elif trophy.condition_type == Trophy.ConditionType.STREAK:
             streak = AttendanceStreak.objects.filter(user=user).first()
             if streak:
                 return streak.streak_count >= trophy.condition_value
             return False
 
-        elif trophy.condition_type == 'point_used':
+        elif trophy.condition_type == Trophy.ConditionType.POINT_USED:
             return user_profile.points_used >= trophy.condition_value
 
         return False
@@ -102,3 +102,4 @@ def check_trophy_condition(user, user_profile, trophy):
     except Exception as e:
         logger.error(f"트로피 조건 체크 에러: {trophy.name} - {e}")
         return False
+

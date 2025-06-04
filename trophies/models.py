@@ -21,19 +21,22 @@ class Trophy(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name="트로피 이름")
     description = models.TextField(verbose_name="트로피 설명")
     icon = models.URLField(max_length=200, default='', blank=True, verbose_name="아이콘 URL")
+    class ConditionType(models.TextChoices):
+        """트로피 조건 유형 집합."""
+
+        LOGIN_DAYS = 'login_days', '로그인 일수'
+        TOTAL_QUIZ = 'total_quiz', '총 문제풀이 수'
+        SUBJECT_QUIZ = 'subject_quiz', '과목별 문제풀이 수'
+        RIGHT_RATE = 'right_rate', '정답률'
+        TOTAL_WRONG = 'total_wrong', '총 오답 수'
+        STREAK = 'streak', '연속 출석 일수'
+        POINT_USED = 'point_used', '사용한 포인트'
+
     condition_type = models.CharField(
         max_length=50,
-        choices=[
-            ('login_days', '로그인 일수'),
-            ('total_quiz', '총 문제풀이 수'),
-            ('subject_quiz', '과목별 문제풀이 수'),
-            ('right_rate', '정답률'),
-            ('total_wrong', '총 오답 수'),
-            ('streak', '연속 출석 일수'),
-            ('point_used', '사용한 포인트'),
-        ],
-        default='login_days',
-        verbose_name="조건 유형"
+        choices=ConditionType.choices,
+        default=ConditionType.LOGIN_DAYS,
+        verbose_name="조건 유형",
     )
     condition_value = models.IntegerField(default=0, verbose_name="조건 수치")
     required_subject = models.CharField(max_length=50, default='', blank=True, verbose_name="필요 과목")
@@ -49,6 +52,7 @@ class Trophy(models.Model):
         db_table = 'trophies_trophy'
         verbose_name = "트로피"
         verbose_name_plural = "트로피 목록"
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -82,6 +86,7 @@ class UserTrophy(models.Model):
         unique_together = ('user', 'trophy')
         verbose_name = "사용자 트로피"
         verbose_name_plural = "사용자 트로피 목록"
+        ordering = ['-awarded_at']
 
     def __str__(self):
         return f"{self.user.username} - {self.trophy.name}"
