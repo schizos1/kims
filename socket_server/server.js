@@ -10,7 +10,8 @@ import { fileURLToPath } from 'url';
 // 'eat_food' 게임 핸들러 import
 import initializeEatFoodGameHandler from './game_handlers/eat_food_game_handler.js';
 import initializeFishingGameHandler from './game_handlers/fishing_game_handler.js';
-import { userPoints } from './game_logics/eat_food/multi_game_session.js';
+import initializeEmojiBattleHandler from './game_handlers/emoji_battle_game_handler.js';
+import { userPoints } from './game_logics/user_points.js';
 
 // ES 모듈 환경에서 __dirname, __filename 설정
 const __filename = fileURLToPath(import.meta.url);
@@ -76,6 +77,7 @@ io.on('connection', (socket) => {
     // initializeEatFoodGameHandler는 export default 함수이므로 바로 호출
     initializeEatFoodGameHandler(io, socket);
     initializeFishingGameHandler(io, socket);
+    initializeEmojiBattleHandler(io, socket);
 
     // 만약 다른 게임(예: 'another_game')이 있다면, 해당 게임의 핸들러도 유사하게 호출
     // socket.on('request_game_type', (gameType) => {

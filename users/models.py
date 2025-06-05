@@ -61,6 +61,8 @@ class UserProfile(models.Model):
     points = models.IntegerField(default=0, verbose_name="포인트")
     login_count = models.IntegerField(default=0, verbose_name="로그인 횟수")
     points_used = models.IntegerField(default=0, verbose_name="사용한 포인트")
+    minigame_win_count = models.IntegerField(default=0, verbose_name="미니게임 승리 수")
+    minigame_loss_count = models.IntegerField(default=0, verbose_name="미니게임 패배 수")
 
     def __str__(self):
         return self.nickname

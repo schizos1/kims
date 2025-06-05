@@ -97,6 +97,19 @@ def check_trophy_condition(user, user_profile, trophy):
         elif trophy.condition_type == Trophy.ConditionType.POINT_USED:
             return user_profile.points_used >= trophy.condition_value
 
+        elif trophy.condition_type == Trophy.ConditionType.GAME_WIN:
+            return getattr(user_profile, 'minigame_win_count', 0) >= trophy.condition_value
+
+        elif trophy.condition_type == Trophy.ConditionType.GAME_LOSS:
+            return getattr(user_profile, 'minigame_loss_count', 0) >= trophy.condition_value
+
+        elif trophy.condition_type == Trophy.ConditionType.POINT_GAINED:
+            return getattr(user_profile, 'points', 0) >= trophy.condition_value
+
+        elif trophy.condition_type == Trophy.ConditionType.TROPHY_COUNT:
+            owned = UserTrophy.objects.filter(user=user).count()
+            return owned >= trophy.condition_value
+
         return False
 
     except Exception as e:

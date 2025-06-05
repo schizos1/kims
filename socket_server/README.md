@@ -19,3 +19,6 @@ node server.js
 - `game_logics/` : 게임 규칙 및 엔티티 관리 모듈
 - `public/` : 클라이언트 HTML 및 JS
 
+추가된 `emoji_battle` 게임은 Pixi.js와 Howler.js를 활용하여 이모지를 던져
+상대를 맞히는 2인용 게임입니다.
+

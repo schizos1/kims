@@ -31,6 +31,10 @@ class Trophy(models.Model):
         TOTAL_WRONG = 'total_wrong', '총 오답 수'
         STREAK = 'streak', '연속 출석 일수'
         POINT_USED = 'point_used', '사용한 포인트'
+        GAME_WIN = 'game_win', '미니게임 승리'
+        GAME_LOSS = 'game_loss', '미니게임 패배'
+        POINT_GAINED = 'point_gained', '획득한 포인트'
+        TROPHY_COUNT = 'trophy_count', '트로피 개수'
 
     condition_type = models.CharField(
         max_length=50,

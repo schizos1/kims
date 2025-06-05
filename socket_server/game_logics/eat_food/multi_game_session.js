@@ -16,8 +16,8 @@ import {
     checkPlayerWinCondition
 } from './game_rules.js';
 import { checkCircleCircleCollision } from './collision_utils.js';
-
-const userPoints = new Map();
+import { userPoints } from '../user_points.js';
+import { recordWin, recordLoss } from '../game_records.js';
 
 class MultiGameSession {
     constructor(io, room) {
@@ -137,6 +137,9 @@ class MultiGameSession {
         this.isRunning = false;
         clearInterval(this.loop); clearInterval(this.obstacleLoop); clearInterval(this.npcSpawnLoop);
         userPoints.set(winnerId, (userPoints.get(winnerId) || 0) + 100);
+        for (const [pid] of this.players) {
+            if (pid === winnerId) recordWin(pid); else recordLoss(pid);
+        }
         this.io.to(this.room).emit('eat_food_game_over', { winner: winnerId, points: userPoints.get(winnerId) });
     }
 

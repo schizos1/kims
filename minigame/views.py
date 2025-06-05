@@ -26,6 +26,7 @@ def minigame_index(request):
         {"name": "먹이 먹기", "desc": "친구와 함께 실시간으로 먹이 먹기!", "key": "eat_food"},
         {"name": "피아노", "desc": "캔버스와 웹오디오로 피아노를 연주해보자!", "key": "piano"},
         {"name": "낚시게임", "desc": "물고기를 잡고 도감을 모으는 재미! 포인트로 낚싯대 업그레이드도 가능!", "key": "fishing"},
+        {"name": "이모지 배틀", "desc": "상대를 이모지로 맞혀 승리하자!", "key": "emoji_battle"},
     ]
     # templates/minigame/minigame_index.html 기준
     return render(request, "minigame/minigame_index.html", {"games": games})
