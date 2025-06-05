@@ -22,6 +22,15 @@ export default function initializeEmojiBattleHandler(io, socket) {
         }
     });
 
+    socket.on('emoji_move', (data) => {
+        for (const session of activeSessions.values()) {
+            if (session.hasPlayer(socket.id)) {
+                session.handleEmojiMove(socket.id, data);
+                break;
+            }
+        }
+    });
+
     socket.on('emoji_hit', (data) => {
         for (const session of activeSessions.values()) {
             if (session.hasPlayer(socket.id)) {

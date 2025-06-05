@@ -5,6 +5,8 @@ import { HIT_TO_WIN } from './config.js';
 import { userPoints } from '../user_points.js';
 import { recordWin, recordLoss } from '../game_records.js';
 
+const FIELD_WIDTH = 800; // 캔버스 가로 길이와 동일하게 사용
+
 class EmojiBattleSession {
     constructor(io, room) {
         this.io = io;
@@ -21,7 +23,8 @@ class EmojiBattleSession {
         socket.join(this.room);
         this._ensurePoints(socket.id);
         userPoints.set(socket.id, userPoints.get(socket.id) - 50);
-        this.players.set(socket.id, { socket, user: userData.user, hits: 0 });
+        const startX = this.players.size === 0 ? FIELD_WIDTH * 0.2 : FIELD_WIDTH * 0.8;
+        this.players.set(socket.id, { socket, user: userData.user, hits: 0, x: startX });
         if (this.players.size === 2 && !this.isRunning) this.startGame();
     }
 
@@ -37,7 +40,7 @@ class EmojiBattleSession {
     startGame() {
         this.isRunning = true;
         this.io.to(this.room).emit('emoji_start', {
-            players: [...this.players.entries()].map(([id, p]) => ({ id, user: p.user }))
+            players: [...this.players.entries()].map(([id, p]) => ({ id, user: p.user, x: p.x }))
         });
     }
 
@@ -55,6 +58,15 @@ class EmojiBattleSession {
         if (attacker.hits >= HIT_TO_WIN) {
             this._gameOver(attackerId);
         }
+    }
+
+    handleEmojiMove(id, data) {
+        if (!this.isRunning) return;
+        const player = this.players.get(id);
+        if (!player) return;
+        const newX = Math.max(0, Math.min(FIELD_WIDTH, data.x));
+        player.x = newX;
+        this.io.to(this.room).emit('emoji_move', { id, x: player.x });
     }
 
     _gameOver(winnerId) {
