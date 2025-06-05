@@ -326,7 +326,8 @@ export function generateObstacleItem(gameState, existingObstaclesInBatch) {
  * @param {number|null} count 생성할 장애물 개수 (null이면 config.OBSTACLE_COUNT 사용)
  */
 export function initializeObstacles(gameState, count = null) {
-    const targetCount = count === null ? config.OBSTACLE_COUNT : count;
+    const defaultCount = Math.floor(Math.random() * (config.OBSTACLE_COUNT_MAX - config.OBSTACLE_COUNT_MIN + 1)) + config.OBSTACLE_COUNT_MIN;
+    const targetCount = count === null ? defaultCount : count;
     gameState.obstacles = []; // 기존 장애물 모두 제거
     const newlyGeneratedObstaclesInThisCall = [];
 

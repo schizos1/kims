@@ -12,7 +12,7 @@ export const FOOD_RADIUS_SPECIAL = 38;       // 특별 음식의 시각적 반�
 export const FOOD_COLLISION_RADIUS_NORMAL = 12; // 일반 음식의 충돌 판정용 반지름 (서버 로직용)
 export const FOOD_COLLISION_RADIUS_SPECIAL = 15; // 특별 음식의 충돌 판정용 반지름 (서버 로직용)
 
-export const INITIAL_FOOD_COUNT = 12;        // 게임 시작 시 생성되는 초기 음식 개수
+export const INITIAL_FOOD_COUNT = 5;        // 게임 시작 시 생성되는 초기 음식 개수
 export const TOTAL_FOODS_TO_WIN = 30;        // 게임 승리를 위해 먹어야 하는 총 음식 개수
 
 // 음식 종류별 상세 설정 (서버 로직에서 사용)
@@ -38,6 +38,11 @@ export const NPC_COLLISION_RADIUS = 25;    // NPC의 충돌 판정용 반지름
 export const NPC_SPEED = 1.8;              // NPC의 기본 이동 속도
 export const INITIAL_NPC_COUNT = 4;        // 게임 시작 시 생성되는 초기 NPC 수
 export const NPC_CHAR_IMG_NAME = "monster.png"; // NPC 기본 캐릭터 이미지 파일 이름 (클라이언트 참조용)
+
+export const NPC_SPAWN_INTERVAL = 15000;        // NPC 생성 간격 (ms)
+export const OBSTACLE_MOVE_INTERVAL = 10000;     // 장애물 이동 간격 (ms)
+export const OBSTACLE_COUNT_MIN = 4;             // 장애물 최소 개수
+export const OBSTACLE_COUNT_MAX = 6;             // 장애물 최대 개수
 
 // --- 장애물(Obstacle) 관련 설정 ---
 export const OBSTACLE_COUNT = 8;               // 게임 내 생성되는 장애물 개수
