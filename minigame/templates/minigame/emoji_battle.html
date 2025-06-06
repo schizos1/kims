@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}이모지 배틀{% endblock %}
+{% block content %}
+<div id="battle-area" style="text-align:center;">
+    <canvas id="emoji-canvas" width="800" height="600"></canvas>
+    <div id="emoji-ui"></div>
+    <div id="emoji-msg"></div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/games/emoji_battle/main.js' %}"></script>
+{% endblock %}
