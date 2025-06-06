@@ -60,20 +60,24 @@
                             <input type="hidden" name="mode" value="multi">
                             <button type="submit" class="play-btn play-btn-multi">멀티플레이 (준비중)</button>
                         </form>
-                    {% elif g.key %}
+                    {% elif g.key == "number_shooter" %}
+                        <form method="get" action="{% url 'minigame:play_game' game_key='number_shooter' %}" style="margin:0;">
+                            <button type="submit" class="play-btn play-btn-single">넘버슈터 플레이</button>
+                        </form>
+                    {% elif g.key %} {# This is a general fallback, ensure it's the last elif/else for keys #}
                         <form method="get" action="{% url 'minigame:play_game' game_key=g.key %}" style="margin:0;">
                             <button type="submit" class="play-btn play-btn-single">게임 시작</button>
                         </form>
-                    {% else %}
+                    {% else %} {# This else handles cases where g.key might be empty or not match any above #}
                         <button type="button" class="play-btn play-btn-disabled" disabled>준비 중</button>
-                    {% endif %}
+                    {% endif %} {# This endif closes the if/elif/else block for game keys #}
                 </div>
             </div>
-            {% endfor %}
+            {% endfor %} {# This endfor closes the 'for g in games' loop #}
         </div>
     {% else %}
         <p class="text-center">플레이할 수 있는 미니게임이 아직 없습니다.</p>
-    {% endif %}
+    {% endif %} {# This endif closes the 'if games' block #}
 </div>
 {% endblock %}
 

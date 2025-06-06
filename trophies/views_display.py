@@ -18,6 +18,9 @@ def get_user_progress_for_condition(user, user_profile, trophy):
     if user_profile is None and condition_type in [
         Trophy.ConditionType.LOGIN_DAYS,
         Trophy.ConditionType.POINT_USED,
+        Trophy.ConditionType.GAME_WIN,
+        Trophy.ConditionType.GAME_LOSS,
+        Trophy.ConditionType.POINT_GAINED,
     ]:
         logger.warning(
             "Calculating progress for user %s but UserProfile is None."
@@ -54,6 +57,14 @@ def get_user_progress_for_condition(user, user_profile, trophy):
         current_val = streak_record.streak_count if streak_record else 0
     elif condition_type == Trophy.ConditionType.POINT_USED:
         current_val = user_profile.points_used
+    elif condition_type == Trophy.ConditionType.GAME_WIN:
+        current_val = getattr(user_profile, 'minigame_win_count', 0)
+    elif condition_type == Trophy.ConditionType.GAME_LOSS:
+        current_val = getattr(user_profile, 'minigame_loss_count', 0)
+    elif condition_type == Trophy.ConditionType.POINT_GAINED:
+        current_val = user_profile.points
+    elif condition_type == Trophy.ConditionType.TROPHY_COUNT:
+        current_val = UserTrophy.objects.filter(user=user).count()
 
     return current_val
 
@@ -115,6 +126,14 @@ def my_trophies(request):
                         message = f"연속 출석 {remaining}일 더 필요"
                     elif trophy.condition_type == Trophy.ConditionType.POINT_USED:
                         message = f"포인트 {remaining}점 더 사용"
+                    elif trophy.condition_type == Trophy.ConditionType.GAME_WIN:
+                        message = f"승리 {remaining}회 더 필요"
+                    elif trophy.condition_type == Trophy.ConditionType.GAME_LOSS:
+                        message = f"패배 {remaining}회 더 기록"
+                    elif trophy.condition_type == Trophy.ConditionType.POINT_GAINED:
+                        message = f"포인트 {remaining}점 더 획득"
+                    elif trophy.condition_type == Trophy.ConditionType.TROPHY_COUNT:
+                        message = f"트로피 {remaining}개 더 획득"
                     else:
                         message = f"{remaining} 더 필요"
 

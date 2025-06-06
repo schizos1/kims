@@ -28,6 +28,7 @@ class SingleGameSession {
         this.gameState = {};  // 이 세션의 게임 상태
         this.gameLoopIntervalId = null;
         this.obstacleRegenIntervalId = null;
+        this.npcSpawnIntervalId = null;
         this.isGameRunning = false;
         this.userData = userData; // { user, charImgPath }
 
@@ -45,7 +46,7 @@ class SingleGameSession {
             y: config.CANVAS_HEIGHT / 2,
             score: 0,
             eatCount: 0,
-            charImgPath: this.userData.charImgPath || "dino1.png", // 클라이언트에서 보내준 값 또는 기본값
+            charImgPath: this.userData.charImgPath || (Math.random() < 0.5 ? "dino1.png" : "dino2.png"), // 랜덤 선택
             collisionRadius: config.PLAYER_COLLISION_RADIUS
         };
         this.gameState.foods = [];
@@ -54,7 +55,7 @@ class SingleGameSession {
 
         initializeFoods(this.gameState, config.INITIAL_FOOD_COUNT);
         initializeNpcs(this.gameState, config.INITIAL_NPC_COUNT);
-        initializeObstacles(this.gameState, config.OBSTACLE_COUNT);
+        initializeObstacles(this.gameState); // 개수는 설정 범위 내 랜덤
 
         this.isGameRunning = true;
 
@@ -84,6 +85,17 @@ class SingleGameSession {
                 this._regenerateObstacles();
             }
         }, config.OBSTACLE_REGEN_INTERVAL);
+        if (this.npcSpawnIntervalId) clearInterval(this.npcSpawnIntervalId);
+        this.npcSpawnIntervalId = setInterval(() => {
+            if (this.isGameRunning) {
+                const npc = generateNpcItem(this.gameState);
+                if (npc) {
+                    this.gameState.npcs.push(npc);
+                    const extraFood = generateFoodItem(this.gameState);
+                    if (extraFood) this.gameState.foods.push(extraFood);
+                }
+            }
+        }, config.NPC_SPAWN_INTERVAL);
         console.log(`[SingleGameSession] Game loops started for ${this.userData.user}.`);
     }
 
@@ -103,7 +115,7 @@ class SingleGameSession {
 
     _regenerateObstacles() {
         console.log(`[SingleGameSession] Regenerating obstacles for ${this.userData.user}`);
-        initializeObstacles(this.gameState, config.OBSTACLE_COUNT); // entity_manager.js 함수 사용
+        initializeObstacles(this.gameState); // entity_manager.js 함수 사용 (랜덤 개수)
     }
 
     handlePlayerMove(moveData) {
@@ -175,6 +187,10 @@ class SingleGameSession {
         if (this.obstacleRegenIntervalId) {
             clearInterval(this.obstacleRegenIntervalId);
             this.obstacleRegenIntervalId = null;
+        }
+        if (this.npcSpawnIntervalId) {
+            clearInterval(this.npcSpawnIntervalId);
+            this.npcSpawnIntervalId = null;
         }
         console.log(`[SingleGameSession] Game loops stopped for ${this.userData.user}.`);
     }
