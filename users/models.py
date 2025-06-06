@@ -39,7 +39,6 @@ class Mascot(models.Model):
         verbose_name_plural = "갤러리 마스코트 목록"
 
 class UserProfile(models.Model):
-    """사용자 프로필 모델, 사용자별 추가 정보와 테마/마스코트 선택을 저장합니다."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', verbose_name="사용자")
     nickname = models.CharField(max_length=20, default='Guest', verbose_name="닉네임")
     mascot_name = models.CharField(max_length=20, blank=True, verbose_name="마스코트 애칭") 
@@ -59,6 +58,7 @@ class UserProfile(models.Model):
     )
     last_accessed = models.DateTimeField(null=True, blank=True, verbose_name="마지막 접속")
     points = models.IntegerField(default=0, verbose_name="포인트")
+    number_shooter_best = models.IntegerField(default=0, verbose_name="넘버슈터 최고점")  # ★ 추가!
     login_count = models.IntegerField(default=0, verbose_name="로그인 횟수")
     points_used = models.IntegerField(default=0, verbose_name="사용한 포인트")
     minigame_win_count = models.IntegerField(default=0, verbose_name="미니게임 승리 수")

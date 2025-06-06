@@ -1,6 +1,3 @@
-# 경로: /home/schizos/study_site/trophies/utils.py
-"""트로피 조건 체크와 부여를 위한 유틸리티 모듈"""
-
 from django.db.models import F
 from django.db import transaction
 from .models import Trophy, UserTrophy
@@ -10,7 +7,6 @@ from users.models import UserProfile
 import logging
 
 logger = logging.getLogger(__name__)
-
 
 def check_and_award_trophies(user):
     """사용자의 활동을 체크하고 트로피를 부여
@@ -109,6 +105,10 @@ def check_trophy_condition(user, user_profile, trophy):
         elif trophy.condition_type == Trophy.ConditionType.TROPHY_COUNT:
             owned = UserTrophy.objects.filter(user=user).count()
             return owned >= trophy.condition_value
+
+        # ★ 넘버슈터 최고점 트로피 조건 추가!
+        elif trophy.condition_type == Trophy.ConditionType.NUMBER_SHOOTER_BEST:
+            return getattr(user_profile, 'number_shooter_best', 0) >= trophy.condition_value
 
         return False
 

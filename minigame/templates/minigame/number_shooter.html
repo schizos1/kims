@@ -4,8 +4,9 @@
 {% block title %}Number Shooter{% endblock %}
 
 {% block extra_head %}
+<!-- 게임 CSS -->
 <link rel="stylesheet" href="{% static 'minigame/css/number_shooter.css' %}">
-<!-- 팬시 폰트 (Luckiest Guy, Orbitron) -->
+<!-- 팬시 폰트: Luckiest Guy(문제, 버튼), Orbitron(점수) -->
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Orbitron:wght@700&display=swap" rel="stylesheet">
 {% endblock %}
 
@@ -14,12 +15,14 @@
   <div id="score" class="score-box">Score: 0</div>
 </div>
 <div class="number-shooter-canvas-wrap">
-  <canvas id="number-shooter-canvas" width="800" height="600"></canvas>
+  <canvas id="number-shooter-canvas" width="800" height="600" style="border:3px solid red"></canvas>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/libs/pixi-legacy.min.js' %}"></script>
+
+<script src="{% static 'js/libs/pixi.min.js' %}"></script>
 <script src="{% static 'js/libs/pixi-filters.js' %}"></script>
 <script src="{% static 'js/libs/howler.min.js' %}"></script>
 <script src="{% static 'js/games/number_shooter/game.js' %}"></script>

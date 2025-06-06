@@ -31,12 +31,14 @@ INSTALLED_APPS = [
     'attendance',
     'store',
     'minigame',
+    'corsheaders',
     'pdf_importer',    # PDF 임포트 기능
 ]
 
 MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -64,7 +66,11 @@ TEMPLATES = [
         },
     },
 ]
-
+# 허용할 출처 목록
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',
+    'http://192.168.31.199:3001', # Socket.IO 서버 주소
+]
 # Channels (ASGI) 세팅
 #ASGI_APPLICATION = 'study_site.asgi.application'
 

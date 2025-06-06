@@ -35,6 +35,7 @@ class Trophy(models.Model):
         GAME_LOSS = 'game_loss', '미니게임 패배'
         POINT_GAINED = 'point_gained', '획득한 포인트'
         TROPHY_COUNT = 'trophy_count', '트로피 개수'
+        NUMBER_SHOOTER_BEST = 'number_shooter_best', '넘버슈터 최고점'
     condition_type = models.CharField(
         max_length=50,
         choices=ConditionType.choices,
