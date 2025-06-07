@@ -5,23 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>모노폴리</title>
     <link rel="stylesheet" href="/static/minigame/monopoly/css/style.css">
+    <style>
+        body { background: #f9f9f9; }
+        #main-wrap {
+            max-width: 520px;
+            margin: 30px auto;
+            padding: 20px 30px 30px 30px;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        #game-container {
+            margin: 25px 0 10px 0;
+            display: flex;
+            justify-content: left;
+            align-items: center;
+        }
+        #turnInfo, #gameInfo {
+            margin-bottom: 12px;
+            font-size: 1.12em;
+        }
+        button {
+            font-size: 1em;
+            padding: 7px 18px;
+            margin-right: 7px;
+            border-radius: 9px;
+            border: none;
+            background: #e0e7ff;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(110,120,160,0.07);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #b5b6ff;
+        }
+    </style>
 </head>
 <body>
+<div id="main-wrap">
     <!-- 1. 현재 턴/상태 표시 영역 -->
-    <div id="turnInfo" style="margin-bottom: 10px; font-weight: bold;"></div>
+    <div id="turnInfo"></div>
     <!-- 2. 플레이어 정보/보드 상태 표시 -->
-    <div id="gameInfo" style="margin-bottom: 10px;"></div>
+    <div id="gameInfo"></div>
     <!-- 3. 게임 액션 버튼들 -->
-    <button id="rollBtn">주사위 굴리기</button>
-    <button id="buyBtn">구매</button>
-    <button id="endBtn">턴 종료</button>
-    <!-- 4. 추가적으로 쓸 컨테이너 (예: 향후 보드, 팝업 등) -->
+    <div>
+        <button id="rollBtn">주사위 굴리기</button>
+        <button id="buyBtn">구매</button>
+        <button id="endBtn">턴 종료</button>
+    </div>
+    <!-- 4. Phaser 주사위 애니메이션 출력 컨테이너 -->
     <div id="game-container"></div>
-    <!-- roomId 등 Django 컨텍스트에서 주입 필요시 -->
-    <script>
-        window.roomId = "{{ room_id }}";
-    </script>
-    <script src="/static/minigame/js/socket.io.min.js"></script>
-    <script src="/static/minigame/js/monopoly.bundle.js"></script>
+</div>
+<!-- Django 컨텍스트에서 roomId 등 필요시 주입 -->
+<script>
+    window.roomId = "{{ room_id }}";
+</script>
+<script src="/static/minigame/js/socket.io.min.js"></script>
+<script src="/static/minigame/js/monopoly.bundle.js"></script>
 </body>
 </html>

@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.js",
-    "dev": "webpack --watch --config webpack.config.js"
+    "dev": "webpack --watch --config webpack.config.js",
+    "server": "cd ../socket_server && node server.js",
+    "start-all": "concurrently \"npm run dev\" \"npm run server\""
   },
   "keywords": [],
   "author": "",
@@ -15,6 +17,7 @@
     "@babel/core": "^7.27.4",
     "@babel/preset-env": "^7.27.2",
     "babel-loader": "^10.0.0",
+    "concurrently": "^9.1.2",
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1"
   },
