@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모노폴리</title>
+    <link rel="stylesheet" href="/static/minigame/monopoly/css/style.css">
+</head>
+<body>
+    <div id="game-container"></div>
+    <script>
+        // Django 컨텍스트에서 roomId 주입
+        window.roomId = "{{ room_id }}";
+    </script>
+    <script src="/static/minigame/js/socket.io.min.js"></script>
+    <script src="/static/minigame/js/monopoly.bundle.js"></script>
+</body>
+</html>

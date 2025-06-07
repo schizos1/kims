@@ -155,7 +155,7 @@ class EmojiBattleSession {
              }
         }
 
-        const payload = {
+         const basePayload = {
             attacker: attackerId,
             target: data.target,
             emoji: data.emoji,
@@ -163,9 +163,17 @@ class EmojiBattleSession {
             score: attacker.score,
         };
 
-        console.log(`[EmojiBattleSession][DEBUG] Emitting 'emoji_hit' with payload:`, JSON.stringify(payload));
+        console.log(`[EmojiBattleSession][DEBUG] Emitting 'emoji_hit' with payload:`, JSON.stringify({ ...basePayload, opponentScore: target.score }));
 
-        this.io.to(this.room).emit('emoji_hit', payload);
+        // 각 플레이어에게 상대 점수를 포함해 전송
+        this.io.to(attacker.socket.id).emit('emoji_hit', {
+            ...basePayload,
+            opponentScore: target.score,
+        });
+        this.io.to(target.socket.id).emit('emoji_hit', {
+            ...basePayload,
+            opponentScore: attacker.score,
+        });
 
         if (attacker.hits >= HIT_TO_WIN) {
             this._gameOver(attackerId);

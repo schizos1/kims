@@ -10,4 +10,5 @@ urlpatterns = [
     path('play/fishing/', views.play_game, {'game_key':'fishing'}, name='play_fishing'),
     path('play/number_shooter/', views.play_game, {'game_key':'number_shooter'}, name='play_number_shooter'),
     path('api/number_shooter/update_score/', update_number_shooter_score, name='update_number_shooter_score'),
+    path('<str:game_key>/', views.play_game, name='play_game'),
 ]

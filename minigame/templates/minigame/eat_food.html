@@ -1,49 +1,121 @@
-{# templates/minigame/eat_food.html #}
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}먹이 먹기 미니게임{% endblock %}
+{% block title %}먹이 먹기 게임 - {{ game_mode|capfirst }} 모드{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'minigame/css/eat_food.css' %}">
+<style>
+    #chat-area { margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; max-height: 150px; overflow-y: auto; }
+    #chat-messages p { margin: 2px 0; font-size: 0.9em; }
+    #chat-input-group { display: flex; margin-top: 5px; }
+    #chat-input-group input { flex-grow: 1; margin-right: 5px; }
+</style>
 {% endblock %}
 
 {% block content %}
-<div id="game-wrap">
-    <div id="user-ui">
-        <!-- 닉네임 입력 -->
-        <input id="username" maxlength="3" placeholder="닉네임 (최대 3글자)" value="{{ request.user.profile.nickname|default:request.user.username|default:'플레이어' }}">
-        <!-- 방 코드 입력 -->
-        <input id="room-id-input" maxlength="20" placeholder="방 코드 (예: abc123)" style="margin-left:8px;">
-        <!-- 게임 시작 버튼 -->
-        <button onclick="startGame()" id="start-btn">게임 시작</button>
-        <!-- 안내 텍스트 -->
-        <div style="font-size:12px;color:#6bc1ff;margin-top:5px;">같은 방 코드를 입력하면<br>친구와 함께 플레이할 수 있어요!</div>
-    </div>
-    <div id="ui-bar">
-        <div id="score-bar">
-            <div id="score-label">점수: <span id="score-num">0</span></div>
-            <div id="progress-bar-bg">
-                <div id="progress-bar-fill"></div>
-            </div>
-        </div>
-        <div id="timer-bar">
-            <span id="timer-label">남은 시간: <span id="timer-num">60</span>초</span>
-            <span id="foodleft-label">남은 먹이: <span id="foodleft-num">30</span></span>
-        </div>
-    </div>
-    <div class="canvas-wrap">
+<div id="game-container">
+    {% if game_mode == 'single' %}
+        <div id="phaser-game" style="width:800px;height:600px;margin:0 auto;"></div>
+    {% else %}
         <canvas id="canvas" width="1280" height="720"></canvas>
+    {% endif %}
+
+    <div id="ui-layer">
+        <div id="score-board">점수: <span id="score-num">0</span></div>
+        <div id="food-left">남은 음식: <span id="foodleft-num">30</span></div>
+        <div id="progress-bar-container"><div id="progress-bar-fill"></div></div>
     </div>
-    <div id="system-msg"></div>
-    <!-- 결과 팝업 -->
+
+    <div id="user-ui">
+        <label for="username">이름:</label>
+        <input type="text" id="username" value="{{ user_username|default:'익명게이머' }}">
+        <input type="text" id="room-id-input" placeholder="방 코드 (예: abc123)" style="display:none;">
+        <div style="font-size:12px;color:#6bc1ff;margin-top:5px; display:none;">같은 방 코드를 입력하면 친구와 함께 플레이할 수 있어요!</div>
+        <button id="actual-start-button" disabled>게임 시작 대기 중...</button>
+    </div>
+
+    <div id="system-msg">에셋 로딩 중...</div>
+
     <div id="result-popup" style="display:none;">
         <div id="result-content"></div>
-        <button onclick="closeResult()">닫기</button>
+        <button id="close-result-button">다시하기 / 나가기</button>
     </div>
+
+    {% if game_mode == 'multi' %}
+    <div id="chat-area">
+        <div id="chat-messages"></div>
+        <div id="chat-input-group">
+            <input type="text" id="chat-input" placeholder="채팅 메시지...">
+            <button id="chat-send-button">전송</button>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/games/eat_food/single.js' %}"></script>
+    {% if game_mode == 'single' %}
+        <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+        <script src="{% static 'js/games/eat_food/eat_food_single.js' %}"></script>
+        <script>
+            window.startGame_single = function() {
+                console.log("Phaser 게임이 이미 자동 실행됨");
+            };
+            window.resetGame_single = function() {
+                location.reload();
+            };
+            document.addEventListener('DOMContentLoaded', () => {
+                const btn = document.getElementById("actual-start-button");
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "싱글 게임 시작!";
+                    btn.onclick = window.startGame_single;
+                }
+            });
+        </script>
+    {% elif game_mode == 'multi' %}
+        <script src="{% static 'js/libs/pixi.min.js' %}"></script>
+        <script src="http://192.168.31.199:3001/socket.io/socket.io.js"></script>
+        <script src="{% static 'js/games/eat_food/eat_food_common_pixi.js' %}"></script>
+        <script src="{% static 'js/games/eat_food/multi_pixi.js' %}"></script>
+    {% endif %}
+
+    <script>
+        const GAME_MODE = "{{ game_mode|escapejs }}";
+        const ROOM_ID = "{{ room_id|escapejs|default:'' }}";
+        const USER_NAME_DJANGO_INIT = "{{ user_username|escapejs|default:'' }}";
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const usernameField = document.getElementById('username');
+            if (USER_NAME_DJANGO_INIT && usernameField) {
+                usernameField.value = USER_NAME_DJANGO_INIT;
+            }
+
+            if (GAME_MODE === 'multi') {
+                document.title = "먹이 먹기 게임 - 멀티플레이어 모드";
+                const roomInput = document.getElementById('room-id-input');
+                const guide = document.querySelector('#user-ui div[style*="font-size:12px"]');
+                const chatArea = document.getElementById('chat-area');
+                if (roomInput) roomInput.style.display = 'inline-block';
+                if (guide) guide.style.display = 'block';
+                if (chatArea) chatArea.style.display = 'block';
+            } else {
+                document.title = "먹이 먹기 게임 - 싱글플레이어 모드";
+            }
+
+            const closeResultButton = document.getElementById("close-result-button");
+            if (closeResultButton) {
+                closeResultButton.onclick = function() {
+                    if (GAME_MODE === 'single' && typeof window.resetGame_single === 'function') {
+                        window.resetGame_single();
+                    } else if (GAME_MODE === 'multi' && typeof window.resetGame_multi === 'function') {
+                        window.resetGame_multi();
+                    }
+                };
+            }
+        });
+    </script>
 {% endblock %}

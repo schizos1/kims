@@ -1,0 +1,12 @@
+/* 모노폴리 게임 기본 스타일 */
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #000;
+}
+
+#game-container {
+  width: 100vw;
+  height: 100vh;
+}

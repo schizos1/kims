@@ -1,0 +1,29 @@
+.number-shooter-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+.score-box {
+  background: #333;
+  color: #fff;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.number-shooter-canvas-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #111;
+  padding: 1em;
+  border-radius: 1em;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#number-shooter-canvas {
+  border: 2px solid #fff;
+}

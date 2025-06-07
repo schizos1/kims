@@ -1,9 +1,8 @@
-# minigame/views.py
 """
 미니게임 Views
 - 로비
 - 미니게임 인덱스
-- 게임별 진입(먹이먹기, 피아노 등)
+- 게임별 진입(먹이먹기, 피아노, 모노폴리 등)
 """
 
 from django.shortcuts import render
@@ -27,6 +26,7 @@ def minigame_index(request):
         {"name": "피아노", "desc": "캔버스와 웹오디오로 피아노를 연주해보자!", "key": "piano"},
         {"name": "낚시게임", "desc": "물고기를 잡고 도감을 모으는 재미! 포인트로 낚싯대 업그레이드도 가능!", "key": "fishing"},
         {"name": "이모지 배틀", "desc": "상대를 이모지로 맞혀 승리하자!", "key": "emoji_battle"},
+        {"name": "모노폴리", "desc": "부동산을 거래하며 부를 쌓아라!", "key": "monopoly"},
     ]
     # templates/minigame/minigame_index.html 기준
     return render(request, "minigame/minigame_index.html", {"games": games})
@@ -36,7 +36,7 @@ def play_game(request, game_key):
     """
     각 게임별 실행 진입 뷰
     - game_key에 따라 맞는 템플릿을 렌더링
-    - 먹이 먹기는 모드/방ID 등 컨텍스트 추가
+    - 먹이 먹기, 모노폴리는 모드/방ID 등 컨텍스트 추가
     """
     context = {
         "game_key": game_key,
@@ -52,14 +52,18 @@ def play_game(request, game_key):
         context['room_id'] = room_id
         template_name = "minigame/eat_food_entry.html"
     elif game_key == "piano":
-        # 피아노 미니게임: 별도 컨텍스트 없이 템플릿만 전달
         template_name = "minigame/piano.html"
     elif game_key == "fishing":
         game_mode = request.GET.get('mode', 'single')
         context['game_mode'] = game_mode
         template_name = "minigame/fishing.html"
+    elif game_key == "monopoly":
+        game_mode = request.GET.get('mode', 'multi')  # 기본 멀티플레이
+        room_id = request.GET.get('room_id', 'monopoly_room')
+        context['game_mode'] = game_mode
+        context['room_id'] = room_id
+        template_name = "minigame/monopoly.html"
     else:
-        # 나머지 게임은 템플릿 네이밍 컨벤션 통일
         template_name = f"minigame/{game_key}.html"
 
     return render(request, template_name, context)

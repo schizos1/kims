@@ -769,18 +769,18 @@ document.addEventListener('keyup', (e) => {
 
 // 게임 화면 리셋 함수
 function resetGameScreen() {
-  destroyAllNodes();
+  destroyAllSprites();
   myScore = 0;
-  myHitsPoints = 0;
+  myHits = 0;
   scoreText.text = '점수: 0';
   hitText.text = '히트: 0 / 50';
   enemyScoreText.text = '상대 점수: 0';
   updateProgBar(0);
-  const msgEl = document.getElementById('emojiMsg');
+  const msgEl = document.getElementById('emoji-msg');
   const emojiSelectDiv = document.getElementById('emoji-select');
   const resultPopup = document.getElementById('game-result-popup');
   if (msgEl) msgEl.textContent = '캐릭터 선택 후 시작!';
-  if (!emojiSelectDiv) emojiSelectDiv.classList.remove('hidden');
+  if (emojiSelectDiv) emojiSelectDiv.classList.remove('hidden');
   if (resultPopup) resultPopup.style.display = 'none';
   isGameStarted = false;
   isFrozen = false;
@@ -790,15 +790,15 @@ function resetGameScreen() {
     sounds.bgm.stop();
     bgmStarted = false;
   }
-});
+};
 
 // 팝업 클릭 시 리셋
 const resultGamePopup = document.getElementById('game-result-popup');
-if (resultPopup) {
+if (resultGamePopup) {
   resultGamePopup.onclick = function() {
     resetGameScreen();
   };
-};
+}
 
 // CSRF token 가져오기 함수
 // @param {string} name - 쿠키 이름

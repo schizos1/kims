@@ -4,187 +4,115 @@
 {% block title %}먹이 먹기 게임 - {{ game_mode|capfirst }} 모드{% endblock %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'minigame/css/eat_food.css' %}">
-    <style>
-        /* 기존 스타일 유지 */
-        #chat-area { margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; max-height: 150px; overflow-y: auto; }
-        #chat-messages p { margin: 2px 0; font-size: 0.9em; }
-        #chat-input-group { display: flex; margin-top: 5px; }
-        #chat-input-group input { flex-grow: 1; margin-right: 5px; }
-    </style>
+<link rel="stylesheet" href="{% static 'minigame/css/eat_food.css' %}">
+<style>
+    #chat-area { margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; max-height: 150px; overflow-y: auto; }
+    #chat-messages p { margin: 2px 0; font-size: 0.9em; }
+    #chat-input-group { display: flex; margin-top: 5px; }
+    #chat-input-group input { flex-grow: 1; margin-right: 5px; }
+</style>
 {% endblock %}
 
 {% block content %}
-    {# 기존 content 블록 내용 대부분 유지 #}
-    <div id="game-container">
+<div id="game-container">
+    {% if game_mode == 'single' %}
+        <div id="phaser-game" style="width:800px;height:600px;margin:0 auto;"></div>
+    {% else %}
         <canvas id="canvas" width="1280" height="720"></canvas>
-        <div id="ui-layer">
-            <div id="score-board">점수: <span id="score-num">0</span></div>
-            <div id="food-left">남은 음식: <span id="foodleft-num">30</span></div>
-            <div id="progress-bar-container"><div id="progress-bar-fill"></div></div>
-        </div>
-        <div id="user-ui">
-            <label for="username">이름:</label>
-            <input type="text" id="username" value="{{ user_username|default:'익명게이머' }}">
-            <button id="actual-start-button" disabled>게임 시작 대기 중...</button>
-        </div>
-        <div id="system-msg">에셋 로딩 중...</div>
-        
-        <div id="result-popup" style="display:none;">
-            <div id="result-content"></div>
-            <button id="close-result-button">다시하기 / 나가기</button>
-        </div>
+    {% endif %}
 
-        {% if game_mode == 'multi' %}
-        <div id="chat-area">
-            <div id="chat-messages"></div>
-            <div id="chat-input-group">
-                <input type="text" id="chat-input" placeholder="채팅 메시지...">
-                <button id="chat-send-button">전송</button>
-            </div>
-        </div>
-        {% endif %}
+    <div id="ui-layer">
+        <div id="score-board">점수: <span id="score-num">0</span></div>
+        <div id="food-left">남은 음식: <span id="foodleft-num">30</span></div>
+        <div id="progress-bar-container"><div id="progress-bar-fill"></div></div>
     </div>
+
+    <div id="user-ui">
+        <label for="username">이름:</label>
+        <input type="text" id="username" value="{{ user_username|default:'익명게이머' }}">
+        <input type="text" id="room-id-input" placeholder="방 코드 (예: abc123)" style="display:none;">
+        <div style="font-size:12px;color:#6bc1ff;margin-top:5px; display:none;">같은 방 코드를 입력하면 친구와 함께 플레이할 수 있어요!</div>
+        <button id="actual-start-button" disabled>게임 시작 대기 중...</button>
+    </div>
+
+    <div id="system-msg">에셋 로딩 중...</div>
+
+    <div id="result-popup" style="display:none;">
+        <div id="result-content"></div>
+        <button id="close-result-button">다시하기 / 나가기</button>
+    </div>
+
+    {% if game_mode == 'multi' %}
+    <div id="chat-area">
+        <div id="chat-messages"></div>
+        <div id="chat-input-group">
+            <input type="text" id="chat-input" placeholder="채팅 메시지...">
+            <button id="chat-send-button">전송</button>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block extra_js %}
-    {# 1. PixiJS 라이브러리 로드 #}
-    <script src="{% static 'js/libs/pixi.min.js' %}"></script>
-
-    {# 2. Socket.IO 클라이언트 라이브러리 로드 #}
-    {# Node.js 서버가 http://localhost:3001 에서 실행된다고 가정 #}
-    <script src="http://192.168.31.199:3001/socket.io/socket.io.js"></script>
-
-
+    {% if game_mode == 'single' %}
+        <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+        <script src="{% static 'js/games/eat_food/eat_food_single.js' %}"></script>
+        <script>
+            window.startGame_single = function() {
+                console.log("Phaser 게임이 이미 자동 실행됨");
+            };
+            window.resetGame_single = function() {
+                location.reload();
+            };
+            document.addEventListener('DOMContentLoaded', () => {
+                const btn = document.getElementById("actual-start-button");
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "싱글 게임 시작!";
+                    btn.onclick = window.startGame_single;
+                }
+            });
+        </script>
+    {% elif game_mode == 'multi' %}
+        <script src="{% static 'js/libs/pixi.min.js' %}"></script>
+        <script src="http://192.168.31.199:3001/socket.io/socket.io.js"></script>
+        <script src="{% static 'js/games/eat_food/eat_food_common_pixi.js' %}"></script>
+        <script src="{% static 'js/games/eat_food/multi_pixi.js' %}"></script>
+    {% endif %}
 
     <script>
-        // 3. Django 컨텍스트 변수를 JavaScript 전역 변수로 전달
         const GAME_MODE = "{{ game_mode|escapejs }}";
-        const ROOM_ID = "{{ room_id|escapejs|default:'' }}"; // 멀티플레이어 시 사용
-        const USER_NAME_DJANGO_INIT = "{{ user_username|escapejs|default:'' }}"; // 초기 사용자 이름 설정용
+        const ROOM_ID = "{{ room_id|escapejs|default:'' }}";
+        const USER_NAME_DJANGO_INIT = "{{ user_username|escapejs|default:'' }}";
     </script>
 
-    {# 4. PixiJS 기반 공통 로직 파일 로드 #}
-    <script src="{% static 'js/games/eat_food/eat_food_common_pixi.js' %}"></script>
-    
-    {# 5. 게임 모드에 따른 특정 스크립트 로드 #}
-    {% if game_mode == 'single' %}
-        <script src="{% static 'js/games/eat_food/single_pixi.js' %}"></script>
-    {% elif game_mode == 'multi' %}
-        {# <script src="{% static 'js/games/eat_food/multi_pixi.js' %}"></script> #}
-        <script>console.warn("멀티플레이어 모드 JS 파일(multi_pixi.js) 로드 필요");</script>
-    {% endif %}
-    
-    {# 6. 페이지 로드 완료 후 게임 초기화 로직 실행 #}
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const startButton = document.getElementById("actual-start-button");
+        document.addEventListener('DOMContentLoaded', () => {
             const usernameField = document.getElementById('username');
-            const systemMsg = document.getElementById('system-msg');
-            const roomIdInput = document.getElementById('room-id-input'); 
-            const multiplayerGuide = document.querySelector('#user-ui div[style*="font-size:12px"]'); 
-            const chatArea = document.getElementById('chat-area'); 
-
             if (USER_NAME_DJANGO_INIT && usernameField) {
                 usernameField.value = USER_NAME_DJANGO_INIT;
             }
-            
+
             if (GAME_MODE === 'multi') {
                 document.title = "먹이 먹기 게임 - 멀티플레이어 모드";
-                if (roomIdInput) roomIdInput.style.display = 'inline-block'; 
-                if (multiplayerGuide) multiplayerGuide.style.display = 'block';
+                const roomInput = document.getElementById('room-id-input');
+                const guide = document.querySelector('#user-ui div[style*="font-size:12px"]');
+                const chatArea = document.getElementById('chat-area');
+                if (roomInput) roomInput.style.display = 'inline-block';
+                if (guide) guide.style.display = 'block';
                 if (chatArea) chatArea.style.display = 'block';
-                // if (startButton) startButton.textContent = "게임 참가/만들기"; // 아래 assetsLoaded 후 설정
-            } else { 
+            } else {
                 document.title = "먹이 먹기 게임 - 싱글플레이어 모드";
-                if (roomIdInput) roomIdInput.style.display = 'none';
-                if (multiplayerGuide) multiplayerGuide.style.display = 'none';
-                if (chatArea) chatArea.style.display = 'none';
-                // if (startButton) startButton.textContent = "싱글 게임 시작!"; // 아래 assetsLoaded 후 설정
-            }
-
-            if (startButton) {
-                // Socket.IO 라이브러리 로드 확인 (io 객체 존재 여부)
-                if (typeof io === 'undefined') {
-                    console.error("CRITICAL ERROR: Socket.IO client library (io) is not defined. Node.js server (localhost:3001)가 실행 중인지, socket.io.js 파일이 정상적으로 로드되었는지 확인하세요.");
-                    if(systemMsg) systemMsg.textContent = "실시간 통신 라이브러리 로드 실패. Node.js 서버 상태를 확인하세요.";
-                    startButton.disabled = true;
-                    startButton.textContent = "서버 연결 오류";
-                    return;
-                }
-
-                if (typeof window.commonPixiInit === 'function') {
-                    try {
-                        await window.commonPixiInit(); 
-                    } catch (error) {
-                        console.error("commonPixiInit 실행 중 오류:", error);
-                        if(systemMsg) systemMsg.textContent = "게임 초기화 중 오류 발생.";
-                        startButton.disabled = true;
-                        startButton.textContent = "초기화 오류";
-                        return; 
-                    }
-                } else {
-                    console.error("CRITICAL ERROR: window.commonPixiInit is not defined. eat_food_common_pixi.js 로드 실패 또는 내부 오류.");
-                    if(systemMsg) systemMsg.textContent = "게임 공통 초기화 함수를 찾을 수 없습니다.";
-                    startButton.disabled = true;
-                    startButton.textContent = "공통 로드 오류";
-                    return; 
-                }
-
-                const setupStartButton = () => {
-                    if (window.assetsLoaded) {
-                        startButton.disabled = false;
-                        startButton.textContent = (GAME_MODE === 'single' ? "싱글 게임 시작!" : "게임 참가/만들기");
-                        
-                        startButton.onclick = function() {
-                            // startGame 함수 내부에서 io()를 호출하므로, 여기서 io가 정의되어 있어야 함.
-                            if (typeof io === 'undefined') {
-                                if(systemMsg) systemMsg.textContent = "Socket.IO 연결 불가. Node.js 서버를 확인하세요.";
-                                console.error("startGame 클릭 시점: io is still not defined!");
-                                return;
-                            }
-                            if (GAME_MODE === 'single' && typeof window.startGame_single === 'function') {
-                                console.log("DEBUG_ENTRY_HTML: Calling window.startGame_single()");
-                                window.startGame_single();
-                            } else if (GAME_MODE === 'multi' && typeof window.startGame_multi === 'function') {
-                                const targetRoomId = ROOM_ID || (roomIdInput ? roomIdInput.value.trim() : '');
-                                console.log("DEBUG_ENTRY_HTML: Calling window.startGame_multi() with Room ID:", targetRoomId);
-                                window.startGame_multi(targetRoomId);
-                            } else {
-                                console.error(GAME_MODE + " 모드의 시작 함수(" + (GAME_MODE === 'single' ? 'startGame_single' : 'startGame_multi') + ")를 찾을 수 없습니다.");
-                                if(systemMsg) systemMsg.textContent = "게임 모드 시작 함수가 정의되지 않았습니다.";
-                            }
-                        };
-                    } else {
-                        console.warn("setupStartButton: 에셋 로딩 미완료. common.js에서 버튼 상태 관리 필요.");
-                        if(systemMsg && systemMsg.textContent.includes("에셋 로딩 중")) {
-                            // 에셋 로딩이 계속 안되면 문제
-                        }
-                        // eat_food_common_pixi.js의 loadAssets에서 완료 시 버튼을 활성화하므로,
-                        // 여기서 반복 체크는 불필요할 수 있습니다.
-                        // 만약 common.js에서 버튼 활성화를 안 한다면 아래 로직 사용
-                        // setTimeout(setupStartButton, 200); 
-                    }
-                };
-                setupStartButton(); // 최초 호출 (common.js에서 버튼 활성화 및 onclick 설정을 한다면 이 호출도 조정 필요)
             }
 
             const closeResultButton = document.getElementById("close-result-button");
             if (closeResultButton) {
                 closeResultButton.onclick = function() {
-                    if(typeof window.closeCommonResultPopup === 'function') {
-                        window.closeCommonResultPopup(); 
-                    }
-                    
                     if (GAME_MODE === 'single' && typeof window.resetGame_single === 'function') {
-                        window.resetGame_single(); 
+                        window.resetGame_single();
                     } else if (GAME_MODE === 'multi' && typeof window.resetGame_multi === 'function') {
-                        // window.resetGame_multi();
-                    }
-
-                    if(startButton) { 
-                        startButton.disabled = false;
-                        startButton.textContent = (GAME_MODE === 'single' ? "싱글 게임 시작!" : "게임 참가/만들기");
+                        window.resetGame_multi();
                     }
                 };
             }
