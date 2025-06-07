@@ -25,7 +25,7 @@ const config = {
 const game = new Phaser.Game(config);
 
 /** 글로벌 변수 */
-let socket, board, players, dice, bgm, bgmPlayed = false;
+let socket, board, players, dice, bgm, bgmPlayed = false, currentTurn = null, turnText;
 
 /**
  * 에셋을 로드합니다.
@@ -33,9 +33,8 @@ let socket, board, players, dice, bgm, bgmPlayed = false;
  */
 function preload() {
   this.load.audio('bgm', '/static/minigame/monopoly/assets/bgm.mp3');
-  // TODO: 실제 에셋 추가
-  // this.load.image('board', '/static/minigame/monopoly/assets/board.png');
-  // this.load.image('player_token', '/static/minigame/monopoly/assets/player_token.png');
+  this.load.image('board', '/static/minigame/monopoly/assets/board.png');
+  this.load.image('player_token', '/static/minigame/monopoly/assets/player_token.png');
 }
 
 /**
@@ -56,7 +55,13 @@ function create() {
   players = [];
   socket.on('player_joined', (data) => {
     console.log(`[Main.js] Player joined: ${data.playerId}`);
-    players.push(new Player(this, data.playerId, data.position));
+    // 기존 플레이어 제거
+    players.forEach(p => p.sprite.destroy());
+    players = [];
+    // 새로운 플레이어 목록 추가
+    data.playerList.forEach(player => {
+      players.push(new Player(this, player.playerId, player.position));
+    });
   });
 
   // 주사위 초기화
@@ -69,17 +74,45 @@ function create() {
     volume: 0.5
   });
 
-  // 사용자 액션 후 BGM 재생
+  // 턴 텍스트 초기화
+  turnText = this.add.text(10, 10, 'Current Turn: Waiting', { fontSize: '20px', color: '#ffffff' });
+
+  // 턴 업데이트 처리
+  socket.on('turn_update', (data) => {
+    currentTurn = data.currentTurn;
+    console.log(`[Main.js] Current turn: ${currentTurn}`);
+    turnText.setText(`Current Turn: ${currentTurn || 'Waiting'}`);
+  });
+
+  // 잘못된 턴 알림
+  socket.on('invalid_turn', (data) => {
+    console.log(`[Main.js] ${data.message}`);
+    const errorText = this.add.text(window.innerWidth / 2 - 100, window.innerHeight / 2, data.message, { fontSize: '24px', color: '#ff0000', align: 'center' });
+    setTimeout(() => {
+      errorText.destroy();
+    }, 2000);
+  });
+
+  // 플레이어 퇴장 처리
+  socket.on('player_left', (data) => {
+    console.log(`[Main.js] Player left: ${data.playerId}`);
+    players = players.filter(p => p.id !== data.playerId);
+    players.forEach(p => p.sprite.destroy());
+    players.forEach(p => p.initSprite());
+  });
+
+  // 사용자 액션 후 이벤트
   this.input.on('pointerdown', () => {
     if (!bgmPlayed) {
       console.log('[Main.js] Playing BGM');
       bgm.play();
       bgmPlayed = true;
     }
-    // 주사위 굴리기
-    const result = dice.roll();
-    console.log(`[Main.js] Emitting roll_dice: ${result} to room ${roomId}`);
-    socket.emit('roll_dice', roomId, result);
+    if (currentTurn === socket.id) {
+      const result = dice.roll();
+      console.log(`[Main.js] Emitting roll_dice: ${result} to room ${roomId}`);
+      socket.emit('roll_dice', roomId, result);
+    }
   });
 
   // 주사위 결과 처리

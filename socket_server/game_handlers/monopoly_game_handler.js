@@ -1,32 +1,34 @@
-import { startGame, updatePlayer } from '../game_logics/monopoly/game.js';
+// /home/schizos/study_site/socket_server/game_handlers/monopoly_game_handler.js
 
-/**
- * 모노폴리 게임의 Socket.IO 이벤트를 초기화합니다.
- * @param {Namespace} namespace - Socket.IO 네임스페이스
- * @param {Socket} socket - 클라이언트 소켓
- */
-function initializeMonopolyGameHandler(namespace, socket) {
-  console.log(`[MonopolyHandler] Initializing handler for socket ${socket.id}`);
+import { startGame, handleAction, getCurrentTurn, removePlayer, getPlayerList } from '../game_logics/monopoly/game.js';
 
-  // 방 참가 이벤트
+function monopolyGameHandler(namespace, socket) {
   socket.on('join_room', (roomId) => {
+    console.log(`[Monopoly] join_room: ${roomId} / ${socket.id}`);
     socket.join(roomId);
-    console.log(`[MonopolyHandler] ${socket.id} joined room ${roomId}`);
     startGame(roomId, socket.id);
-    namespace.to(roomId).emit('player_joined', { playerId: socket.id, position: 0 });
+    const playerList = getPlayerList(roomId);
+    namespace.to(roomId).emit('player_list', playerList);
+    namespace.to(roomId).emit('turn_update', { currentTurn: getCurrentTurn(roomId) });
   });
 
-  // 주사위 굴리기 이벤트
-  socket.on('roll_dice', (roomId, result) => {
-    console.log(`[MonopolyHandler] ${socket.id} rolled dice: ${result} in room ${roomId}`);
-    updatePlayer(roomId, socket.id, result);
-    namespace.to(roomId).emit('dice_rolled', { playerId: socket.id, result });
+  socket.on('action', (roomId, action) => {
+    console.log(`[Monopoly] action from ${socket.id} in ${roomId}:`, action); // 👈 로그 추가
+    const res = handleAction(roomId, socket.id, action);
+    if (res.success) {
+      namespace.to(roomId).emit('game_update', res.state);
+      namespace.to(roomId).emit('turn_update', { currentTurn: getCurrentTurn(roomId) });
+    } else {
+      socket.emit('action_error', { message: res.error || '행동 불가' });
+    }
   });
 
-  // 연결 해제 이벤트
   socket.on('disconnect', () => {
-    console.log(`[MonopolyHandler] ${socket.id} disconnected`);
+    console.log(`[Monopoly] disconnect: ${socket.id}`);
+    removePlayer('monopoly_room', socket.id);
+    namespace.to('monopoly_room').emit('player_left', { playerId: socket.id });
+    namespace.to('monopoly_room').emit('turn_update', { currentTurn: getCurrentTurn('monopoly_room') });
   });
 }
 
-export default initializeMonopolyGameHandler;
+export default monopolyGameHandler;

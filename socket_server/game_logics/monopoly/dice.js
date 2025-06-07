@@ -3,7 +3,7 @@
 
 export default class Dice {
   constructor() {
-    this.result = [0, 0]; // 2개 주사위 결과
+    this.result = [0, 0];
   }
 
   roll() {

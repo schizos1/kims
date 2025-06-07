@@ -1,4 +1,4 @@
-const socket = io('http://localhost:3001'); // 배포시 실제 IP로
+const socket = io('http://192.168.31.199:3000/monopoly', // 배포시 실제 IP로
 
 socket.on('connect', () => {
   console.log('✅ 서버와 연결됨!');

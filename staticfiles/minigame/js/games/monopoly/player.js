@@ -20,8 +20,8 @@ export default class Player {
    * 플레이어 스프라이트를 초기화합니다.
    */
   initSprite() {
-    // TODO: 실제 플레이어 토큰 이미지
-    this.sprite = this.scene.add.circle(50, 50, 10, 0xff0000); // 임시 빨간 원
+    this.sprite = this.scene.add.image(50, 50, 'player_token');
+    this.sprite.setScale(0.2); // 크기 조정
   }
 
   /**
@@ -30,7 +30,7 @@ export default class Player {
    */
   move(steps) {
     this.position = (this.position + steps) % 40;
-    // TODO: 실제 보드 위치로 스프라이트 이동
+    // TODO: 보드 타일에 맞는 좌표로 이동
     this.sprite.setPosition(this.position * 20 + 50, 50); // 임시 이동
   }
 }
