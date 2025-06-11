@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>큐트 사이버펑크 타자</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #phaser-game-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+        /* ★★★ 입력창 스타일 추가 ★★★ */
+        #typing-input {
+            background-color: rgba(0, 0, 0, 0.5); /* 반투명 검정 배경 */
+            border: 2px solid #00FFFF; /* 네온 시안색 테두리 */
+            color: #FFFFFF; /* 흰색 텍스트 */
+            text-align: center;
+            outline: none; /* 기본 포커스 테두리 제거 */
+            box-shadow: 0 0 15px #00FFFF; /* 네온 글로우 효과 */
+            font-family: sans-serif;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="phaser-game-container"></div>
+    <script src="{% static 'minigame/js/bundles/typing_game.bundle.js' %}"></script>
+</body>
+</html>

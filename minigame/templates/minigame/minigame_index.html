@@ -11,10 +11,13 @@
     .game-list { display: flex; flex-wrap: wrap; gap: 1.8em; justify-content: center; }
     .game-item { width: 220px; border-radius: 1em; background: #f8f9fa; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 1.5em; text-align: center; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; display: flex; flex-direction: column; justify-content: space-between; }
     .game-item:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
+    /* 이모티콘과 제목이 잘 어울리도록 수정 */
     .game-title { font-weight: 700; color: #007bff; font-size: 1.2em; margin-bottom: 0.5em; }
     .game-description { margin: 0.7em 0 1.2em 0; color: #6c757d; font-size: 0.9em; min-height: 3em; flex-grow: 1; }
     .game-actions { margin-top: 1em; display: flex; flex-direction: column; gap: 0.5em; }
     .play-btn { display: block; width: 100%; padding: 0.6em 1em; border-radius: 0.7em; border: none; cursor: pointer; font-weight: bold; transition: background-color 0.2s; font-size: 0.9em; }
+    /* a 태그 버튼의 밑줄 제거 */
+    a.play-btn { text-decoration: none; }
     .play-btn-single { background: #28a745; color: #fff; }
     .play-btn-single:hover { background: #218838; }
     .play-btn-multi { background: #007bff; color: #fff; }
@@ -32,52 +35,52 @@
             {% for g in games %}
             <div class="game-item">
                 <div>
-                    <div class="game-title">{{ g.name }}</div>
+                    {# 수정: 게임 제목 앞에 이모티콘 추가 #}
+                    <div class="game-title">{{ g.emoji }} {{ g.name }}</div>
                     <div class="game-description">{{ g.desc }}</div>
                 </div>
                 
                 <div class="game-actions">
+                    {# 수정: 모든 게임 실행을 새 창에서 열리도록 target="_blank" 추가 #}
                     {% if g.key == "eat_food" %}
-                        <form method="get" action="{% url 'minigame:play_eat_food' %}" style="margin:0;">
+                        <form method="get" action="{% url 'minigame:play_game' game_key='eat_food' %}" target="_blank" style="margin:0;">
                             <input type="hidden" name="mode" value="single">
                             <button type="submit" class="play-btn play-btn-single">싱글플레이</button>
                         </form>
-                        <form method="get" action="{% url 'minigame:play_eat_food' %}" style="margin:0;">
+                        <form method="get" action="{% url 'minigame:play_game' game_key='eat_food' %}" target="_blank" style="margin:0;">
                             <input type="hidden" name="mode" value="multi">
                             <input type="hidden" name="room_id" value="testroom1">
                             <button type="submit" class="play-btn play-btn-multi">멀티플레이 (Test Room)</button>
                         </form>
-                    {% elif g.key == "piano" %}
-                        <form method="get" action="{% url 'minigame:play_game' game_key='piano' %}" style="margin:0;">
-                            <button type="submit" class="play-btn play-btn-single">피아노 연주</button>
-                        </form>
+
                     {% elif g.key == "fishing" %}
-                        <form method="get" action="{% url 'minigame:play_game' game_key='fishing' %}" style="margin:0;">
+                        <form method="get" action="{% url 'minigame:play_game' game_key='fishing' %}" target="_blank" style="margin:0;">
                             <input type="hidden" name="mode" value="single">
                             <button type="submit" class="play-btn play-btn-single">낚시 시작</button>
                         </form>
-                        <form method="get" action="{% url 'minigame:play_game' game_key='fishing' %}" style="margin:0;">
-                            <input type="hidden" name="mode" value="multi">
-                            <button type="submit" class="play-btn play-btn-multi">멀티플레이 (준비중)</button>
-                        </form>
-                    {% elif g.key == "number_shooter" %}
-                        <form method="get" action="{% url 'minigame:play_game' game_key='number_shooter' %}" style="margin:0;">
-                            <button type="submit" class="play-btn play-btn-single">넘버슈터 플레이</button>
-                        </form>
-                    {% elif g.key %} {# This is a general fallback, ensure it's the last elif/else for keys #}
-                        <form method="get" action="{% url 'minigame:play_game' game_key=g.key %}" style="margin:0;">
-                            <button type="submit" class="play-btn play-btn-single">게임 시작</button>
-                        </form>
-                    {% else %} {# This else handles cases where g.key might be empty or not match any above #}
+                        <button type="button" class="play-btn play-btn-disabled" disabled>멀티플레이 (준비중)</button>
+                    
+                    {# 추가: 타자 게임을 위한 별도 블록 #}
+                    {% elif g.key == "typing_game" %}
+                        <a href="{% url 'minigame:play_game' game_key=g.key %}" target="_blank" rel="noopener noreferrer" class="play-btn play-btn-single">
+                            사이버펑크 타자 시작
+                        </a>
+
+                    {% elif g.key %} {# 나머지 게임들을 위한 일반적인 처리 (a 태그로 변경) #}
+                        <a href="{% url 'minigame:play_game' game_key=g.key %}" target="_blank" rel="noopener noreferrer" class="play-btn play-btn-single">
+                            게임 시작
+                        </a>
+
+                    {% else %}
                         <button type="button" class="play-btn play-btn-disabled" disabled>준비 중</button>
-                    {% endif %} {# This endif closes the if/elif/else block for game keys #}
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %} {# This endfor closes the 'for g in games' loop #}
+            {% endfor %}
         </div>
     {% else %}
         <p class="text-center">플레이할 수 있는 미니게임이 아직 없습니다.</p>
-    {% endif %} {# This endif closes the 'if games' block #}
+    {% endif %}
 </div>
 {% endblock %}
 

@@ -1,19 +1,119 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>관리자 대시보드</title>
-    <style>
-        body { font-family: 'Noto Sans KR', sans-serif; background: #e7f0fa; text-align: center; }
-        .dash { margin-top: 10vh; padding: 2em; background: #ffffff; border-radius: 2em; box-shadow: 2px 2px 12px #b6cee2; display: inline-block; }
-        h2 { color: #4970c4; }
-    </style>
-</head>
-<body>
-    <div class="dash">
-        <h2>👑 관리자 대시보드</h2>
-        <p>여기서 학생 관리, 트로피, 문제은행, 통계, 샵 등 모든 관리 기능을 연결할 수 있습니다.</p>
-        <a href="/">로그아웃</a>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}관리자 학습 대시보드{% endblock %}
+
+{% block extra_head %}
+    <!-- 관리자 전용 CSS 필요하면 여기에 -->
+{% endblock %}
+
+{% block content %}
+<div class="dashboard admin-dashboard">
+    <div class="header" style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:2em; font-weight:bold;">
+            <i class="fa-solid fa-user-shield"></i> 관리자 대시보드
+        </div>
+        <div>
+            <a href="http://192.168.31.199:8000/admin/" 
+                class="btn btn-dark"
+                style="margin-right: 8px; font-weight:bold; border-radius:6px; padding:7px 18px; font-size:1em;">
+                <i class="fa-solid fa-gears"></i> 어드민 관리 바로가기
+            </a>
+            <a href="http://192.168.31.199:8000/quiz/admin-bulk-upload/"
+                class="btn btn-warning"
+                style="font-weight:bold; border-radius:6px; padding:7px 18px; font-size:1em;">
+                <i class="fa-solid fa-upload"></i> 문제 일괄 업로드
+            </a>
+        </div>
     </div>
-</body>
-</html>
+    
+    <div class="summary-box" style="margin-top:24px;">
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-users"></i> 총 학생 수</div>
+            <div class="info-value">{{ student_count|default:"0" }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-list-check"></i> 오늘 출석 학생 수</div>
+            <div class="info-value">{{ attended_today_count|default:"0" }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-title"><i class="fa-solid fa-clipboard-question"></i> 오늘 문제 풀이 학생 수</div>
+            <div class="info-value">{{ quiz_today_count|default:"0" }}</div>
+        </div>
+    </div>
+    
+    <div class="report-area" style="margin-top: 32px;">
+        <div class="calendar-box" style="margin-bottom: 32px;">
+            <div class="calendar-title" style="font-size:1.1em; font-weight:600;">
+                <i class="fa-solid fa-calendar-days"></i> 학생별 출석 요약
+            </div>
+            <table class="table" style="width:100%; margin-top:10px;">
+                <thead>
+                    <tr>
+                        <th>이름</th>
+                        <th>닉네임</th>
+                        <th>총 출석일</th>
+                        <th>연속 출석</th>
+                        <th>오늘 출석</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in student_attendance_list %}
+                    <tr>
+                        <td>{{ s.name }}</td>
+                        <td>{{ s.nickname }}</td>
+                        <td>{{ s.total_attendance }}</td>
+                        <td>{{ s.consecutive_attendance }}</td>
+                        <td>
+                            {% if s.is_attended_today %}
+                                <i class="fa-solid fa-circle-check" style="color:#28a745;"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-xmark" style="color:#dc3545;"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" style="text-align:center;">학생 데이터가 없습니다.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="quiz-box">
+            <div class="quiz-title" style="font-size:1.1em; font-weight:600;">
+                <i class="fa-solid fa-chart-line"></i> 학생별 문제 풀이 진행도
+            </div>
+            <table class="table" style="width:100%; margin-top:10px;">
+                <thead>
+                    <tr>
+                        <th>이름</th>
+                        <th>닉네임</th>
+                        <th>총 문제 풀이</th>
+                        <th>정답률</th>
+                        <th>오늘 문제 풀이</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in student_quiz_list %}
+                    <tr>
+                        <td>{{ s.name }}</td>
+                        <td>{{ s.nickname }}</td>
+                        <td>{{ s.total_quiz }}</td>
+                        <td>{{ s.accuracy|floatformat:1 }}%</td>
+                        <td>
+                            {% if s.solved_today %}
+                                <i class="fa-solid fa-check" style="color:#28a745;"></i>
+                            {% else %}
+                                <i class="fa-solid fa-minus" style="color:#999;"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" style="text-align:center;">학생 데이터가 없습니다.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
